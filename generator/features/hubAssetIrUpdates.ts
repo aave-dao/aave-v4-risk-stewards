@@ -23,7 +23,8 @@ async function fetchIrFields() {
 
 export const hubAssetIrUpdates: FeatureModule<HubAssetIrUpdate[]> = {
   value: FEATURE.HUB_ASSET_IR_UPDATE,
-  description: 'HubAssetIRUpdates (optimalUsageRatio, baseDrawnRate, rateGrowthBeforeOptimal, rateGrowthAfterOptimal)',
+  description:
+    'HubAssetIRUpdates (optimalUsageRatio, baseDrawnRate, rateGrowthBeforeOptimal, rateGrowthAfterOptimal)',
   async cli({chain}) {
     console.log(`Fetching information for HubAssetIRUpdates on ${chain}`);
     const hubs = await hubsSelectPrompt({chain, message: 'Hubs'});
@@ -61,7 +62,7 @@ export const hubAssetIrUpdates: FeatureModule<HubAssetIrUpdate[]> = {
                 rateGrowthAfterOptimal: ${translateJsPercentToSol(c.rateGrowthAfterOptimal, 'KEEP_CURRENT_UINT32')}
               }),
               reinvestmentController: EngineFlags.KEEP_CURRENT_ADDRESS
-            });`
+            });`,
               )
               .join('\n')}
           }`,

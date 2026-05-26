@@ -3,9 +3,10 @@ import {GenericPrompt} from './types';
 import {advancedInput} from './advancedInput';
 import {flagAsRequired} from '../common';
 
-export async function addressPrompt<T extends boolean>(
-  {message, required}: GenericPrompt<T>
-): Promise<T extends true ? Hex : Hex | ''> {
+export async function addressPrompt<T extends boolean>({
+  message,
+  required,
+}: GenericPrompt<T>): Promise<T extends true ? Hex : Hex | ''> {
   const value = await advancedInput({
     message: flagAsRequired(message, required),
     validate: (v) => (required ? isAddress(v) : isAddress(v) || v === ''),

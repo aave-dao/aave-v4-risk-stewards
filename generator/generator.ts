@@ -15,33 +15,27 @@ import {ChainConfigs, ChainIdentifier, Files, Options} from './types';
 // formatting separately and loads the regular `dist/index.js` correctly.
 const rawCfg = JSON.parse(fs.readFileSync('.prettierrc', 'utf8'));
 const tsOverride = (rawCfg.overrides ?? []).find((o: {files: string}) =>
-  String(o.files).includes('ts')
+  String(o.files).includes('ts'),
 );
 const prettierTsCfg = {...(tsOverride?.options ?? {}), parser: 'typescript' as const};
 
 /**
  * Generates the file contents for the per-chain payloads and the config snapshot.
  */
-export async function generateFiles(
-  options: Options,
-  chainConfigs: ChainConfigs
-): Promise<Files> {
+export async function generateFiles(options: Options, chainConfigs: ChainConfigs): Promise<Files> {
   const jsonConfig = await prettier.format(
     `import {ConfigFile} from '../../../generator/types';
     export const config: ConfigFile = ${JSON.stringify({
       rootOptions: options,
-      chainOptions: (Object.keys(chainConfigs) as ChainIdentifier[]).reduce(
-        (acc, chain) => {
-          acc[chain] = {
-            configs: chainConfigs[chain]!.configs,
-            cache: chainConfigs[chain]!.cache,
-          };
-          return acc;
-        },
-        {} as ChainConfigs
-      ),
+      chainOptions: (Object.keys(chainConfigs) as ChainIdentifier[]).reduce((acc, chain) => {
+        acc[chain] = {
+          configs: chainConfigs[chain]!.configs,
+          cache: chainConfigs[chain]!.cache,
+        };
+        return acc;
+      }, {} as ChainConfigs),
     })}`,
-    prettierTsCfg
+    prettierTsCfg,
   );
 
   function createPayload(opt: Options, chain: ChainIdentifier) {
@@ -98,8 +92,11 @@ export async function writeFiles(options: Options, {jsonConfig, payloads}: Files
   }
 
   if (solidityPaths.length > 0) {
-    execSync(`pnpm exec prettier --write ${solidityPaths.map((p) => JSON.stringify(p)).join(' ')}`, {
-      stdio: 'inherit',
-    });
+    execSync(
+      `pnpm exec prettier --write ${solidityPaths.map((p) => JSON.stringify(p)).join(' ')}`,
+      {
+        stdio: 'inherit',
+      },
+    );
   }
 }

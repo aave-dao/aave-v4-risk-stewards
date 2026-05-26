@@ -5,8 +5,8 @@
   "scripts": {
     "generate": "tsx generator/cli",
     "test": "vitest generator",
-    "lint": "prettier ./",
-    "lint:fix": "pnpm run lint -- --write"
+    "lint": "prettier . --check",
+    "lint:fix": "prettier . --write"
   },
   "devDependencies": {
     "@aave-dao/aave-address-book": "^4.52.3",

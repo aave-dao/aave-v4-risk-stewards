@@ -40,7 +40,7 @@ export const dynamicReserveConfigUpdates: FeatureModule<DynamicReserveConfigUpda
               asset,
               dynamicConfigKey: await numberPrompt(
                 {message: `dynamicConfigKey for ${asset} (e.g. 0)`, required: true},
-                {}
+                {},
               ),
               collateralFactor: await percentPrompt({
                 message: 'collateralFactor (BPS, blank to keep)',
@@ -77,7 +77,7 @@ export const dynamicReserveConfigUpdates: FeatureModule<DynamicReserveConfigUpda
               collateralFactor: ${translateJsPercentToSol(c.collateralFactor)},
               maxLiquidationBonus: ${translateJsPercentToSol(c.maxLiquidationBonus)},
               liquidationFee: EngineFlags.KEEP_CURRENT
-            });`
+            });`,
               )
               .join('\n')}
           }`,

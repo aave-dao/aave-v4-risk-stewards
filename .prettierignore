@@ -8,3 +8,6 @@ src/dependencies
 tests/mocks/JsonBindings.sol
 tests/misc/prototype
 tmp-for-ref/
+pnpm-lock.yaml
+yarn.lock
+package-lock.json

@@ -75,7 +75,7 @@ async function fetchChainOptions(chain: ChainIdentifier) {
     const cfg = await module.cli({options, chain, cache: chainConfigs[chain]!.cache});
     (chainConfigs[chain]!.configs as Record<FEATURE, unknown>)[feature] = cfg;
     chainConfigs[chain]!.artifacts.push(
-      module.build({options, chain, cache: chainConfigs[chain]!.cache, cfg: cfg as any})
+      module.build({options, chain, cache: chainConfigs[chain]!.cache, cfg: cfg as any}),
     );
   }
 }
@@ -97,7 +97,7 @@ if (options.configFile) {
             chain,
             cache: chainConfigs[chain]!.cache,
             cfg: (chainConfigs[chain]!.configs as any)[feature],
-          })
+          }),
         );
       }
     } else {
@@ -113,8 +113,7 @@ if (options.configFile) {
 
   if (!options.title) {
     options.title = await input({
-      message:
-        'Short title of your steward update — used as the contract name (no author or date)',
+      message: 'Short title of your steward update — used as the contract name (no author or date)',
       validate(input) {
         if (input.length == 0) return "Your title can't be empty";
         if (input.trim().length > 80) return 'Your title is too long';

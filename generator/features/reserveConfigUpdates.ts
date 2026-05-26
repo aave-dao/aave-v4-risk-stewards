@@ -59,7 +59,7 @@ export const reserveConfigUpdates: FeatureModule<ReserveConfigUpdate[]> = {
               frozen: EngineFlags.KEEP_CURRENT,
               borrowable: EngineFlags.KEEP_CURRENT,
               receiveSharesEnabled: EngineFlags.KEEP_CURRENT
-            });`
+            });`,
               )
               .join('\n')}
           }`,

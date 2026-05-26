@@ -12,7 +12,11 @@ import {dynamicReserveConfigUpdates} from './features/dynamicReserveConfigUpdate
 import {dynamicReserveConfigAdditions} from './features/dynamicReserveConfigAdditions';
 import {spokeLiquidationConfigUpdates} from './features/spokeLiquidationConfigUpdates';
 import {ChainConfigs, ChainIdentifier, FEATURE, Options} from './types';
-import {translateHubToHubLib, translateSpokeToSpokeLib, translateAssetToAssetLibUnderlying} from './prompts/assetsSelectPrompt';
+import {
+  translateHubToHubLib,
+  translateSpokeToSpokeLib,
+  translateAssetToAssetLibUnderlying,
+} from './prompts/assetsSelectPrompt';
 
 const CHAIN: ChainIdentifier = 'AaveV4Ethereum';
 
@@ -69,14 +73,12 @@ describe('generator e2e', () => {
     });
 
     it('translateSpokeToSpokeLib emits AaveV4EthereumSpokes.<SPOKE>', () => {
-      expect(translateSpokeToSpokeLib('MAIN_SPOKE', CHAIN)).toBe(
-        'AaveV4EthereumSpokes.MAIN_SPOKE'
-      );
+      expect(translateSpokeToSpokeLib('MAIN_SPOKE', CHAIN)).toBe('AaveV4EthereumSpokes.MAIN_SPOKE');
     });
 
     it('translateAssetToAssetLibUnderlying appends _UNDERLYING', () => {
       expect(translateAssetToAssetLibUnderlying('WETH', CHAIN)).toBe(
-        'AaveV4EthereumAssets.WETH_UNDERLYING'
+        'AaveV4EthereumAssets.WETH_UNDERLYING',
       );
     });
   });
@@ -218,7 +220,7 @@ describe('generator e2e', () => {
     // The generated file path mirrors writeFiles' folder layout.
     const payloadFile = path.join(
       E2E_FOLDER,
-      `${OPTIONS.chains[0]}_${OPTIONS.shortName}_${OPTIONS.date}.sol`
+      `${OPTIONS.chains[0]}_${OPTIONS.shortName}_${OPTIONS.date}.sol`,
     );
     expect(fs.existsSync(payloadFile)).toBe(true);
 
@@ -256,7 +258,7 @@ describe('generator e2e', () => {
       execSync('forge build', {
         cwd: process.cwd(),
         stdio: 'pipe',
-      })
+      }),
     ).not.toThrow();
   }, 180_000);
 });

@@ -63,7 +63,7 @@ export const hubSpokeCapsUpdates: FeatureModule<HubSpokeCapsUpdate[]> = {
               riskPremiumThreshold: EngineFlags.KEEP_CURRENT,
               active: EngineFlags.KEEP_CURRENT,
               halted: EngineFlags.KEEP_CURRENT
-            });`
+            });`,
               )
               .join('\n')}
           }`,

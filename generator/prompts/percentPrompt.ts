@@ -11,16 +11,17 @@ export function transformNumberToPercent(value: string) {
   if (value && isNumber(value)) {
     return (
       new Intl.NumberFormat('en-us', {maximumFractionDigits: 2}).format(
-        value as unknown as number
+        value as unknown as number,
       ) + ' %'
     );
   }
   return value;
 }
 
-export async function percentPrompt<T extends boolean>(
-  {message, required}: GenericPrompt<T>
-): Promise<string> {
+export async function percentPrompt<T extends boolean>({
+  message,
+  required,
+}: GenericPrompt<T>): Promise<string> {
   return await advancedInput({
     message,
     transformer: transformNumberToPercent,
@@ -37,7 +38,11 @@ export async function percentPrompt<T extends boolean>(
 /// the requested KEEP_CURRENT sentinel — uint256 sentinel by default.
 export function translateJsPercentToSol(
   value?: string,
-  sentinel: 'KEEP_CURRENT' | 'KEEP_CURRENT_UINT16' | 'KEEP_CURRENT_UINT32' | 'KEEP_CURRENT_UINT64' = 'KEEP_CURRENT'
+  sentinel:
+    | 'KEEP_CURRENT'
+    | 'KEEP_CURRENT_UINT16'
+    | 'KEEP_CURRENT_UINT32'
+    | 'KEEP_CURRENT_UINT64' = 'KEEP_CURRENT',
 ) {
   if (!value) return `EngineFlags.${sentinel}`;
   const formattedValue = new Intl.NumberFormat('en-us', {

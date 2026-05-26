@@ -16,7 +16,7 @@ export function transformNumberToHumanReadable(value: string) {
 
 export async function numberPrompt(
   {message, required}: GenericPrompt,
-  opts?: {skipTransform?: boolean}
+  opts?: {skipTransform?: boolean},
 ) {
   return await advancedInput({
     message,
@@ -40,7 +40,7 @@ export function translateJsNumberToSol(value?: string) {
 
 export function translateJsNumberToSolWidth(
   value: string | undefined,
-  sentinel: 'KEEP_CURRENT' | 'KEEP_CURRENT_UINT16' | 'KEEP_CURRENT_UINT32' | 'KEEP_CURRENT_UINT64'
+  sentinel: 'KEEP_CURRENT' | 'KEEP_CURRENT_UINT16' | 'KEEP_CURRENT_UINT32' | 'KEEP_CURRENT_UINT64',
 ) {
   if (!value) return `EngineFlags.${sentinel}`;
   return String(value).replace(/\B(?=(\d{3})+(?!\d))/g, '_');

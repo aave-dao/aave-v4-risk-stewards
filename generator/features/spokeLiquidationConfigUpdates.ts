@@ -18,11 +18,11 @@ export const spokeLiquidationConfigUpdates: FeatureModule<SpokeLiquidationConfig
         spoke,
         targetHealthFactor: await numberPrompt(
           {message: `targetHealthFactor for ${spoke} (WAD, blank to keep)`},
-          {}
+          {},
         ),
         healthFactorForMaxBonus: await numberPrompt(
           {message: `healthFactorForMaxBonus for ${spoke} (WAD, blank to keep)`},
-          {}
+          {},
         ),
         liquidationBonusFactor: await percentPrompt({
           message: `liquidationBonusFactor for ${spoke} (BPS, blank to keep)`,
@@ -46,7 +46,7 @@ export const spokeLiquidationConfigUpdates: FeatureModule<SpokeLiquidationConfig
               targetHealthFactor: ${translateJsNumberToSol(c.targetHealthFactor)},
               healthFactorForMaxBonus: ${translateJsNumberToSol(c.healthFactorForMaxBonus)},
               liquidationBonusFactor: ${translateJsPercentToSol(c.liquidationBonusFactor)}
-            });`
+            });`,
               )
               .join('\n')}
           }`,

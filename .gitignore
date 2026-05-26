@@ -25,3 +25,5 @@ lcov*
 report/
 
 todos
+
+tmp-for-ref/

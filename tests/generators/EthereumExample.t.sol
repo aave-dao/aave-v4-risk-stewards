@@ -226,11 +226,7 @@ contract EthereumExampleTest is Test {
       0,
       'rateGrowthBeforeOptimal left at sentinel'
     );
-    assertEq(
-      hubAssetDebounce.rateGrowthAfterOptimal,
-      0,
-      'rateGrowthAfterOptimal left at sentinel'
-    );
+    assertEq(hubAssetDebounce.rateGrowthAfterOptimal, 0, 'rateGrowthAfterOptimal left at sentinel');
 
     // Hub-spoke caps: both addCap and drawCap touched.
     IRiskSteward.HubSpokeAssetDebounce memory capsDebounce = steward.getHubSpokeAssetDebounce(

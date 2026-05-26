@@ -70,7 +70,7 @@ export const dynamicReserveConfigAdditions: FeatureModule<DynamicReserveConfigAd
                 maxLiquidationBonus: ${translateJsPercentToSol(c.maxLiquidationBonus)},
                 liquidationFee: ${translateJsPercentToSol(c.liquidationFee)}
               })
-            });`
+            });`,
               )
               .join('\n')}
           }`,

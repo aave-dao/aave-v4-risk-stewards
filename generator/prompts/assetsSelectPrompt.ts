@@ -28,10 +28,7 @@ export async function spokeSelectPrompt({chain, message}: GenericChainPrompt): P
 }
 
 /// Multi-select variant. Returns an array of one or more hub names.
-export async function hubsSelectPrompt({
-  chain,
-  message,
-}: GenericChainPrompt): Promise<string[]> {
+export async function hubsSelectPrompt({chain, message}: GenericChainPrompt): Promise<string[]> {
   return checkbox({
     message,
     choices: getHubs(chain).map((hub) => ({name: hub, value: hub})),
@@ -40,10 +37,7 @@ export async function hubsSelectPrompt({
 }
 
 /// Multi-select variant. Returns an array of one or more spoke names.
-export async function spokesSelectPrompt({
-  chain,
-  message,
-}: GenericChainPrompt): Promise<string[]> {
+export async function spokesSelectPrompt({chain, message}: GenericChainPrompt): Promise<string[]> {
   return checkbox({
     message,
     choices: getSpokes(chain).map((spoke) => ({name: spoke, value: spoke})),
