@@ -99,9 +99,9 @@ Specific entities can be restricted on the RiskSteward by calling the owner meth
 ## Setup
 
 ```sh
-cp .env.example .env
 pnpm install
 forge install
+pnpm prepare
 ```
 
 <br>
@@ -119,8 +119,6 @@ forge test
 ```sh
 make coverage
 ```
-
-The current coverage of `src/RiskSteward.sol` is **100%** (lines + functions). The lcov-derived HTML report is written to [./report/](./report/).
 
 <br>
 
