@@ -37,9 +37,6 @@ jobs:
         uses: bgd-labs/github-workflows/.github/actions/foundry-size@main
         continue-on-error: true
 
-      - name: Run Gas report
-        uses: bgd-labs/github-workflows/.github/actions/foundry-gas-report@main
-
       - name: Run Forge tests
         uses: bgd-labs/github-workflows/.github/actions/foundry-test@main
 

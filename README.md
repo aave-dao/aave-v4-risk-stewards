@@ -2,15 +2,16 @@
 
 A single `RiskSteward` contract lets risk service providers push hardly-constrained risk parameter updates across every hub and spoke of the v4 hub/spoke deployment, reducing governance overhead.
 
-[![Coverage badge](./report/coverage.svg)](./report/index.html)
-
 <br>
 
 ## Specification
 
-The `RiskSteward` is a smart contract to which the Aave Governance grants the relevant `AccessManager` roles on the `HubConfigurator` and `SpokeConfigurator`. It is controlled by a 2-of-2 multi-sig and is heavily constrained on what it can do and how by its own logic.
+The `RiskSteward` is a smart contract to which the Aave Governance grants the relevant `AccessManager` roles on the `HubConfigurator` and `SpokeConfigurator`. Specifically, the steward needs:
 
-A single steward instance manages **many** hubs and **many** spokes of the v4 hub/spoke deployment. The owner registers each hub and spoke individually with its own `RiskParamConfig` bounds (`minDelay` + `maxPercentChange` per param). Registering a hub is achieved by calling `setHubConfig(hub, HubConfig)`; same for spokes via `setSpokeConfig`. Removing a registration is `setHubConfig(hub, zero)` (sugar: `removeHubConfig(hub)`).
+- `Roles.HUB_CONFIGURATOR_DOMAIN_ADMIN_ROLE` — required to call all `HubConfigurator` entrypoints used by the steward (`updateInterestRateData`, `updateSpokeCaps` / `updateSpokeAddCap` / `updateSpokeDrawCap`).
+- `Roles.SPOKE_CONFIGURATOR_DOMAIN_ADMIN_ROLE` — required to call all `SpokeConfigurator` entrypoints used by the steward (`updateCollateralRisk`, `updateDynamicReserveConfig`, `addDynamicReserveConfig`, `updateLiquidationConfig` and its per-field setters).
+
+A single steward instance manages **many** hubs and **many** spokes of the v4 Hub/Spoke deployment. The owner registers each Hub and Spoke individually with its own `RiskParamConfig` bounds (`minDelay` + `maxPercentChange` + `isChangeRelative` per param; the setter enforces the expected mode per field). Registering a hub is achieved by calling `setHubConfig(hub, HubConfig)`; same for spokes via `setSpokeConfig`. Removing a registration is `setHubConfig(hub, zero)` (sugar: `removeHubConfig(hub)`).
 
 <br/>
 
