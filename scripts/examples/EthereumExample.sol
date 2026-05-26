@@ -18,21 +18,14 @@ import {RiskStewardsEthereum} from '../networks/RiskStewardsEthereum.s.sol';
 /// @title EthereumExample
 /// @author Aave Labs
 /// @notice Reference payload showing how to author updates for each of the six RiskSteward
-/// entrypoints. Each override touches a single in-scope field on a single asset and leaves all
-/// other fields at their KEEP_CURRENT sentinel so the steward can be exercised category-by-category
-/// without surprises in simulation.
+/// entrypoints.
 contract EthereumExample is RiskStewardsEthereum {
   function name() public pure override returns (string memory) {
     return 'ethereum_example';
   }
 
-  function hubAssetIrUpdates()
-    public
-    pure
-    override
-    returns (IEngine.AssetConfigUpdate[] memory updates)
-  {
-    updates = new IEngine.AssetConfigUpdate[](1);
+  function hubAssetIrUpdates() public pure override returns (IEngine.AssetConfigUpdate[] memory) {
+    IEngine.AssetConfigUpdate[] memory updates = new IEngine.AssetConfigUpdate[](2);
     updates[0] = IEngine.AssetConfigUpdate({
       hubConfigurator: AaveV4Ethereum.HUB_CONFIGURATOR,
       hub: address(AaveV4EthereumHubs.CORE_HUB),
@@ -48,15 +41,26 @@ contract EthereumExample is RiskStewardsEthereum {
       }),
       reinvestmentController: EngineFlags.KEEP_CURRENT_ADDRESS
     });
+    updates[1] = IEngine.AssetConfigUpdate({
+      hubConfigurator: AaveV4Ethereum.HUB_CONFIGURATOR,
+      hub: address(AaveV4EthereumHubs.PLUS_HUB),
+      underlying: AaveV4EthereumAssets.USDC_UNDERLYING,
+      liquidityFee: EngineFlags.KEEP_CURRENT,
+      feeReceiver: EngineFlags.KEEP_CURRENT_ADDRESS,
+      irStrategy: EngineFlags.KEEP_CURRENT_ADDRESS,
+      irData: IAssetInterestRateStrategy.InterestRateData({
+        optimalUsageRatio: 90_00,
+        baseDrawnRate: EngineFlags.KEEP_CURRENT_UINT32,
+        rateGrowthBeforeOptimal: EngineFlags.KEEP_CURRENT_UINT32,
+        rateGrowthAfterOptimal: EngineFlags.KEEP_CURRENT_UINT32
+      }),
+      reinvestmentController: EngineFlags.KEEP_CURRENT_ADDRESS
+    });
+    return updates;
   }
 
-  function hubSpokeCapsUpdates()
-    public
-    pure
-    override
-    returns (IEngine.SpokeConfigUpdate[] memory updates)
-  {
-    updates = new IEngine.SpokeConfigUpdate[](1);
+  function hubSpokeCapsUpdates() public pure override returns (IEngine.SpokeConfigUpdate[] memory) {
+    IEngine.SpokeConfigUpdate[] memory updates = new IEngine.SpokeConfigUpdate[](2);
     updates[0] = IEngine.SpokeConfigUpdate({
       hubConfigurator: AaveV4Ethereum.HUB_CONFIGURATOR,
       hub: address(AaveV4EthereumHubs.CORE_HUB),
@@ -68,15 +72,27 @@ contract EthereumExample is RiskStewardsEthereum {
       active: EngineFlags.KEEP_CURRENT,
       halted: EngineFlags.KEEP_CURRENT
     });
+    updates[1] = IEngine.SpokeConfigUpdate({
+      hubConfigurator: AaveV4Ethereum.HUB_CONFIGURATOR,
+      hub: address(AaveV4EthereumHubs.PLUS_HUB),
+      underlying: AaveV4EthereumAssets.USDC_UNDERLYING,
+      spoke: address(AaveV4EthereumSpokes.MAIN_SPOKE),
+      addCap: 50_000_000_000_000,
+      drawCap: 40_000_000_000_000,
+      riskPremiumThreshold: EngineFlags.KEEP_CURRENT,
+      active: EngineFlags.KEEP_CURRENT,
+      halted: EngineFlags.KEEP_CURRENT
+    });
+    return updates;
   }
 
   function reserveConfigUpdates()
     public
     pure
     override
-    returns (IEngine.ReserveConfigUpdate[] memory updates)
+    returns (IEngine.ReserveConfigUpdate[] memory)
   {
-    updates = new IEngine.ReserveConfigUpdate[](1);
+    IEngine.ReserveConfigUpdate[] memory updates = new IEngine.ReserveConfigUpdate[](2);
     updates[0] = IEngine.ReserveConfigUpdate({
       spokeConfigurator: AaveV4Ethereum.SPOKE_CONFIGURATOR,
       spoke: address(AaveV4EthereumSpokes.MAIN_SPOKE),
@@ -89,15 +105,30 @@ contract EthereumExample is RiskStewardsEthereum {
       borrowable: EngineFlags.KEEP_CURRENT,
       receiveSharesEnabled: EngineFlags.KEEP_CURRENT
     });
+    updates[1] = IEngine.ReserveConfigUpdate({
+      spokeConfigurator: AaveV4Ethereum.SPOKE_CONFIGURATOR,
+      spoke: address(AaveV4EthereumSpokes.LIDO_ESPOKE),
+      hub: address(AaveV4EthereumHubs.CORE_HUB),
+      underlying: AaveV4EthereumAssets.wstETH_UNDERLYING,
+      priceSource: EngineFlags.KEEP_CURRENT_ADDRESS,
+      collateralRisk: 1_800,
+      paused: EngineFlags.KEEP_CURRENT,
+      frozen: EngineFlags.KEEP_CURRENT,
+      borrowable: EngineFlags.KEEP_CURRENT,
+      receiveSharesEnabled: EngineFlags.KEEP_CURRENT
+    });
+    return updates;
   }
 
   function dynamicReserveConfigUpdates()
     public
     pure
     override
-    returns (IEngine.DynamicReserveConfigUpdate[] memory updates)
+    returns (IEngine.DynamicReserveConfigUpdate[] memory)
   {
-    updates = new IEngine.DynamicReserveConfigUpdate[](1);
+    IEngine.DynamicReserveConfigUpdate[] memory updates = new IEngine.DynamicReserveConfigUpdate[](
+      2
+    );
     updates[0] = IEngine.DynamicReserveConfigUpdate({
       spokeConfigurator: AaveV4Ethereum.SPOKE_CONFIGURATOR,
       spoke: address(AaveV4EthereumSpokes.MAIN_SPOKE),
@@ -108,15 +139,27 @@ contract EthereumExample is RiskStewardsEthereum {
       maxLiquidationBonus: EngineFlags.KEEP_CURRENT,
       liquidationFee: EngineFlags.KEEP_CURRENT
     });
+    updates[1] = IEngine.DynamicReserveConfigUpdate({
+      spokeConfigurator: AaveV4Ethereum.SPOKE_CONFIGURATOR,
+      spoke: address(AaveV4EthereumSpokes.MAIN_SPOKE),
+      hub: address(AaveV4EthereumHubs.CORE_HUB),
+      underlying: AaveV4EthereumAssets.WETH_UNDERLYING,
+      dynamicConfigKey: 1,
+      collateralFactor: 82_00,
+      maxLiquidationBonus: 6_00,
+      liquidationFee: EngineFlags.KEEP_CURRENT
+    });
+    return updates;
   }
 
   function dynamicReserveConfigAdditions()
     public
     pure
     override
-    returns (IEngine.DynamicReserveConfigAddition[] memory additions)
+    returns (IEngine.DynamicReserveConfigAddition[] memory)
   {
-    additions = new IEngine.DynamicReserveConfigAddition[](1);
+    IEngine.DynamicReserveConfigAddition[]
+      memory additions = new IEngine.DynamicReserveConfigAddition[](2);
     additions[0] = IEngine.DynamicReserveConfigAddition({
       spokeConfigurator: AaveV4Ethereum.SPOKE_CONFIGURATOR,
       spoke: address(AaveV4EthereumSpokes.MAIN_SPOKE),
@@ -128,15 +171,27 @@ contract EthereumExample is RiskStewardsEthereum {
         liquidationFee: 10_00
       })
     });
+    additions[1] = IEngine.DynamicReserveConfigAddition({
+      spokeConfigurator: AaveV4Ethereum.SPOKE_CONFIGURATOR,
+      spoke: address(AaveV4EthereumSpokes.LIDO_ESPOKE),
+      hub: address(AaveV4EthereumHubs.CORE_HUB),
+      underlying: AaveV4EthereumAssets.wstETH_UNDERLYING,
+      dynamicConfig: ISpoke.DynamicReserveConfig({
+        collateralFactor: 80_00,
+        maxLiquidationBonus: 6_00,
+        liquidationFee: 10_00
+      })
+    });
+    return additions;
   }
 
   function spokeLiquidationConfigUpdates()
     public
     pure
     override
-    returns (IEngine.LiquidationConfigUpdate[] memory updates)
+    returns (IEngine.LiquidationConfigUpdate[] memory)
   {
-    updates = new IEngine.LiquidationConfigUpdate[](1);
+    IEngine.LiquidationConfigUpdate[] memory updates = new IEngine.LiquidationConfigUpdate[](2);
     updates[0] = IEngine.LiquidationConfigUpdate({
       spokeConfigurator: AaveV4Ethereum.SPOKE_CONFIGURATOR,
       spoke: address(AaveV4EthereumSpokes.MAIN_SPOKE),
@@ -144,5 +199,13 @@ contract EthereumExample is RiskStewardsEthereum {
       healthFactorForMaxBonus: EngineFlags.KEEP_CURRENT,
       liquidationBonusFactor: EngineFlags.KEEP_CURRENT
     });
+    updates[1] = IEngine.LiquidationConfigUpdate({
+      spokeConfigurator: AaveV4Ethereum.SPOKE_CONFIGURATOR,
+      spoke: address(AaveV4EthereumSpokes.LIDO_ESPOKE),
+      targetHealthFactor: EngineFlags.KEEP_CURRENT,
+      healthFactorForMaxBonus: 1.01e18,
+      liquidationBonusFactor: 5_00
+    });
+    return updates;
   }
 }
