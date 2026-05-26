@@ -1,0 +1,20 @@
+README.md
+  h_739c25e72c37fb 104
+package.json
+  h_739c25e72c37fb 9-10,12-17,28,35-37
+.husky/pre-commit
+  h_739c25e72c37fb 1
+.husky/.gitignore
+  h_739c25e72c37fb 1
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.2",
+  "base_commit_sha": "379d40050dff814d4d49f0ef85a34e4ac284b9e7",
+  "prompts": {},
+  "humans": {
+    "h_739c25e72c37fb": {
+      "author": "DhairyaSethi <55102840+DhairyaSethi@users.noreply.github.com>"
+    }
+  }
+}
