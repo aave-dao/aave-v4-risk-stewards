@@ -198,11 +198,10 @@ contract EthereumExampleTest is Test {
   }
 
   function test_run_executesAllCategoriesAndBumpsDebounces() public {
-    payload.run({broadcastToSafe: false, generateDiffReport: false, skipTimelock: true});
+    payload.run({broadcastToSafe: false, generateDiffReport: true, skipTimelock: true});
 
     uint40 expectedTimestamp = vm.getBlockTimestamp().toUint40();
 
-    // Hub asset IR: only baseDrawnRate changed.
     IRiskSteward.HubAssetDebounce memory hubAssetDebounce = steward.getHubAssetDebounce(
       address(HUB),
       ASSET

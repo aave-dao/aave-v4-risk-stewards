@@ -110,8 +110,8 @@ abstract contract RiskStewardsBase is ProtocolV4TestBase {
     bytes[] memory callDatas = new bytes[](MAX_TX);
     uint8 txCount;
 
-    string memory pre = string.concat('pre_', name());
-    string memory post = string.concat('post_', name());
+    string memory pre = string.concat(name(), '_before');
+    string memory post = string.concat(name(), '_after');
 
     IEngine.AssetConfigUpdate[] memory irUpdates = hubAssetIrUpdates();
     IEngine.SpokeConfigUpdate[] memory capUpdates = hubSpokeCapsUpdates();
@@ -125,6 +125,7 @@ abstract contract RiskStewardsBase is ProtocolV4TestBase {
     }
 
     if (generateDiffReport) {
+      vm.createDir('./reports', true);
       Types.V4Snapshot memory snapBefore = createV4Snapshot(_spokes, _hubs);
       writeV4SnapshotJson(pre, snapBefore);
     }
@@ -174,13 +175,37 @@ abstract contract RiskStewardsBase is ProtocolV4TestBase {
     if (generateDiffReport) {
       Types.V4Snapshot memory snapAfter = createV4Snapshot(_spokes, _hubs);
       writeV4SnapshotJson(post, snapAfter);
-      diffV4Snapshots(name());
+      _diffV4Snapshots(name());
     }
 
     assembly {
       mstore(callDatas, txCount)
     }
     return callDatas;
+  }
+
+  function _diffV4Snapshots(string memory reportName) internal {
+    string memory beforePath = string.concat('./reports/', reportName, '_before.json');
+    string memory afterPath = string.concat('./reports/', reportName, '_after.json');
+    string memory outPath = string.concat(
+      './diffs/',
+      reportName,
+      '_before_',
+      reportName,
+      '_after.md'
+    );
+
+    vm.createDir('./diffs', true);
+
+    string[] memory inputs = new string[](7);
+    inputs[0] = 'npx';
+    inputs[1] = '@aave-dao/aave-helpers-js@^1.2.1';
+    inputs[2] = 'diff-v4-snapshots';
+    inputs[3] = beforePath;
+    inputs[4] = afterPath;
+    inputs[5] = '-o';
+    inputs[6] = outPath;
+    vm.ffi(inputs);
   }
 
   function _sendToSafe(bytes memory callData) internal {
