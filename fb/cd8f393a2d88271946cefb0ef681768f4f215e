@@ -1,0 +1,37 @@
+tests/generators/EthereumExample.t.sol
+  s_6203dd93ad674a::t_a8b7bc20f3f137 292-297
+  h_739c25e72c37fb 45,61,65,77,86-87,96,109,126-127,139,148,156
+  s_6203dd93ad674a::t_d95d94f72b6f02 18-19
+  s_6203dd93ad674a::t_b4bc04291c5b6c 183-188
+scripts/examples/EthereumExample.sol
+  s_6203dd93ad674a::t_cc569f288cf61d 174-181
+  s_6203dd93ad674a::t_8e9d98a00a23aa 44-53
+  s_6203dd93ad674a::t_333023cd8372bc 130-131,142-149
+  s_6203dd93ad674a::t_a1281f71d4cc57 21
+  s_6203dd93ad674a::t_1b13933f9fd179 202-207
+  s_6203dd93ad674a::t_c9abdc3a18c887 108-114
+  s_6203dd93ad674a::t_9c953cce791858 75-79,81
+  s_6203dd93ad674a::t_6cfbd6f4fb6298 80
+  h_739c25e72c37fb 28,59,63,86,95,120,129,152,161-162,185,194,209
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.2",
+  "base_commit_sha": "fbcd8f393a2d88271946cefb0ef681768f4f215e",
+  "prompts": {},
+  "humans": {
+    "h_739c25e72c37fb": {
+      "author": "DhairyaSethi <55102840+DhairyaSethi@users.noreply.github.com>"
+    }
+  },
+  "sessions": {
+    "s_6203dd93ad674a": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "785522e5-6287-4cd2-b1c6-fb14ff4eea3b",
+        "model": "claude-opus-4-7"
+      },
+      "human_author": "DhairyaSethi <55102840+DhairyaSethi@users.noreply.github.com>"
+    }
+  }
+}
