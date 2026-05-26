@@ -1,0 +1,146 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`feature: hubAssetIrUpdates > should properly generate files 1`] = `
+{
+  "jsonConfig": "import {ConfigFile} from '../../../generator/types';
+export const config: ConfigFile = {
+  rootOptions: {
+    chains: ['AaveV4Ethereum'],
+    title: 'test',
+    shortName: 'Test',
+    date: '20260525',
+    author: 'test',
+    discussion: 'test',
+  },
+  chainOptions: {
+    AaveV4Ethereum: {
+      configs: {
+        HUB_ASSET_IR_UPDATE: [
+          {
+            hub: 'CORE_HUB',
+            asset: 'WETH',
+            optimalUsageRatio: '',
+            baseDrawnRate: '1',
+            rateGrowthBeforeOptimal: '',
+            rateGrowthAfterOptimal: '',
+          },
+          {
+            hub: 'PLUS_HUB',
+            asset: 'USDC',
+            optimalUsageRatio: '90',
+            baseDrawnRate: '',
+            rateGrowthBeforeOptimal: '',
+            rateGrowthAfterOptimal: '',
+          },
+        ],
+      },
+      cache: {blockNumber: 42},
+    },
+  },
+};
+",
+  "payloads": [
+    {
+      "chain": "AaveV4Ethereum",
+      "contractName": "AaveV4Ethereum_Test_20260525",
+      "payload": "// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
+
+import {AaveV4Ethereum, AaveV4EthereumAssets, AaveV4EthereumHubs} from 'aave-address-book/AaveV4Ethereum.sol';
+import {RiskStewardsEthereum} from '../../../scripts/networks/RiskStewardsEthereum.s.sol';
+import {IAaveV4ConfigEngine} from 'aave-v4/config-engine/interfaces/IAaveV4ConfigEngine.sol';
+import {EngineFlags} from 'aave-v4/config-engine/libraries/EngineFlags.sol';
+import {IAssetInterestRateStrategy} from 'aave-v4/hub/interfaces/IAssetInterestRateStrategy.sol';
+/**
+ * @title test
+ * @author test
+ * - discussion: test
+ * - deploy-command: make run-script contract=src/updates/20260525_AaveV4Ethereum_Test/AaveV4Ethereum_Test_20260525.sol:AaveV4Ethereum_Test_20260525 network=mainnet broadcast=false generate_diff=true skip_timelock=false
+ */
+contract AaveV4Ethereum_Test_20260525 is RiskStewardsEthereum {
+  function name() public pure override returns (string memory) {
+    return 'AaveV4Ethereum_Test_20260525';
+  }
+
+  function hubAssetIrUpdates() public pure override returns (IAaveV4ConfigEngine.AssetConfigUpdate[] memory updates) {
+            updates = new IAaveV4ConfigEngine.AssetConfigUpdate[](2);
+
+            updates[0] = IAaveV4ConfigEngine.AssetConfigUpdate({
+              hubConfigurator: AaveV4Ethereum.HUB_CONFIGURATOR,
+              hub: address(AaveV4EthereumHubs.CORE_HUB),
+              underlying: AaveV4EthereumAssets.WETH_UNDERLYING,
+              liquidityFee: EngineFlags.KEEP_CURRENT,
+              feeReceiver: EngineFlags.KEEP_CURRENT_ADDRESS,
+              irStrategy: EngineFlags.KEEP_CURRENT_ADDRESS,
+              irData: IAssetInterestRateStrategy.InterestRateData({
+                optimalUsageRatio: EngineFlags.KEEP_CURRENT_UINT16,
+                baseDrawnRate: 1_00,
+                rateGrowthBeforeOptimal: EngineFlags.KEEP_CURRENT_UINT32,
+                rateGrowthAfterOptimal: EngineFlags.KEEP_CURRENT_UINT32
+              }),
+              reinvestmentController: EngineFlags.KEEP_CURRENT_ADDRESS
+            });
+updates[1] = IAaveV4ConfigEngine.AssetConfigUpdate({
+              hubConfigurator: AaveV4Ethereum.HUB_CONFIGURATOR,
+              hub: address(AaveV4EthereumHubs.PLUS_HUB),
+              underlying: AaveV4EthereumAssets.USDC_UNDERLYING,
+              liquidityFee: EngineFlags.KEEP_CURRENT,
+              feeReceiver: EngineFlags.KEEP_CURRENT_ADDRESS,
+              irStrategy: EngineFlags.KEEP_CURRENT_ADDRESS,
+              irData: IAssetInterestRateStrategy.InterestRateData({
+                optimalUsageRatio: 90_00,
+                baseDrawnRate: EngineFlags.KEEP_CURRENT_UINT32,
+                rateGrowthBeforeOptimal: EngineFlags.KEEP_CURRENT_UINT32,
+                rateGrowthAfterOptimal: EngineFlags.KEEP_CURRENT_UINT32
+              }),
+              reinvestmentController: EngineFlags.KEEP_CURRENT_ADDRESS
+            });
+          }
+}",
+    },
+  ],
+}
+`;
+
+exports[`feature: hubAssetIrUpdates > should return reasonable code 1`] = `
+{
+  "code": {
+    "fn": [
+      "function hubAssetIrUpdates() public pure override returns (IAaveV4ConfigEngine.AssetConfigUpdate[] memory updates) {
+            updates = new IAaveV4ConfigEngine.AssetConfigUpdate[](2);
+
+            updates[0] = IAaveV4ConfigEngine.AssetConfigUpdate({
+              hubConfigurator: AaveV4Ethereum.HUB_CONFIGURATOR,
+              hub: address(AaveV4EthereumHubs.CORE_HUB),
+              underlying: AaveV4EthereumAssets.WETH_UNDERLYING,
+              liquidityFee: EngineFlags.KEEP_CURRENT,
+              feeReceiver: EngineFlags.KEEP_CURRENT_ADDRESS,
+              irStrategy: EngineFlags.KEEP_CURRENT_ADDRESS,
+              irData: IAssetInterestRateStrategy.InterestRateData({
+                optimalUsageRatio: EngineFlags.KEEP_CURRENT_UINT16,
+                baseDrawnRate: 1_00,
+                rateGrowthBeforeOptimal: EngineFlags.KEEP_CURRENT_UINT32,
+                rateGrowthAfterOptimal: EngineFlags.KEEP_CURRENT_UINT32
+              }),
+              reinvestmentController: EngineFlags.KEEP_CURRENT_ADDRESS
+            });
+updates[1] = IAaveV4ConfigEngine.AssetConfigUpdate({
+              hubConfigurator: AaveV4Ethereum.HUB_CONFIGURATOR,
+              hub: address(AaveV4EthereumHubs.PLUS_HUB),
+              underlying: AaveV4EthereumAssets.USDC_UNDERLYING,
+              liquidityFee: EngineFlags.KEEP_CURRENT,
+              feeReceiver: EngineFlags.KEEP_CURRENT_ADDRESS,
+              irStrategy: EngineFlags.KEEP_CURRENT_ADDRESS,
+              irData: IAssetInterestRateStrategy.InterestRateData({
+                optimalUsageRatio: 90_00,
+                baseDrawnRate: EngineFlags.KEEP_CURRENT_UINT32,
+                rateGrowthBeforeOptimal: EngineFlags.KEEP_CURRENT_UINT32,
+                rateGrowthAfterOptimal: EngineFlags.KEEP_CURRENT_UINT32
+              }),
+              reinvestmentController: EngineFlags.KEEP_CURRENT_ADDRESS
+            });
+          }",
+    ],
+  },
+}
+`;

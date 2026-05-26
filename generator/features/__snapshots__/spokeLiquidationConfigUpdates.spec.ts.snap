@@ -1,0 +1,109 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`feature: spokeLiquidationConfigUpdates > should properly generate files 1`] = `
+{
+  "jsonConfig": "import {ConfigFile} from '../../../generator/types';
+export const config: ConfigFile = {
+  rootOptions: {
+    chains: ['AaveV4Ethereum'],
+    title: 'test',
+    shortName: 'Test',
+    date: '20260525',
+    author: 'test',
+    discussion: 'test',
+  },
+  chainOptions: {
+    AaveV4Ethereum: {
+      configs: {
+        SPOKE_LIQUIDATION_CONFIG_UPDATE: [
+          {
+            spoke: 'MAIN_SPOKE',
+            targetHealthFactor: '1050000000000000000',
+            healthFactorForMaxBonus: '',
+            liquidationBonusFactor: '',
+          },
+          {
+            spoke: 'LIDO_ESPOKE',
+            targetHealthFactor: '',
+            healthFactorForMaxBonus: '1010000000000000000',
+            liquidationBonusFactor: '5',
+          },
+        ],
+      },
+      cache: {blockNumber: 42},
+    },
+  },
+};
+",
+  "payloads": [
+    {
+      "chain": "AaveV4Ethereum",
+      "contractName": "AaveV4Ethereum_Test_20260525",
+      "payload": "// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
+
+import {AaveV4Ethereum, AaveV4EthereumSpokes} from 'aave-address-book/AaveV4Ethereum.sol';
+import {RiskStewardsEthereum} from '../../../scripts/networks/RiskStewardsEthereum.s.sol';
+import {IAaveV4ConfigEngine} from 'aave-v4/config-engine/interfaces/IAaveV4ConfigEngine.sol';
+import {EngineFlags} from 'aave-v4/config-engine/libraries/EngineFlags.sol';
+/**
+ * @title test
+ * @author test
+ * - discussion: test
+ * - deploy-command: make run-script contract=src/updates/20260525_AaveV4Ethereum_Test/AaveV4Ethereum_Test_20260525.sol:AaveV4Ethereum_Test_20260525 network=mainnet broadcast=false generate_diff=true skip_timelock=false
+ */
+contract AaveV4Ethereum_Test_20260525 is RiskStewardsEthereum {
+  function name() public pure override returns (string memory) {
+    return 'AaveV4Ethereum_Test_20260525';
+  }
+
+  function spokeLiquidationConfigUpdates() public pure override returns (IAaveV4ConfigEngine.LiquidationConfigUpdate[] memory updates) {
+            updates = new IAaveV4ConfigEngine.LiquidationConfigUpdate[](2);
+
+            updates[0] = IAaveV4ConfigEngine.LiquidationConfigUpdate({
+              spokeConfigurator: AaveV4Ethereum.SPOKE_CONFIGURATOR,
+              spoke: address(AaveV4EthereumSpokes.MAIN_SPOKE),
+              targetHealthFactor: 1_050_000_000_000_000_000,
+              healthFactorForMaxBonus: EngineFlags.KEEP_CURRENT,
+              liquidationBonusFactor: EngineFlags.KEEP_CURRENT
+            });
+updates[1] = IAaveV4ConfigEngine.LiquidationConfigUpdate({
+              spokeConfigurator: AaveV4Ethereum.SPOKE_CONFIGURATOR,
+              spoke: address(AaveV4EthereumSpokes.LIDO_ESPOKE),
+              targetHealthFactor: EngineFlags.KEEP_CURRENT,
+              healthFactorForMaxBonus: 1_010_000_000_000_000_000,
+              liquidationBonusFactor: 5_00
+            });
+          }
+}",
+    },
+  ],
+}
+`;
+
+exports[`feature: spokeLiquidationConfigUpdates > should return reasonable code 1`] = `
+{
+  "code": {
+    "fn": [
+      "function spokeLiquidationConfigUpdates() public pure override returns (IAaveV4ConfigEngine.LiquidationConfigUpdate[] memory updates) {
+            updates = new IAaveV4ConfigEngine.LiquidationConfigUpdate[](2);
+
+            updates[0] = IAaveV4ConfigEngine.LiquidationConfigUpdate({
+              spokeConfigurator: AaveV4Ethereum.SPOKE_CONFIGURATOR,
+              spoke: address(AaveV4EthereumSpokes.MAIN_SPOKE),
+              targetHealthFactor: 1_050_000_000_000_000_000,
+              healthFactorForMaxBonus: EngineFlags.KEEP_CURRENT,
+              liquidationBonusFactor: EngineFlags.KEEP_CURRENT
+            });
+updates[1] = IAaveV4ConfigEngine.LiquidationConfigUpdate({
+              spokeConfigurator: AaveV4Ethereum.SPOKE_CONFIGURATOR,
+              spoke: address(AaveV4EthereumSpokes.LIDO_ESPOKE),
+              targetHealthFactor: EngineFlags.KEEP_CURRENT,
+              healthFactorForMaxBonus: 1_010_000_000_000_000_000,
+              liquidationBonusFactor: 5_00
+            });
+          }",
+    ],
+  },
+}
+`;
