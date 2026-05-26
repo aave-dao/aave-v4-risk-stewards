@@ -1,0 +1,38 @@
+tests/generators/EthereumExample.t.sol
+  h_739c25e72c37fb 201
+scripts/RiskStewardsBase.s.sol
+  s_6203dd93ad674a::t_4403be40765478 113-114
+  s_6203dd93ad674a::t_48ea49595ace72 128
+  s_6203dd93ad674a::t_c08c9e3ef13fa4 178
+  s_6203dd93ad674a::t_6493c87b3e81f7 187-201,203-210
+  h_739c25e72c37fb 202
+foundry.toml
+  s_6203dd93ad674a::t_137d32dfaabd6e 13-16
+diffs/ethereum_example_test_before_ethereum_example_test_after.md
+  s_6203dd93ad674a::t_8b4367900001eb 1-5,7-13,15-22,24-31,33-84
+reports/ethereum_example_test_after.json
+  s_6203dd93ad674a::t_8b4367900001eb 1-1225
+reports/ethereum_example_test_before.json
+  s_6203dd93ad674a::t_8b4367900001eb 1-1225
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.2",
+  "base_commit_sha": "948548219561cb5486ad491e67c0201130428e7a",
+  "prompts": {},
+  "humans": {
+    "h_739c25e72c37fb": {
+      "author": "DhairyaSethi <55102840+DhairyaSethi@users.noreply.github.com>"
+    }
+  },
+  "sessions": {
+    "s_6203dd93ad674a": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "785522e5-6287-4cd2-b1c6-fb14ff4eea3b",
+        "model": "claude-opus-4-7"
+      },
+      "human_author": "DhairyaSethi <55102840+DhairyaSethi@users.noreply.github.com>"
+    }
+  }
+}
