@@ -1,0 +1,14 @@
+.gitignore
+  h_739c25e72c37fb 26-27
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.1",
+  "base_commit_sha": "1e3ef94688d77fb0131df46f1f871e3b57ed7f6f",
+  "prompts": {},
+  "humans": {
+    "h_739c25e72c37fb": {
+      "author": "DhairyaSethi <55102840+DhairyaSethi@users.noreply.github.com>"
+    }
+  }
+}
