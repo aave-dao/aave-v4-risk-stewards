@@ -1,0 +1,26 @@
+Makefile
+  s_baca6d3c463974::t_51ffaecdeac45b 11
+  s_baca6d3c463974::t_5820afb864a0a4 46
+README.md
+  s_baca6d3c463974::t_246ea52d2f69f9 183
+scripts/examples/EthereumExample.sol
+  s_baca6d3c463974::t_8b4feceab989fb 10-12
+tests/generators/EthereumExample.t.sol
+  s_baca6d3c463974::t_296f3fecd50b16 25
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.1",
+  "base_commit_sha": "a5f47ac65b83ee368049eb1fcbed310b9fe75b43",
+  "prompts": {},
+  "sessions": {
+    "s_baca6d3c463974": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "cf105ba5-e42f-449d-ac6d-42d7d886e7d3",
+        "model": "claude-opus-4-7"
+      },
+      "human_author": "DhairyaSethi <55102840+DhairyaSethi@users.noreply.github.com>"
+    }
+  }
+}
