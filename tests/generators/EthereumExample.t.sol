@@ -15,6 +15,7 @@ import {
   AaveV4EthereumSpokes,
   AaveV4EthereumAssets
 } from 'aave-address-book/AaveV4Ethereum.sol';
+import {GovernanceV3Ethereum} from 'aave-address-book/GovernanceV3Ethereum.sol';
 import {IAccessManagerEnumerable} from 'aave-v4/access/interfaces/IAccessManagerEnumerable.sol';
 import {Roles} from 'aave-v4/deployments/utils/libraries/Roles.sol';
 
@@ -160,8 +161,8 @@ contract TestPayload is RiskStewardsBase {
 contract EthereumExampleTest is Test {
   using SafeCast for uint256;
 
-  address internal constant RISK_COUNCIL = address(0xc0c0c000);
-  address internal constant OWNER = address(0x011e7);
+  address internal immutable RISK_COUNCIL = makeAddr('RISK_COUNCIL');
+  address internal constant OWNER = GovernanceV3Ethereum.EXECUTOR_LVL_1;
 
   IHub internal constant HUB = AaveV4EthereumHubs.CORE_HUB;
   ISpoke internal constant SPOKE = AaveV4EthereumSpokes.MAIN_SPOKE;
