@@ -359,7 +359,6 @@ contract RiskSteward is Ownable2Step, IRiskSteward {
         ConfiguratorMismatch()
       );
 
-      // Refused fields: must be sentinel.
       require(updates[i].liquidityFee == EngineFlags.KEEP_CURRENT, ParamChangeNotAllowed());
       require(updates[i].feeReceiver == EngineFlags.KEEP_CURRENT_ADDRESS, ParamChangeNotAllowed());
       require(updates[i].irStrategy == EngineFlags.KEEP_CURRENT_ADDRESS, ParamChangeNotAllowed());
