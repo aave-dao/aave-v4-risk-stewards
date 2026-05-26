@@ -1,0 +1,14 @@
+tests/generators/EthereumExample.t.sol
+  h_739c25e72c37fb 18,164-165
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.2",
+  "base_commit_sha": "cbee222cecd1a5e39c20042112fd0e9a6d9ad302",
+  "prompts": {},
+  "humans": {
+    "h_739c25e72c37fb": {
+      "author": "DhairyaSethi <55102840+DhairyaSethi@users.noreply.github.com>"
+    }
+  }
+}
