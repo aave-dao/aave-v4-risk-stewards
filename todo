@@ -1,8 +1,0 @@
-- use separate risk config for add/update dynamic config
-- fix test setup to correctly auth on access manager
-- rm // ---- x ---- // comments
-- fix contracts/contracts to be just src/RiskSteward.sol, src/interfaces/IRiskSteward.sol; fix aave-v4 imports to use use aave-v4/hub/interfaces/IHub.sol
-- use MathUtils.min
-- in tests instead of \_warp, use \_toArray
-- change author to aave labs from bgd
-- order of ext/view functions on risk steward

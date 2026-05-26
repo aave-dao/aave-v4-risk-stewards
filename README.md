@@ -201,6 +201,3 @@ If you wish to not use the UI and send the update directly please put `broadcast
 ## License
 
 Copyright © 2026, Aave DAO, represented by its governance smart contracts.
-
-The [BUSL1.1](./LICENSE) license of this repository allows for any usage of the software, if respecting the Additional Use Grant limitations, forbidding any use case damaging anyhow the Aave DAO's interests.
-Interfaces and other components required for integrations are explicitly MIT licensed.
