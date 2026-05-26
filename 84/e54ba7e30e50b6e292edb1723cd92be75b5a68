@@ -1,0 +1,285 @@
+generator/features/dynamicReserveConfigAdditions.spec.ts
+  s_6203dd93ad674a::t_09ad537d146407 1-36
+generator/utils/importsResolver.ts
+  s_6203dd93ad674a::t_037fc7910ebca7 61,64,67,70
+  s_6203dd93ad674a::t_8488aad3b05225 43
+  s_6203dd93ad674a::t_707522fc7e467d 1-42,44-60,62-63,65-66,68-69,71-74
+generator/common.ts
+  s_6203dd93ad674a::t_f40f7712fd264a 1-19,25-26,29-31,34-36,39-77
+  s_6203dd93ad674a::t_dae73708c2efce 33
+  s_6203dd93ad674a::t_e8b54feecd920a 20-24,27-28,32,37-38
+generator/features/spokeLiquidationConfigUpdates.spec.ts
+  s_6203dd93ad674a::t_05228e12e14dcd 1-36
+generator/features/hubAssetIrUpdates.spec.ts
+  s_6203dd93ad674a::t_4dc89a4042bace 1-36
+generator/features/hubAssetIrUpdates.ts
+  s_6203dd93ad674a::t_d51f98314dcee0 1-3,5-28,30,38-73
+  s_6203dd93ad674a::t_f54eddf68c9e49 4
+  s_6203dd93ad674a::t_70adece76b73d1 29,31-37
+src/interfaces/IRiskSteward.sol
+  s_89613e8e40aeb7::t_f9cd74628610b5 59-63
+  s_89613e8e40aeb7::t_2f74cc83b54fd0 55-58
+  s_89613e8e40aeb7::t_1b5b9c4f619470 229
+  h_739c25e72c37fb 10-11,108
+  s_89613e8e40aeb7::t_3ede3436b357c3 102,105-107,111-112
+  s_89613e8e40aeb7::t_b8d4f575b70764 1-8,12-54,64-101,103-104,109-110,113-157,159-167,172-175,179-180,225-228,230-325,327-328,330,333,335-337,339-340,343,345-347,349-350,353,355-358,360-362,370-389
+  s_89613e8e40aeb7::t_a7ede4892fe1ce 9,158,168-171,176-178,181-224,326,329,331-332,334,338,341-342,344,348,351-352,354,359,363-369
+generator/prompts/advancedInput.ts
+  s_6203dd93ad674a::t_6831e51649347c 1-81
+Makefile
+  h_739c25e72c37fb 8-30
+  s_6203dd93ad674a::t_1a03af45c92a2d 1-7,31-47
+generator/features/hubSpokeCapsUpdates.ts
+  s_6203dd93ad674a::t_1ee077583ca737 25,27-43
+  s_6203dd93ad674a::t_2849013b38285b 4-5
+  s_6203dd93ad674a::t_9595a1ed7b0210 1-3,6-24,26,44-75
+generator/prompts/types.ts
+  s_6203dd93ad674a::t_c35baef40500ea 1-12
+tests/RiskSteward.DynamicReserveConfigs.t.sol
+  s_89613e8e40aeb7::t_3b755171774591 21-25,27,33
+  s_89613e8e40aeb7::t_9f47d676087164 46-48,55-56
+  s_89613e8e40aeb7::t_a5a0c1d4000046 49-53,70,76,78,81-82
+  s_89613e8e40aeb7::t_8be4be9ea4a263 45
+  s_89613e8e40aeb7::t_e96718e328a9ad 10-20,28-32
+  s_89613e8e40aeb7::t_e17f6e28e0c861 54,57-58,69,79-80,84-94
+  s_89613e8e40aeb7::t_917023d0e52ef8 71-75,77,83
+  h_739c25e72c37fb 67
+  s_89613e8e40aeb7::t_dd16f0ecd7892b 59-66,68
+  s_89613e8e40aeb7::t_b2c75c2601c5b3 26
+generator/features/dynamicReserveConfigAdditions.ts
+  s_6203dd93ad674a::t_ef093e37dd8029 16
+  s_6203dd93ad674a::t_574689f0614ed7 19,21-50
+  s_6203dd93ad674a::t_0f0964c22937bc 1-3,6-15,17-18,20,51-82
+  s_6203dd93ad674a::t_a94cb4b621da40 4-5
+generator/features/hubSpokeCapsUpdates.spec.ts
+  s_6203dd93ad674a::t_dbc2bce9dbb6a2 1-36
+generator/features/spokeLiquidationConfigUpdates.ts
+  s_6203dd93ad674a::t_71010e09c5184b 3
+  s_6203dd93ad674a::t_a928288aff6b34 1-2,4-12,18-19,21-23,25-27,29,33-58
+  s_6203dd93ad674a::t_f6ae495a2ff919 13-17,20,24,28,30-32
+generator/prompts/numberPrompt.ts
+  s_6203dd93ad674a::t_945eb1e8330a31 1-47
+generator/prompts/stringPrompt.ts
+  s_6203dd93ad674a::t_74949e3228ac51 1-15
+.github/workflows/test.yml
+  h_739c25e72c37fb 1-19
+tests/RiskSteward.ReserveConfigs.t.sol
+  s_89613e8e40aeb7::t_60c668f6c48e1c 21
+  s_89613e8e40aeb7::t_b2ef83e38e3851 38-39,48-49,55,61-62,65-73
+  s_89613e8e40aeb7::t_c60a789dfdb77b 22,27
+  s_89613e8e40aeb7::t_1a739bffd9d494 58,60,63
+  s_89613e8e40aeb7::t_bb686b93960c57 59,64
+  s_89613e8e40aeb7::t_740fa4f5f7b6cd 37,44-47
+  s_89613e8e40aeb7::t_a5aacf1a46efbe 50,52-54
+  s_89613e8e40aeb7::t_8152e37b9e176f 130,132-149
+  s_89613e8e40aeb7::t_d8762a985db78c 23-26
+  h_739c25e72c37fb 13,41,131
+  s_89613e8e40aeb7::t_228cb93b628b5e 12,14-20,40,42-43,51,56-57
+tests/RiskSteward.Base.t.sol
+  s_89613e8e40aeb7::t_028ba8385e8e6a 348,350
+  s_89613e8e40aeb7::t_741a37ccb9a9d2 34
+  s_89613e8e40aeb7::t_57868fd2b65194 86-167
+  h_739c25e72c37fb 18-19,401-402,411,413,420,422,429,431,439,441,449
+  s_89613e8e40aeb7::t_baa7986bdd1675 304-347,349,351-352
+  s_89613e8e40aeb7::t_8dbe5b8c926289 403-410,414-419,421,423-428,430,432-438,440,442-448
+generator/prompts.ts
+  s_6203dd93ad674a::t_aa474d49fddd0c 1-7
+generator/features/dynamicReserveConfigUpdates.ts
+  s_6203dd93ad674a::t_4a43bf8d33f136 22,24-58
+  s_6203dd93ad674a::t_37745ccb5f3736 3-5,8-17,20-21,23,59-89
+  s_6203dd93ad674a::t_a250f21499a262 18
+  s_6203dd93ad674a::t_dbae1b613956e6 1-2,6-7
+tests/RiskSteward.AccessControl.t.sol
+  s_89613e8e40aeb7::t_728e7fd8980a10 95-136
+scripts/networks/RiskStewardsEthereum.s.sol
+  s_89613e8e40aeb7::t_b23f778fc504dd 9
+  s_6203dd93ad674a::t_88d68f458810c4 1-8,10-25
+generator/prompts/addressPrompt.ts
+  s_6203dd93ad674a::t_147dd3283bffa8 1-20
+generator/prompts/assetsSelectPrompt.ts
+  s_6203dd93ad674a::t_acf72db31c038d 30-53
+  s_6203dd93ad674a::t_715453223471fa 1-29,54-67
+README.md
+  s_89613e8e40aeb7::t_fd48e9ac562e4c 35
+  s_89613e8e40aeb7::t_a026117c6ad6b7 11-13
+  s_89613e8e40aeb7::t_5dda5df192cab0 70
+  s_89613e8e40aeb7::t_a94763194899d8 72-80
+  s_89613e8e40aeb7::t_030bec548048e2 1-9,15-34,36-69,71,81-206
+generator/utils/constants.ts
+  s_6203dd93ad674a::t_03baa63ab07ebf 1-6
+todo
+  h_739c25e72c37fb 1-8
+generator/prompts/percentPrompt.ts
+  s_6203dd93ad674a::t_4cc0842a42720d 1-50
+generator/templates/proposal.template.ts
+  s_6203dd93ad674a::t_7a734b71b8013e 31
+  s_6203dd93ad674a::t_9ee656a1037120 1-30,32-44
+generator/features/reserveConfigUpdates.ts
+  s_6203dd93ad674a::t_6465442979eec6 4-5
+  s_6203dd93ad674a::t_2400d262f8f93c 18,20-38
+  s_6203dd93ad674a::t_2abdb8b3c37ac5 1-3,6-17,19,39-71
+src/RiskSteward.sol
+  s_89613e8e40aeb7::t_04dbd9c5afc368 632
+  s_89613e8e40aeb7::t_bc5c15d7d0aa9f 462-465
+  s_89613e8e40aeb7::t_7ac4ae4be5e75b 655-675
+  s_89613e8e40aeb7::t_bef168706c336d 69,76
+  s_89613e8e40aeb7::t_cfbbd8d689ef09 410-413
+  s_89613e8e40aeb7::t_0d7f1350967492 538,589
+  s_89613e8e40aeb7::t_8e8d4430b38845 553-556
+  s_89613e8e40aeb7::t_fda98ebe6b0cba 441
+  s_89613e8e40aeb7::t_9349dffc652947 648
+  s_89613e8e40aeb7::t_3048d9c18c1c5c 720-721
+  s_89613e8e40aeb7::t_9844d7a7a77544 499-502
+  s_89613e8e40aeb7::t_b1863cdca84d7e 449
+  s_89613e8e40aeb7::t_5c097b38d5146b 484
+  s_89613e8e40aeb7::t_cc9a3332430456 357-360
+  s_89613e8e40aeb7::t_a9a717e9b8f084 530,581
+  s_89613e8e40aeb7::t_9b21374570a2ca 640
+  h_739c25e72c37fb 4-5,20,24-27,59-64,122-124,131,139,147,155,163,252,270,274,282,294,301,313,324,330,336,350-351,374,434,523,574,625,654,776
+  s_89613e8e40aeb7::t_2f280544063d83 734,751,768
+  s_89613e8e40aeb7::t_e9059a1f3574bb 602-605
+  s_89613e8e40aeb7::t_0bcc63499b5a19 759
+  s_89613e8e40aeb7::t_a7ede4892fe1ce 1-3,6-19,21-23,28-58,65-68,70-75,77-121,125-129,132-138,140-146,148-154,156-162,164-251,253-269,271-273,275-281,283-293,295-300,302-312,314-323,325-329,331-335,337-349,352-356,361-373,375-409,414-433,435-440,442-448,450-461,466-483,485-498,503-522,524-529,531-537,539-552,557-573,575-580,582-588,590-601,606-624,626-631,633-639,641-647,649-653,676-719,722-733,735-750,752-758,760-767,769-775,777-787
+generator/features/dynamicReserveConfigUpdates.spec.ts
+  s_6203dd93ad674a::t_95d43241a6c7f3 1-36
+generator/features/mocks/configs.ts
+  s_6203dd93ad674a::t_04c0a17f6b60d4 20-22,32-39,49-55,66-71,81-97,111-118,127-132
+  s_6203dd93ad674a::t_4096c6a02a3f7b 1-19,23-31,40-48,56-65,72-80,98-110,119-126,133-134
+tests/generators/EthereumExample.t.sol
+  s_89613e8e40aeb7::t_8c0c8059bb2b9a 331-380
+remappings.txt
+  s_89613e8e40aeb7::t_a7b54b07ed941f 1-7
+  s_89613e8e40aeb7::t_518dfdc2e5780b 8-9
+tests/RiskSteward.AddDynamicReserveConfigs.t.sol
+  s_89613e8e40aeb7::t_25350d103336bc 48-53,56-57,68-69,75-77,81-90
+  s_89613e8e40aeb7::t_60a6bc3084676c 44
+  s_89613e8e40aeb7::t_2b7b4a4759dcba 58-60,62-65,67
+  s_89613e8e40aeb7::t_f894c7db205ddf 23-24,26-27,32-33
+  s_89613e8e40aeb7::t_2172e29573f775 70-74,79-80
+  s_89613e8e40aeb7::t_f5a4b879d4f491 31
+  s_89613e8e40aeb7::t_ad35ebff644ff5 78
+  s_89613e8e40aeb7::t_bb0d210b4bbe91 25
+  h_739c25e72c37fb 9-10,61,66
+  s_89613e8e40aeb7::t_de50d773702ee2 45-47,54-55
+tests/RiskSteward.HubAssetIRs.t.sol
+  s_89613e8e40aeb7::t_7dc51abcc8236a 102
+  s_89613e8e40aeb7::t_068a675ded21d2 215
+  s_89613e8e40aeb7::t_ea322afad0ac32 18,20-31
+  s_89613e8e40aeb7::t_d777b6c7742cfc 87-98,101
+  s_89613e8e40aeb7::t_99882ac3e6ae09 65-85
+  s_89613e8e40aeb7::t_ae5652e5247441 51,63-64,86,99-100,103-113
+  s_89613e8e40aeb7::t_5b65af98b80038 32
+  h_739c25e72c37fb 7,9,19,44,199-200,211,216,225-227,230,346
+  s_89613e8e40aeb7::t_cad99de43f607c 45-50,52-62
+tests/RiskSteward.SpokeLiquidationConfigs.t.sol
+  s_89613e8e40aeb7::t_14d5119d9edba6 43-45,50-51,54-55,58-59
+  s_89613e8e40aeb7::t_84fad49ba5e7a3 62-63,66-68,70-71,73-74,76-79
+  s_89613e8e40aeb7::t_d2daa3d54c5c65 22
+  s_89613e8e40aeb7::t_72c20a0486c4a7 72,85,87,90
+  s_89613e8e40aeb7::t_9f02388d1e46fc 17-21,23,28
+  h_739c25e72c37fb 38-41,48-49,52-53,56-57,64-65,69,75
+  s_89613e8e40aeb7::t_43ee2ebef23ea4 24-27
+  s_89613e8e40aeb7::t_8ad5709015514e 42,46-47,60-61,88-89,92-100
+  s_89613e8e40aeb7::t_8fd298e56e4e8a 80-84,86,91
+scripts/RiskStewardsBase.s.sol
+  s_6203dd93ad674a::t_54dbdbca387daa 44
+  s_6203dd93ad674a::t_918102b6a16d83 46,50,57,64,71
+  s_89613e8e40aeb7::t_55e44d8b16c432 12
+  s_6203dd93ad674a::t_4a5a9b0c49a6c7 1-3,5,8,10-11,13-43,45,47-49,51-56,58-63,65-70,72-123,125-132,134-139,141-146,148-153,155-160,162-167,169-211
+  s_89613e8e40aeb7::t_c6d918f94e44bd 9
+  h_739c25e72c37fb 124,133,140,147,154,161,168
+  s_89613e8e40aeb7::t_a7ede4892fe1ce 7
+  s_6203dd93ad674a::t_29571c1ac510ca 4,6
+generator/e2e.spec.ts
+  s_6203dd93ad674a::t_e511638056665d 90,92,94,98-101,112-119,123-127,136-153,164-171,181-186
+  s_6203dd93ad674a::t_a871f8f7908dff 29
+  s_6203dd93ad674a::t_60ad0c1b312346 1-28,30-89,91,93,95-97,102-111,120-122,128-135,154-163,172-180,187-238,252-262
+  s_6203dd93ad674a::t_394b3dd4cc20e7 239-251
+vitest.config.ts
+  s_6203dd93ad674a::t_8923705a20a040 1-8
+src/examples/EthereumExample.sol
+  s_89613e8e40aeb7::t_a7ede4892fe1ce 1-9,11,13-143
+  s_89613e8e40aeb7::t_376e9e851888fc 10,12
+package.json
+  h_739c25e72c37fb 12-25
+  s_6203dd93ad674a::t_6ec158b160751e 2-3,5,7-9
+  s_baca6d3c463974::t_0b553f2ae24e80 4
+  s_6203dd93ad674a::t_ecfea5ae973d4f 6
+  s_6203dd93ad674a::t_702b671407bf0c 10-11
+.prettierignore
+  h_739c25e72c37fb 1-10
+generator/features/reserveConfigUpdates.spec.ts
+  s_6203dd93ad674a::t_3192e74443e9fe 1-36
+tests/RiskSteward.HubSpokeCaps.t.sol
+  s_89613e8e40aeb7::t_902fcc9ccc7aad 43-44,47-48,59,71-72,75-84
+  s_89613e8e40aeb7::t_fff2d6dc7b62a5 17-23,25,30
+  s_89613e8e40aeb7::t_0ceb94f66f4e7d 61-67,69,74
+  s_89613e8e40aeb7::t_365f12e1a3ffb2 49-58
+  s_89613e8e40aeb7::t_3d830293cff46c 16,26-29
+  s_89613e8e40aeb7::t_251f1f7855bdf2 41-42,45-46
+  s_89613e8e40aeb7::t_61d2f7d194172c 24
+  s_89613e8e40aeb7::t_ae6b1bed730606 60,68,70,73
+generator/generator.ts
+  s_6203dd93ad674a::t_1ede01c4cb2343 10-12
+  s_6203dd93ad674a::t_7393c326ef7dac 93,95-103
+  s_6203dd93ad674a::t_045d556b8ca035 30
+  s_6203dd93ad674a::t_5842f6ad363048 44
+  s_6203dd93ad674a::t_bead47c8add557 47,51
+  s_6203dd93ad674a::t_1ee9064c33acc0 1-2,4-9,21-29,31-43,45-46,48-50,52-57,59-76,78-92,94,104-105
+  s_6203dd93ad674a::t_79a25aa374be92 13-20
+  s_6203dd93ad674a::t_11a8b850735531 58
+  s_6203dd93ad674a::t_a550069e37adee 77
+  s_6203dd93ad674a::t_84280712d547e8 3
+generator/features/types.ts
+  s_6203dd93ad674a::t_5cd7f0d6aca4cd 1-52
+generator/cli.ts
+  s_6203dd93ad674a::t_4dd191afcc7920 1-4,7-53,56,59-153
+  s_6203dd93ad674a::t_e7545349a42480 54-55,57-58
+  s_6203dd93ad674a::t_b1b640ae4861d3 5-6
+.gitignore
+  h_739c25e72c37fb 1-25
+foundry.toml
+  s_89613e8e40aeb7::t_12d287e579e829 2
+  s_6203dd93ad674a::t_ce1883029b2c7d 5,12
+  s_89613e8e40aeb7::t_679ce9c886c293 7-10,19-20
+  h_739c25e72c37fb 4,11,13,15-18,21-23
+generator/types.ts
+  s_6203dd93ad674a::t_72014549d69941 1-89
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.1",
+  "base_commit_sha": "84e54ba7e30e50b6e292edb1723cd92be75b5a68",
+  "prompts": {},
+  "humans": {
+    "h_739c25e72c37fb": {
+      "author": "DhairyaSethi <55102840+DhairyaSethi@users.noreply.github.com>"
+    }
+  },
+  "sessions": {
+    "s_6203dd93ad674a": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "785522e5-6287-4cd2-b1c6-fb14ff4eea3b",
+        "model": "claude-opus-4-7"
+      },
+      "human_author": "DhairyaSethi <55102840+DhairyaSethi@users.noreply.github.com>"
+    },
+    "s_89613e8e40aeb7": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "e47d793f-60e8-494d-b43a-46251277a1dd",
+        "model": "claude-opus-4-7"
+      },
+      "human_author": "DhairyaSethi <55102840+DhairyaSethi@users.noreply.github.com>"
+    },
+    "s_baca6d3c463974": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "cf105ba5-e42f-449d-ac6d-42d7d886e7d3",
+        "model": "claude-opus-4-7"
+      },
+      "human_author": null
+    }
+  }
+}
