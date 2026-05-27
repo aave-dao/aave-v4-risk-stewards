@@ -5,6 +5,7 @@ import {ProtocolV4TestBase} from 'aave-helpers/ProtocolV4TestBase.sol';
 import {ISpoke, IHub, ITokenizationSpoke} from 'aave-address-book/AaveV4.sol';
 import {Types} from 'aave-helpers/dependencies/v4/Types.sol';
 import {IAaveV4ConfigEngine as IEngine} from 'aave-v4/config-engine/interfaces/IAaveV4ConfigEngine.sol';
+import {Safe} from 'safe-utils/Safe.sol';
 
 import {IRiskSteward} from '../src/interfaces/IRiskSteward.sol';
 
@@ -17,11 +18,15 @@ import {IRiskSteward} from '../src/interfaces/IRiskSteward.sol';
 /// steward, prints the calldata for Safe submission, and optionally snapshots+diffs the protocol
 /// state before/after.
 abstract contract RiskStewardsBase is ProtocolV4TestBase {
+  using Safe for *;
+
   error FailedUpdate();
 
   uint8 public constant MAX_TX = 6;
 
   IRiskSteward public immutable STEWARD;
+
+  Safe.Client internal _safe;
 
   ISpoke[] internal _spokes;
   IHub[] internal _hubs;
@@ -77,7 +82,8 @@ abstract contract RiskStewardsBase is ProtocolV4TestBase {
 
   /// @notice Entry point for the payload. This script does not broadcast directly — it's meant
   /// to be executed by the risk council via Safe.
-  /// @param broadcastToSafe If true, FFI's into a Safe helper to enqueue the calldatas.
+  /// @param broadcastToSafe If true, proposes a single MultiSend batch of all category calldatas
+  /// to the Safe Transaction Service via safe-utils.
   /// @param generateDiffReport If true, snapshots protocol state before/after and writes a diff.
   /// @param skipTimelock If true, warps forward 15 days so debounce checks pass in simulation.
   function run(bool broadcastToSafe, bool generateDiffReport, bool skipTimelock) external {
@@ -85,9 +91,11 @@ abstract contract RiskStewardsBase is ProtocolV4TestBase {
     bytes[] memory callDatas = _simulateAndGenerateDiff(generateDiffReport, skipTimelock);
     vm.stopPrank();
 
-    if (callDatas.length > 1) {
-      emit log_string('** multiple calldatas emitted, please execute them all **');
+    if (callDatas.length == 0) {
+      emit log_string('no updates to execute');
+      return;
     }
+
     emit log_string('safe address');
     emit log_address(STEWARD.RISK_COUNCIL());
     emit log_string('steward address:');
@@ -96,10 +104,10 @@ abstract contract RiskStewardsBase is ProtocolV4TestBase {
     for (uint8 i; i < callDatas.length; i++) {
       emit log_string('calldata:');
       emit log_bytes(callDatas[i]);
+    }
 
-      if (broadcastToSafe) {
-        _sendToSafe(callDatas[i]);
-      }
+    if (broadcastToSafe) {
+      _sendToSafe(callDatas);
     }
   }
 
@@ -208,17 +216,23 @@ abstract contract RiskStewardsBase is ProtocolV4TestBase {
     vm.ffi(inputs);
   }
 
-  function _sendToSafe(bytes memory callData) internal {
-    string[] memory inputs = new string[](8);
-    inputs[0] = 'npx';
-    inputs[1] = 'tsx';
-    inputs[2] = 'scripts/safe-helper.ts';
-    inputs[3] = vm.toString(STEWARD.RISK_COUNCIL());
-    inputs[4] = vm.toString(address(STEWARD));
-    inputs[5] = vm.toString(callData);
-    inputs[6] = vm.toString(block.chainid);
-    inputs[7] = 'Call';
-    vm.ffi(inputs);
+  /// @dev Propose the full set of category calldatas to the council Safe as a single
+  /// MultiSend batch via the Safe Transaction Service. Requires SIGNER_ADDRESS (a Safe owner)
+  /// and DERIVATION_PATH (hardware-wallet path) in the environment.
+  function _sendToSafe(bytes[] memory callDatas) internal {
+    _safe.initialize(STEWARD.RISK_COUNCIL());
+
+    address signer = vm.envAddress('SIGNER_ADDRESS');
+    string memory derivationPath = vm.envOr('DERIVATION_PATH', string(''));
+
+    address[] memory targets = new address[](callDatas.length);
+    for (uint256 i; i < callDatas.length; i++) {
+      targets[i] = address(STEWARD);
+    }
+
+    bytes32 safeTxHash = _safe.proposeTransactions(targets, callDatas, signer, derivationPath);
+    emit log_string('proposed safe tx hash:');
+    emit log_bytes32(safeTxHash);
   }
 
   function _verifyCallResult(bool success, bytes memory returnData) private pure {

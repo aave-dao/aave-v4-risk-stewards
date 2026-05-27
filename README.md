@@ -195,7 +195,15 @@ Running the script generated on the contracts in `src/updates` directory with `g
 
 Once the script on the comments of the generated contract has been run with `broadcast=false`, there will be calldata emitted on the console with the contract to call. Please copy the calldata and the contract to execute it on (i.e. RiskSteward) from the console and input it on the [gnosis safe UI](https://app.safe.global/) transaction builder.
 
-If you wish to not use the UI and send the update directly please put `broadcast=true` when running the script to directly broadcast the tx using the gnosis safe.
+If you wish to not use the UI and send the update directly please put `broadcast=true` when running the script. This proposes **all** non-empty category updates as a single MultiSend batch to the council Safe via the Safe Transaction Service (using [safe-utils](https://github.com/Recon-Fuzz/safe-utils)).
+
+`broadcast=true` requires the following environment variables:
+
+- `SIGNER_ADDRESS` — a Safe owner address that proposes the transaction.
+- `DERIVATION_PATH` — the hardware-wallet derivation path, e.g. `m/44'/60'/0'/0/0`.
+- `HARDWARE_WALLET` — optional, `ledger` (default) or `trezor`.
+
+Do **not** pass `--ledger`/`--trezor` to `forge script` — safe-utils drives the signing device itself via `cast wallet sign`, and passing the flag would block it from accessing the same device.
 
 ## License
 
