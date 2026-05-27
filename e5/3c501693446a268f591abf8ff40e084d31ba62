@@ -1,0 +1,42 @@
+src/interfaces/IRiskSteward.sol
+  s_89613e8e40aeb7::t_551bdecacbd5ca 354-356,363
+  h_739c25e72c37fb 207
+tests/RiskSteward.DynamicReserveConfigs.t.sol
+  s_89613e8e40aeb7::t_1751ef75dd5565 87
+  s_89613e8e40aeb7::t_b94d2ef75fd586 38
+README.md
+  s_89613e8e40aeb7::t_4df11a4183145c 53
+tests/generators/EthereumExample.t.sol
+  s_89613e8e40aeb7::t_0343714d655866 229,239
+src/RiskSteward.sol
+  s_89613e8e40aeb7::t_01dfc7fa4e0533 44
+  s_89613e8e40aeb7::t_d0a4b54836623d 301
+  s_89613e8e40aeb7::t_bd38dd8020a894 212,214
+  s_89613e8e40aeb7::t_14f7b8186a7dd4 567
+  s_89613e8e40aeb7::t_4730d09dd0761a 517
+  s_89613e8e40aeb7::t_1a6515b4acd7c7 317-319
+tests/RiskSteward.AddDynamicReserveConfigs.t.sol
+  s_89613e8e40aeb7::t_78a31a0c76e155 159-269
+  s_89613e8e40aeb7::t_77a9ce2964c261 37,83
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.2",
+  "base_commit_sha": "e53c501693446a268f591abf8ff40e084d31ba62",
+  "prompts": {},
+  "humans": {
+    "h_739c25e72c37fb": {
+      "author": "DhairyaSethi <55102840+DhairyaSethi@users.noreply.github.com>"
+    }
+  },
+  "sessions": {
+    "s_89613e8e40aeb7": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "e47d793f-60e8-494d-b43a-46251277a1dd",
+        "model": "claude-opus-4-7"
+      },
+      "human_author": "DhairyaSethi <55102840+DhairyaSethi@users.noreply.github.com>"
+    }
+  }
+}
