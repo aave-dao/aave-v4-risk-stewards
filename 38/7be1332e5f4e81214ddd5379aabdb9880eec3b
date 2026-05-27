@@ -1,0 +1,32 @@
+README.md
+  s_0571e603af0487::t_625bd1bcdeb2fa 198-206
+remappings.txt
+  s_0571e603af0487::t_6a731226b2af12 8-10
+scripts/RiskStewardsBase.s.sol
+  s_0571e603af0487::t_0d44b90c426c09 21-22,29
+  s_0571e603af0487::t_4a4b4f36aa329d 8
+  h_739c25e72c37fb 219,221
+  s_0571e603af0487::t_86a59d7dd7e9f5 220,222-235
+  s_0571e603af0487::t_503924c67d2e54 85-86,94-96,98,107,109-110
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.2",
+  "base_commit_sha": "387be1332e5f4e81214ddd5379aabdb9880eec3b",
+  "prompts": {},
+  "humans": {
+    "h_739c25e72c37fb": {
+      "author": "DhairyaSethi <55102840+DhairyaSethi@users.noreply.github.com>"
+    }
+  },
+  "sessions": {
+    "s_0571e603af0487": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "63bdc578-c78a-4559-97dd-157816464417",
+        "model": "claude-opus-4-7"
+      },
+      "human_author": "DhairyaSethi <55102840+DhairyaSethi@users.noreply.github.com>"
+    }
+  }
+}
