@@ -34,8 +34,7 @@ contract RiskStewardAddDynamicReserveConfigsTest is RiskStewardTestBase {
     IRiskSteward.SpokeDynamicDebounce memory debounce = steward.getSpokeDynamicDebounce(
       address(MAIN_SPOKE),
       address(HUB),
-      ASSET,
-      nextKey
+      ASSET
     );
     assertEq(debounce.collateralFactor, vm.getBlockTimestamp().toUint40());
     assertEq(debounce.maxLiquidationBonus, vm.getBlockTimestamp().toUint40());
@@ -81,8 +80,7 @@ contract RiskStewardAddDynamicReserveConfigsTest is RiskStewardTestBase {
     IRiskSteward.SpokeDynamicDebounce memory debounce = steward.getSpokeDynamicDebounce(
       address(MAIN_SPOKE),
       address(HUB),
-      ASSET,
-      nextKey
+      ASSET
     );
     assertEq(debounce.collateralFactor, vm.getBlockTimestamp().toUint40());
     assertEq(debounce.maxLiquidationBonus, vm.getBlockTimestamp().toUint40());
@@ -157,5 +155,116 @@ contract RiskStewardAddDynamicReserveConfigsTest is RiskStewardTestBase {
     vm.prank(RISK_COUNCIL);
     vm.expectRevert(IRiskSteward.SpokeIsRestricted.selector);
     steward.addDynamicReserveConfigs(_toArray(u));
+  }
+
+  function test_addDynamicReserveConfigs_secondAddTooSoon_revertsWith_DebounceNotRespected()
+    public
+  {
+    (ISpoke.DynamicReserveConfig memory ref, ) = _dynamicReserveConfig(MAIN_SPOKE, HUB, ASSET);
+    IEngine.DynamicReserveConfigAddition memory u = _baseAddDynamic();
+    u.dynamicConfig.collateralFactor = ref.collateralFactor + 50;
+    u.dynamicConfig.maxLiquidationBonus = ref.maxLiquidationBonus + 50;
+    u.dynamicConfig.liquidationFee = ref.liquidationFee;
+    vm.prank(RISK_COUNCIL);
+    steward.addDynamicReserveConfigs(_toArray(u));
+
+    uint256 minDelay = steward
+      .getSpokeConfig(address(MAIN_SPOKE))
+      .dynamicAdd
+      .collateralFactor
+      .minDelay;
+    skip(minDelay - 1);
+
+    IEngine.DynamicReserveConfigAddition memory u2 = _baseAddDynamic(); // same-value add vs new latest
+    vm.prank(RISK_COUNCIL);
+    vm.expectRevert(IRiskSteward.DebounceNotRespected.selector);
+    steward.addDynamicReserveConfigs(_toArray(u2));
+  }
+
+  function test_addDynamicReserveConfigs_secondAddAfterDelay_succeeds() public {
+    (ISpoke.DynamicReserveConfig memory ref, uint32 latestKey) = _dynamicReserveConfig(
+      MAIN_SPOKE,
+      HUB,
+      ASSET
+    );
+    IEngine.DynamicReserveConfigAddition memory u = _baseAddDynamic();
+    u.dynamicConfig.collateralFactor = ref.collateralFactor + 50;
+    u.dynamicConfig.maxLiquidationBonus = ref.maxLiquidationBonus + 50;
+    u.dynamicConfig.liquidationFee = ref.liquidationFee;
+    vm.prank(RISK_COUNCIL);
+    steward.addDynamicReserveConfigs(_toArray(u));
+
+    uint256 minDelay = steward
+      .getSpokeConfig(address(MAIN_SPOKE))
+      .dynamicAdd
+      .collateralFactor
+      .minDelay;
+    skip(minDelay + 1);
+
+    IEngine.DynamicReserveConfigAddition memory u2 = _baseAddDynamic(); // same-value add vs new latest
+    vm.prank(RISK_COUNCIL);
+    steward.addDynamicReserveConfigs(_toArray(u2));
+
+    uint256 reserveId = MAIN_SPOKE.getReserveId(address(HUB), HUB.getAssetId(ASSET));
+    assertEq(MAIN_SPOKE.getReserve(reserveId).dynamicConfigKey, latestKey + 2);
+    assertEq(
+      steward.getSpokeDynamicDebounce(address(MAIN_SPOKE), address(HUB), ASSET).collateralFactor,
+      vm.getBlockTimestamp().toUint40()
+    );
+  }
+
+  function test_addThenUpdateImmediately_revertsWith_DebounceNotRespected() public {
+    (ISpoke.DynamicReserveConfig memory ref, uint32 latestKey) = _dynamicReserveConfig(
+      MAIN_SPOKE,
+      HUB,
+      ASSET
+    );
+    IEngine.DynamicReserveConfigAddition memory u = _baseAddDynamic();
+    u.dynamicConfig.collateralFactor = ref.collateralFactor + 50;
+    u.dynamicConfig.maxLiquidationBonus = ref.maxLiquidationBonus + 50;
+    u.dynamicConfig.liquidationFee = ref.liquidationFee;
+    vm.prank(RISK_COUNCIL);
+    steward.addDynamicReserveConfigs(_toArray(u));
+
+    IEngine.DynamicReserveConfigUpdate memory up = _baseDynamicUpdate();
+    up.dynamicConfigKey = latestKey + 1; // the freshly-created key
+    up.collateralFactor = uint256(u.dynamicConfig.collateralFactor) + 10;
+    vm.prank(RISK_COUNCIL);
+    vm.expectRevert(IRiskSteward.DebounceNotRespected.selector);
+    steward.updateDynamicReserveConfigs(_toArray(up));
+  }
+
+  /// @dev Two same-reserve additions in one batch are allowed (no dedup needed): the engine
+  /// appends both as keys `N+1` and `N+2`, but only `N+2` is reachable by new positions, and the
+  /// per-reserve debounce is stamped once. Documents the intentional non-dedup behavior.
+  function test_addDynamicReserveConfigs_duplicateInBatch_succeedsAndStampsOnce() public {
+    (ISpoke.DynamicReserveConfig memory ref, uint32 latestKey) = _dynamicReserveConfig(
+      MAIN_SPOKE,
+      HUB,
+      ASSET
+    );
+    IEngine.DynamicReserveConfigAddition memory u = _baseAddDynamic();
+    u.dynamicConfig.collateralFactor = ref.collateralFactor + 50;
+    u.dynamicConfig.maxLiquidationBonus = ref.maxLiquidationBonus + 50;
+    u.dynamicConfig.liquidationFee = ref.liquidationFee;
+
+    IEngine.DynamicReserveConfigAddition[]
+      memory additions = new IEngine.DynamicReserveConfigAddition[](2);
+    additions[0] = u;
+    additions[1] = u;
+
+    vm.prank(RISK_COUNCIL);
+    steward.addDynamicReserveConfigs(additions);
+
+    uint256 reserveId = MAIN_SPOKE.getReserveId(address(HUB), HUB.getAssetId(ASSET));
+    assertEq(MAIN_SPOKE.getReserve(reserveId).dynamicConfigKey, latestKey + 2);
+
+    IRiskSteward.SpokeDynamicDebounce memory debounce = steward.getSpokeDynamicDebounce(
+      address(MAIN_SPOKE),
+      address(HUB),
+      ASSET
+    );
+    assertEq(debounce.collateralFactor, vm.getBlockTimestamp().toUint40());
+    assertEq(debounce.maxLiquidationBonus, vm.getBlockTimestamp().toUint40());
   }
 }

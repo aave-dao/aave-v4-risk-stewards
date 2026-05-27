@@ -50,7 +50,7 @@ Refused fields the steward will not change (`ParamChangeNotAllowed`): `liquidity
 
 #### Min Delay:
 
-For each risk param, `minDelay` can be configured, which is the minimum amount of delay (denominated in seconds) required before pushing another update for the risk param. Please note that this is specific for a risk param and includes both in upwards and downwards direction. Ex. after increasing `collateralFactor` by 0.5%, we must wait by `minDelay` before either increasing it again or decreasing it. Debounce is keyed per `(scope, param)` — and per `dynamicConfigKey` for dynamic reserve configs.
+For each risk param, `minDelay` can be configured, which is the minimum amount of delay (denominated in seconds) required before pushing another update for the risk param. Please note that this is specific for a risk param and includes both in upwards and downwards direction. Ex. after increasing `collateralFactor` by 0.5%, we must wait by `minDelay` before either increasing it again or decreasing it. Debounce is keyed per `(scope, param)`. For dynamic reserve configs the debounce is **per-reserve** (`(spoke, hub, asset)`), shared across all `dynamicConfigKey`s and across both `addDynamicReserveConfigs` and `updateDynamicReserveConfigs` — so an addition and a subsequent update (on any key) of the same reserve are rate-limited together.
 
 #### Max Percent Change:
 

@@ -226,8 +226,7 @@ contract EthereumExampleTest is Test {
     IRiskSteward.SpokeDynamicDebounce memory dynamicDebounce = steward.getSpokeDynamicDebounce(
       address(SPOKE),
       address(HUB),
-      ASSET,
-      0
+      ASSET
     );
     assertEq(
       dynamicDebounce.collateralFactor,
@@ -236,28 +235,8 @@ contract EthereumExampleTest is Test {
     );
     assertEq(
       dynamicDebounce.maxLiquidationBonus,
-      0,
-      'maxLiquidationBonus on key 0 left at sentinel'
-    );
-
-    uint256 assetId = HUB.getAssetId(ASSET);
-    uint256 reserveId = SPOKE.getReserveId(address(HUB), assetId);
-    uint32 newKey = SPOKE.getReserve(reserveId).dynamicConfigKey;
-    IRiskSteward.SpokeDynamicDebounce memory addedDebounce = steward.getSpokeDynamicDebounce(
-      address(SPOKE),
-      address(HUB),
-      ASSET,
-      newKey
-    );
-    assertEq(
-      addedDebounce.collateralFactor,
       expectedTimestamp,
-      'addition collateralFactor debounce bumped'
-    );
-    assertEq(
-      addedDebounce.maxLiquidationBonus,
-      expectedTimestamp,
-      'addition maxLiquidationBonus debounce bumped'
+      'maxLiquidationBonus debounce bumped'
     );
 
     // Spoke liquidation: only targetHealthFactor.

@@ -41,7 +41,7 @@ contract RiskSteward is Ownable2Step, IRiskSteward {
     internal _hubSpokeAssetDebounces;
   mapping(ISpoke spoke => mapping(IHub hub => mapping(address asset => SpokeReserveDebounce)))
     internal _spokeReserveDebounces;
-  mapping(ISpoke spoke => mapping(IHub hub => mapping(address asset => mapping(uint32 key => SpokeDynamicDebounce))))
+  mapping(ISpoke spoke => mapping(IHub hub => mapping(address asset => SpokeDynamicDebounce)))
     internal _spokeDynamicDebounces;
   mapping(ISpoke spoke => SpokeLiquidationDebounce) internal _spokeLiquidationDebounces;
 
@@ -209,10 +209,9 @@ contract RiskSteward is Ownable2Step, IRiskSteward {
   function getSpokeDynamicDebounce(
     address spoke,
     address hub,
-    address asset,
-    uint32 dynamicConfigKey
+    address asset
   ) external view returns (SpokeDynamicDebounce memory) {
-    return _spokeDynamicDebounces[ISpoke(spoke)][IHub(hub)][asset][dynamicConfigKey];
+    return _spokeDynamicDebounces[ISpoke(spoke)][IHub(hub)][asset];
   }
 
   /// @inheritdoc IRiskSteward
@@ -297,10 +296,9 @@ contract RiskSteward is Ownable2Step, IRiskSteward {
   ) internal {
     uint40 currentTime = block.timestamp.toUint40();
     for (uint256 i; i < updates.length; ++i) {
-      uint32 key = updates[i].dynamicConfigKey.toUint32();
       SpokeDynamicDebounce storage debounce = _spokeDynamicDebounces[ISpoke(updates[i].spoke)][
         IHub(updates[i].hub)
-      ][updates[i].underlying][key];
+      ][updates[i].underlying];
       if (updates[i].collateralFactor != EngineFlags.KEEP_CURRENT) {
         debounce.collateralFactor = currentTime;
       }
@@ -316,12 +314,9 @@ contract RiskSteward is Ownable2Step, IRiskSteward {
   ) internal {
     uint40 currentTime = block.timestamp.toUint40();
     for (uint256 i; i < additions.length; ++i) {
-      ISpoke spoke = ISpoke(additions[i].spoke);
-      IHub hub = IHub(additions[i].hub);
-      address asset = additions[i].underlying;
-      uint256 reserveId = _resolveReserveId(spoke, hub, asset);
-      uint32 nextKey = spoke.getReserve(reserveId).dynamicConfigKey + 1;
-      SpokeDynamicDebounce storage debounce = _spokeDynamicDebounces[spoke][hub][asset][nextKey];
+      SpokeDynamicDebounce storage debounce = _spokeDynamicDebounces[ISpoke(additions[i].spoke)][
+        IHub(additions[i].hub)
+      ][additions[i].underlying];
       debounce.collateralFactor = currentTime;
       debounce.maxLiquidationBonus = currentTime;
     }
@@ -519,7 +514,7 @@ contract RiskSteward is Ownable2Step, IRiskSteward {
       uint256 reserveId = _resolveReserveId(spoke, hub, asset);
       ISpoke.DynamicReserveConfig memory current = spoke.getDynamicReserveConfig(reserveId, key);
       SpokeDynamicConfig memory dynamicBounds = _spokeConfigs[spoke].dynamicUpdate;
-      SpokeDynamicDebounce memory debounce = _spokeDynamicDebounces[spoke][hub][asset][key];
+      SpokeDynamicDebounce memory debounce = _spokeDynamicDebounces[spoke][hub][asset];
 
       _validateParamUpdate(
         ParamUpdateValidationInput({
@@ -569,8 +564,7 @@ contract RiskSteward is Ownable2Step, IRiskSteward {
       require(newCfg.liquidationFee == ref.liquidationFee, ParamChangeNotAllowed());
 
       SpokeDynamicConfig memory dynamicBounds = _spokeConfigs[spoke].dynamicAdd;
-      uint32 nextKey = latestKey + 1;
-      SpokeDynamicDebounce memory debounce = _spokeDynamicDebounces[spoke][hub][asset][nextKey];
+      SpokeDynamicDebounce memory debounce = _spokeDynamicDebounces[spoke][hub][asset];
 
       _validateParamUpdate(
         ParamUpdateValidationInput({

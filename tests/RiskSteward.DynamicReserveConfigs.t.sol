@@ -35,8 +35,7 @@ contract RiskStewardDynamicReserveConfigsTest is RiskStewardTestBase {
     IRiskSteward.SpokeDynamicDebounce memory debounce = steward.getSpokeDynamicDebounce(
       address(MAIN_SPOKE),
       address(HUB),
-      ASSET,
-      u.dynamicConfigKey.toUint32()
+      ASSET
     );
     assertEq(debounce.collateralFactor, vm.getBlockTimestamp().toUint40());
     assertEq(debounce.maxLiquidationBonus, vm.getBlockTimestamp().toUint40());
@@ -85,8 +84,7 @@ contract RiskStewardDynamicReserveConfigsTest is RiskStewardTestBase {
     IRiskSteward.SpokeDynamicDebounce memory debounce = steward.getSpokeDynamicDebounce(
       address(MAIN_SPOKE),
       address(HUB),
-      ASSET,
-      u.dynamicConfigKey.toUint32()
+      ASSET
     );
     assertEq(debounce.collateralFactor, vm.getBlockTimestamp().toUint40());
     assertEq(debounce.maxLiquidationBonus, vm.getBlockTimestamp().toUint40());

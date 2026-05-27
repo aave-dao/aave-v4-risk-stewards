@@ -204,7 +204,7 @@ interface IRiskSteward {
     uint40 collateralRisk;
   }
 
-  /// @notice Per-param debounce timestamps for spoke dynamic reserve updates at a given key.
+  /// @notice Per-reserve debounce timestamps for spoke dynamic reserve config changes.
   /// @dev collateralFactor The last update timestamp for `collateralFactor`.
   /// @dev maxLiquidationBonus The last update timestamp for `maxLiquidationBonus`.
   struct SpokeDynamicDebounce {
@@ -351,16 +351,16 @@ interface IRiskSteward {
     address asset
   ) external view returns (SpokeReserveDebounce memory);
 
-  /// @notice Returns the per-param debounce timestamps for dynamic reserve updates at a given key.
+  /// @notice Returns the per-reserve debounce timestamps for dynamic reserve config changes.
+  /// @dev Shared across all dynamicConfigKeys of the reserve: both `addDynamicReserveConfigs`
+  /// and `updateDynamicReserveConfigs` (on any key) read and stamp this single slot.
   /// @param spoke The address of the spoke.
   /// @param hub The address of the hub.
   /// @param asset The address of the underlying asset.
-  /// @param dynamicConfigKey The dynamic config key.
   function getSpokeDynamicDebounce(
     address spoke,
     address hub,
-    address asset,
-    uint32 dynamicConfigKey
+    address asset
   ) external view returns (SpokeDynamicDebounce memory);
 
   /// @notice Returns the per-param debounce timestamps for the spoke-global liquidation config.
