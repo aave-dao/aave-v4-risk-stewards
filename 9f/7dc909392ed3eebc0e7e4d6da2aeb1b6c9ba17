@@ -1,0 +1,35 @@
+tests/RiskSteward.Base.t.sol
+  s_89613e8e40aeb7::t_4c0275c215fbd9 131
+src/RiskSteward.sol
+  s_89613e8e40aeb7::t_00d703540a310e 799
+src/interfaces/IRiskSteward.sol
+  s_89613e8e40aeb7::t_21cc4a2720d4c9 176
+tests/RiskSteward.AccessControl.t.sol
+  s_89613e8e40aeb7::t_3f89e8d4530c75 111,113
+tests/RiskSteward.ReserveConfigs.t.sol
+  h_739c25e72c37fb 88
+  s_89613e8e40aeb7::t_73e0502c39e281 37,47,50,52
+  s_89613e8e40aeb7::t_739f8521f0661f 74,79-87
+  s_89613e8e40aeb7::t_737eb7ddbef82c 140
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.3",
+  "base_commit_sha": "9f7dc909392ed3eebc0e7e4d6da2aeb1b6c9ba17",
+  "prompts": {},
+  "humans": {
+    "h_739c25e72c37fb": {
+      "author": "DhairyaSethi <55102840+DhairyaSethi@users.noreply.github.com>"
+    }
+  },
+  "sessions": {
+    "s_89613e8e40aeb7": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "e47d793f-60e8-494d-b43a-46251277a1dd",
+        "model": "claude-opus-4-7"
+      },
+      "human_author": "DhairyaSethi <55102840+DhairyaSethi@users.noreply.github.com>"
+    }
+  }
+}
