@@ -8,5 +8,6 @@ forge-std/=lib/forge-std/src/
 safe-utils/=lib/safe-utils/src/
 safe-smart-account/=lib/safe-utils/lib/safe-smart-account/contracts/
 solidity-http/=lib/safe-utils/lib/solidity-http/src/
+aave-price-feeds/=lib/aave-price-feeds/src/
 lib/aave-helpers/lib/aave-address-book/lib/aave-v4/:src=lib/aave-helpers/lib/aave-address-book/lib/aave-v4/src
 lib/aave-helpers/:src=lib/aave-helpers/src

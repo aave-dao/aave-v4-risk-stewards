@@ -4,6 +4,7 @@ pragma solidity ^0.8.0;
 import {IAaveV4ConfigEngine as IEngine} from 'aave-v4/config-engine/interfaces/IAaveV4ConfigEngine.sol';
 import {IHubConfigurator} from 'aave-v4/hub/interfaces/IHubConfigurator.sol';
 import {ISpokeConfigurator} from 'aave-v4/spoke/interfaces/ISpokeConfigurator.sol';
+import {IPriceCapAdapter} from 'aave-price-feeds/interfaces/IPriceCapAdapter.sol';
 
 /// @title IRiskSteward
 /// @author Aave Labs
@@ -58,8 +59,12 @@ interface IRiskSteward {
 
   /// @notice Thrown when a `RiskParamConfig` field is submitted with an `isChangeRelative` value
   /// that does not match the param's expected mode (e.g. an IR field must be absolute, a cap must
-  /// be relative). Enforced at `setHubConfig` / `setSpokeConfig` time.
+  /// be relative). Enforced at `setHubConfig` / `setSpokeConfig` / `setPriceCapConfig` time.
   error InvalidParamConfig();
+
+  /// @notice Thrown when applying a price cap update would leave the adapter in a `isCapped()`
+  /// state (only relevant for the LST adapter).
+  error InvalidPriceCapUpdate();
 
   /// @notice Emitted when the owner sets the risk config for a hub.
   /// @param hub The address of the hub.
@@ -98,6 +103,10 @@ interface IRiskSteward {
     address indexed asset,
     bool isRestricted
   );
+
+  /// @notice Emitted when the owner sets the global price cap bounds.
+  /// @param config The new price cap config.
+  event PriceCapConfigSet(PriceCapConfig config);
 
   /// @notice Per-param risk bound used by `_validateParamUpdate`.
   /// @dev minDelay The minimum number of seconds between successive updates of the param.
@@ -178,6 +187,17 @@ interface IRiskSteward {
     SpokeLiquidationConfig liquidation;
   }
 
+  /// @notice Global price-cap bounds applied to all CAPO oracles. A given oracle is exactly one
+  /// type (LST / Stable / Pendle) and the corresponding bound applies.
+  /// @dev priceCapLst Bound for the LST adapter's `maxYearlyRatioGrowthPercent` (relative, BPS).
+  /// @dev priceCapStable Bound for the stable adapter's `priceCap` (relative, BPS).
+  /// @dev discountRatePendle Bound for the Pendle adapter's `discountRatePerYear` (absolute).
+  struct PriceCapConfig {
+    RiskParamConfig priceCapLst;
+    RiskParamConfig priceCapStable;
+    RiskParamConfig discountRatePendle;
+  }
+
   /// @notice Per-param debounce timestamps for hub-asset interest-rate updates.
   /// @dev optimalUsageRatio The last update timestamp for `optimalUsageRatio`.
   /// @dev baseDrawnRate The last update timestamp for `baseDrawnRate`.
@@ -220,6 +240,30 @@ interface IRiskSteward {
     uint40 targetHealthFactor;
     uint40 healthFactorForMaxBonus;
     uint40 liquidationBonusFactor;
+  }
+
+  /// @notice An LST price-cap update entry.
+  /// @dev oracle The CAPO adapter address.
+  /// @dev priceCapUpdateParams The full `PriceCapUpdateParams` passed to `setCapParameters`.
+  struct PriceCapLstUpdate {
+    address oracle;
+    IPriceCapAdapter.PriceCapUpdateParams priceCapUpdateParams;
+  }
+
+  /// @notice A stable price-cap update entry.
+  /// @dev oracle The CAPO stable adapter address.
+  /// @dev priceCap The new price cap (will be cast to int256 for `setPriceCap`).
+  struct PriceCapStableUpdate {
+    address oracle;
+    uint256 priceCap;
+  }
+
+  /// @notice A Pendle PT discount-rate update entry.
+  /// @dev oracle The Pendle adapter address.
+  /// @dev discountRate The new discount rate per year (will be cast to uint64).
+  struct DiscountRatePendleUpdate {
+    address oracle;
+    uint256 discountRate;
   }
 
   /// @notice Internal input bundle for `_validateParamUpdate`.
@@ -270,6 +314,18 @@ interface IRiskSteward {
     IEngine.LiquidationConfigUpdate[] calldata updates
   ) external;
 
+  /// @notice Updates LST price-cap parameters on one or more CAPO adapters.
+  /// @param updates The price-cap updates.
+  function updateLstPriceCaps(PriceCapLstUpdate[] calldata updates) external;
+
+  /// @notice Update stable price caps on one or more CAPO stable adapters.
+  /// @param updates The stable price-cap updates.
+  function updateStablePriceCaps(PriceCapStableUpdate[] calldata updates) external;
+
+  /// @notice Update the Pendle PT discount rate on one or more CAPO Pendle adapters.
+  /// @param updates The discount-rate updates.
+  function updatePendleDiscountRates(DiscountRatePendleUpdate[] calldata updates) external;
+
   /// @notice Owner: register or update the risk config for a hub.
   /// @dev Setting all-zero (in particular `hubConfigurator == address(0)`) unregisters the hub.
   /// @param hub The address of the hub.
@@ -288,6 +344,9 @@ interface IRiskSteward {
   /// @notice Owner: remove a spoke's config entirely. Equivalent to `setSpokeConfig(spoke, zero)`.
   /// @param spoke The address of the spoke.
   function removeSpokeConfig(address spoke) external;
+
+  /// @notice Owner: clear the global price-cap bounds. Equivalent to `setPriceCapConfig(zero)`.
+  function removePriceCapConfig() external;
 
   /// @notice Owner: mark a hub as restricted (or unrestrict).
   /// @param hub The address of the hub.
@@ -317,11 +376,17 @@ interface IRiskSteward {
     bool isRestricted
   ) external;
 
+  /// @notice Owner: set the global price-cap bounds applied to all CAPO oracle updates.
+  /// @param config The new price-cap config.
+  function setPriceCapConfig(PriceCapConfig calldata config) external;
+
   /// @notice Returns the registered hub config.
   function getHubConfig(address hub) external view returns (HubConfig memory);
 
   /// @notice Returns the registered spoke config.
   function getSpokeConfig(address spoke) external view returns (SpokeConfig memory);
+  /// @notice Returns the global price-cap bounds.
+  function getPriceCapConfig() external view returns (PriceCapConfig memory);
 
   /// @notice Returns the per-param debounce timestamps for the IR updates on `(hub, asset)`.
   /// @param hub The address of the hub.
@@ -367,6 +432,9 @@ interface IRiskSteward {
   function getSpokeLiquidationDebounce(
     address spoke
   ) external view returns (SpokeLiquidationDebounce memory);
+
+  /// @notice Returns the last update timestamp recorded for a CAPO oracle.
+  function getOracleDebounce(address oracle) external view returns (uint40);
 
   /// @notice Returns whether a hub is restricted.
   function isHubRestricted(address hub) external view returns (bool);

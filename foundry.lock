@@ -5,6 +5,9 @@
       "rev": "e00496037f076b804de231203212e0ecd91c7de6"
     }
   },
+  "lib/aave-price-feeds": {
+    "rev": "4e34b01274c394f083c27c53a8b4c15cc2e98153"
+  },
   "lib/forge-std": {
     "tag": {
       "name": "v1.16.1",

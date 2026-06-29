@@ -46,6 +46,14 @@ Both updating an existing dynamic config key (`updateDynamicReserveConfigs`) and
 - healthFactorForMaxBonus
 - liquidationBonusFactor
 
+**CAPO oracle params** (per `oracle`)
+
+- LST adapter: `maxYearlyRatioGrowthPercent` (and a fresh `snapshotRatio` / `snapshotTimestamp`) via `updateLstPriceCaps`
+- Stable adapter: `priceCap` via `updateStablePriceCaps`
+- Pendle adapter: `discountRatePerYear` via `updatePendleDiscountRates`
+
+Each oracle has a single shared debounce (`_oracleDebounces[oracle]`) and its bounds come from the global `PriceCapConfig` set by the owner via `setPriceCapConfig`. The LST executor additionally re-reads `isCapped()` after `setCapParameters` and reverts with `InvalidPriceCapUpdate` if the new params would leave the adapter in a capped state.
+
 Refused fields the steward will not change (`ParamChangeNotAllowed`): `liquidityFee`, `riskPremiumThreshold`, `liquidationFee`, every bool toggle (`active`/`halted`/`paused`/`frozen`/`borrowable`/`receiveSharesEnabled`), `priceSource`, `irStrategy` address swap, `feeReceiver`, `reinvestmentController`, all listings, all halts/deactivations/resets, position-manager and access-manager admin. The full per-field matrix lives in [docs/ConfigurableParams.md](./docs/ConfigurableParams.md).
 
 #### Min Delay:

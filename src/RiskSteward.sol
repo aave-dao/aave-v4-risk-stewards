@@ -11,11 +11,11 @@ import {PercentageMath} from 'aave-v4/libraries/math/PercentageMath.sol';
 
 import {IAaveV4ConfigEngine as IEngine} from 'aave-v4/config-engine/interfaces/IAaveV4ConfigEngine.sol';
 import {IHub} from 'aave-v4/hub/interfaces/IHub.sol';
-import {IHubBase} from 'aave-v4/hub/interfaces/IHubBase.sol';
-import {IHubConfigurator} from 'aave-v4/hub/interfaces/IHubConfigurator.sol';
 import {IAssetInterestRateStrategy} from 'aave-v4/hub/interfaces/IAssetInterestRateStrategy.sol';
 import {ISpoke} from 'aave-v4/spoke/interfaces/ISpoke.sol';
-import {ISpokeConfigurator} from 'aave-v4/spoke/interfaces/ISpokeConfigurator.sol';
+import {IPriceCapAdapter} from 'aave-price-feeds/interfaces/IPriceCapAdapter.sol';
+import {IPriceCapAdapterStable} from 'aave-price-feeds/interfaces/IPriceCapAdapterStable.sol';
+import {IPendlePriceCapAdapter} from 'aave-price-feeds/interfaces/IPendlePriceCapAdapter.sol';
 
 import {IRiskSteward} from 'src/interfaces/IRiskSteward.sol';
 
@@ -25,7 +25,7 @@ import {IRiskSteward} from 'src/interfaces/IRiskSteward.sol';
 /// Spokes. Risk Council is the only address allowed to invoke update entrypoints; each param
 /// has its own debounce timestamp and configured max allowed change.
 contract RiskSteward is Ownable2Step, IRiskSteward {
-  using SafeCast for uint256;
+  using SafeCast for *;
   using PercentageMath for uint256;
   using HubEngine for *;
   using SpokeEngine for *;
@@ -35,6 +35,7 @@ contract RiskSteward is Ownable2Step, IRiskSteward {
 
   mapping(IHub hub => HubConfig) internal _hubConfigs;
   mapping(ISpoke spoke => SpokeConfig) internal _spokeConfigs;
+  PriceCapConfig internal _priceCapConfig;
 
   mapping(IHub hub => mapping(address asset => HubAssetDebounce)) internal _hubAssetDebounces;
   mapping(IHub hub => mapping(ISpoke spoke => mapping(address asset => HubSpokeAssetDebounce)))
@@ -44,6 +45,7 @@ contract RiskSteward is Ownable2Step, IRiskSteward {
   mapping(ISpoke spoke => mapping(IHub hub => mapping(address asset => SpokeDynamicDebounce)))
     internal _spokeDynamicDebounces;
   mapping(ISpoke spoke => SpokeLiquidationDebounce) internal _spokeLiquidationDebounces;
+  mapping(address oracle => uint40 lastUpdated) internal _oracleDebounces;
 
   mapping(IHub hub => bool) internal _restrictedHubs;
   mapping(ISpoke spoke => bool) internal _restrictedSpokes;
@@ -79,6 +81,13 @@ contract RiskSteward is Ownable2Step, IRiskSteward {
   }
 
   /// @inheritdoc IRiskSteward
+  function setPriceCapConfig(PriceCapConfig calldata config) external onlyOwner {
+    _validatePriceCapConfig(config);
+    _priceCapConfig = config;
+    emit PriceCapConfigSet(config);
+  }
+
+  /// @inheritdoc IRiskSteward
   function removeHubConfig(address hub) external onlyOwner {
     delete _hubConfigs[IHub(hub)];
     HubConfig memory empty;
@@ -90,6 +99,13 @@ contract RiskSteward is Ownable2Step, IRiskSteward {
     delete _spokeConfigs[ISpoke(spoke)];
     SpokeConfig memory empty;
     emit SpokeConfigSet(spoke, empty);
+  }
+
+  /// @inheritdoc IRiskSteward
+  function removePriceCapConfig() external onlyOwner {
+    delete _priceCapConfig;
+    PriceCapConfig memory empty;
+    emit PriceCapConfigSet(empty);
   }
 
   /// @inheritdoc IRiskSteward
@@ -170,6 +186,26 @@ contract RiskSteward is Ownable2Step, IRiskSteward {
   }
 
   /// @inheritdoc IRiskSteward
+  function updateLstPriceCaps(PriceCapLstUpdate[] calldata updates) external onlyRiskCouncil {
+    _validateLstPriceCaps(updates);
+    _executeLstPriceCaps(updates);
+  }
+
+  /// @inheritdoc IRiskSteward
+  function updateStablePriceCaps(PriceCapStableUpdate[] calldata updates) external onlyRiskCouncil {
+    _validateStablePriceCaps(updates);
+    _executeStablePriceCaps(updates);
+  }
+
+  /// @inheritdoc IRiskSteward
+  function updatePendleDiscountRates(
+    DiscountRatePendleUpdate[] calldata updates
+  ) external onlyRiskCouncil {
+    _validatePendleDiscountRates(updates);
+    _executePendleDiscountRates(updates);
+  }
+
+  /// @inheritdoc IRiskSteward
   function getHubConfig(address hub) external view returns (HubConfig memory) {
     return _hubConfigs[IHub(hub)];
   }
@@ -177,6 +213,11 @@ contract RiskSteward is Ownable2Step, IRiskSteward {
   /// @inheritdoc IRiskSteward
   function getSpokeConfig(address spoke) external view returns (SpokeConfig memory) {
     return _spokeConfigs[ISpoke(spoke)];
+  }
+
+  /// @inheritdoc IRiskSteward
+  function getPriceCapConfig() external view returns (PriceCapConfig memory) {
+    return _priceCapConfig;
   }
 
   /// @inheritdoc IRiskSteward
@@ -219,6 +260,11 @@ contract RiskSteward is Ownable2Step, IRiskSteward {
     address spoke
   ) external view returns (SpokeLiquidationDebounce memory) {
     return _spokeLiquidationDebounces[ISpoke(spoke)];
+  }
+
+  /// @inheritdoc IRiskSteward
+  function getOracleDebounce(address oracle) external view returns (uint40) {
+    return _oracleDebounces[oracle];
   }
 
   /// @inheritdoc IRiskSteward
@@ -342,6 +388,34 @@ contract RiskSteward is Ownable2Step, IRiskSteward {
       }
     }
     updates.executeSpokeLiquidationConfigUpdates();
+  }
+
+  function _executeLstPriceCaps(PriceCapLstUpdate[] calldata updates) internal {
+    uint40 currentTime = block.timestamp.toUint40();
+    for (uint256 i; i < updates.length; ++i) {
+      address oracle = updates[i].oracle;
+      _oracleDebounces[oracle] = currentTime;
+      IPriceCapAdapter(oracle).setCapParameters(updates[i].priceCapUpdateParams);
+      require(!IPriceCapAdapter(oracle).isCapped(), InvalidPriceCapUpdate());
+    }
+  }
+
+  function _executeStablePriceCaps(PriceCapStableUpdate[] calldata updates) internal {
+    uint40 currentTime = block.timestamp.toUint40();
+    for (uint256 i; i < updates.length; ++i) {
+      address oracle = updates[i].oracle;
+      _oracleDebounces[oracle] = currentTime;
+      IPriceCapAdapterStable(oracle).setPriceCap(updates[i].priceCap.toInt256());
+    }
+  }
+
+  function _executePendleDiscountRates(DiscountRatePendleUpdate[] calldata updates) internal {
+    uint40 currentTime = block.timestamp.toUint40();
+    for (uint256 i; i < updates.length; ++i) {
+      address oracle = updates[i].oracle;
+      _oracleDebounces[oracle] = currentTime;
+      IPendlePriceCapAdapter(oracle).setDiscountRatePerYear(updates[i].discountRate.toUint64());
+    }
   }
 
   function _validateHubAssetIRs(IEngine.AssetConfigUpdate[] calldata updates) internal view {
@@ -644,6 +718,72 @@ contract RiskSteward is Ownable2Step, IRiskSteward {
     }
   }
 
+  function _validateLstPriceCaps(PriceCapLstUpdate[] calldata updates) internal view {
+    require(updates.length != 0, NoZeroUpdates());
+    for (uint256 i; i < updates.length; ++i) {
+      address oracle = updates[i].oracle;
+
+      IPriceCapAdapter.PriceCapUpdateParams memory params = updates[i].priceCapUpdateParams;
+      require(params.snapshotRatio != 0, InvalidUpdateToZero());
+      require(params.snapshotTimestamp != 0, InvalidUpdateToZero());
+      require(params.maxYearlyRatioGrowthPercent != 0, InvalidUpdateToZero());
+
+      uint256 currentMaxYearlyGrowthPercent = IPriceCapAdapter(oracle)
+        .getMaxYearlyGrowthRatePercent();
+      uint104 currentRatio = IPriceCapAdapter(oracle).getRatio().toUint256().toUint104();
+
+      // snapshot ratio must be backward-looking
+      require(params.snapshotRatio <= currentRatio, UpdateNotInRange());
+
+      _validateParamUpdate(
+        ParamUpdateValidationInput({
+          currentValue: currentMaxYearlyGrowthPercent,
+          newValue: params.maxYearlyRatioGrowthPercent,
+          lastUpdated: _oracleDebounces[oracle],
+          riskConfig: _priceCapConfig.priceCapLst
+        })
+      );
+    }
+  }
+
+  function _validateStablePriceCaps(PriceCapStableUpdate[] calldata updates) internal view {
+    require(updates.length != 0, NoZeroUpdates());
+    for (uint256 i; i < updates.length; ++i) {
+      address oracle = updates[i].oracle;
+      require(updates[i].priceCap != 0, InvalidUpdateToZero());
+
+      uint256 currentPriceCap = IPriceCapAdapterStable(oracle).getPriceCap().toUint256();
+
+      _validateParamUpdate(
+        ParamUpdateValidationInput({
+          currentValue: currentPriceCap,
+          newValue: updates[i].priceCap,
+          lastUpdated: _oracleDebounces[oracle],
+          riskConfig: _priceCapConfig.priceCapStable
+        })
+      );
+    }
+  }
+
+  function _validatePendleDiscountRates(DiscountRatePendleUpdate[] calldata updates) internal view {
+    require(updates.length != 0, NoZeroUpdates());
+    for (uint256 i; i < updates.length; ++i) {
+      address oracle = updates[i].oracle;
+      require(updates[i].discountRate != 0, InvalidUpdateToZero());
+
+      uint256 currentDiscount = IPendlePriceCapAdapter(oracle).discountRatePerYear();
+
+      _validateParamUpdate(
+        ParamUpdateValidationInput({
+          currentValue: currentDiscount,
+          newValue: updates[i].discountRate,
+          lastUpdated: _oracleDebounces[oracle],
+          riskConfig: _priceCapConfig.discountRatePendle
+        })
+      );
+    }
+  }
+
   /// @dev Enforces the per-field `isChangeRelative` invariants for a `HubConfig`.
   function _validateHubConfig(HubConfig calldata config) internal pure {
     require(!config.rate.optimalUsageRatio.isChangeRelative, InvalidParamConfig());
@@ -664,6 +804,13 @@ contract RiskSteward is Ownable2Step, IRiskSteward {
     require(config.liquidation.targetHealthFactor.isChangeRelative, InvalidParamConfig());
     require(config.liquidation.healthFactorForMaxBonus.isChangeRelative, InvalidParamConfig());
     require(!config.liquidation.liquidationBonusFactor.isChangeRelative, InvalidParamConfig());
+  }
+
+  /// @dev Enforces the per-field `isChangeRelative` invariants for a `PriceCapConfig`.
+  function _validatePriceCapConfig(PriceCapConfig calldata config) internal pure {
+    require(config.priceCapLst.isChangeRelative, InvalidParamConfig());
+    require(config.priceCapStable.isChangeRelative, InvalidParamConfig());
+    require(!config.discountRatePendle.isChangeRelative, InvalidParamConfig());
   }
 
   function _requireHubAvailable(IHub hub) internal view {

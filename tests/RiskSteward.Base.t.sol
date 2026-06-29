@@ -27,11 +27,14 @@ import {ISpoke} from 'aave-v4/spoke/interfaces/ISpoke.sol';
 import {ISpokeConfigurator} from 'aave-v4/spoke/interfaces/ISpokeConfigurator.sol';
 import {IAccessManagerEnumerable} from 'aave-v4/access/interfaces/IAccessManagerEnumerable.sol';
 
+import {IPriceCapAdapter} from 'aave-price-feeds/interfaces/IPriceCapAdapter.sol';
+import {IPriceCapAdapterStable} from 'aave-price-feeds/interfaces/IPriceCapAdapterStable.sol';
+import {IPendlePriceCapAdapter} from 'aave-price-feeds/interfaces/IPendlePriceCapAdapter.sol';
+
 import {RiskSteward, IRiskSteward} from 'src/RiskSteward.sol';
 
 contract RiskStewardTestBase is Test {
-  using SafeCast for uint256;
-  using SafeCast for int256;
+  using SafeCast for *;
 
   address internal immutable RISK_COUNCIL = makeAddr('RISK_COUNCIL');
 
@@ -55,6 +58,7 @@ contract RiskStewardTestBase is Test {
     steward.setHubConfig(address(HUB), _defaultHubConfig());
     steward.setSpokeConfig(address(MAIN_SPOKE), _defaultSpokeConfig());
     steward.setSpokeConfig(address(LIDO_SPOKE), _defaultSpokeConfig());
+    steward.setPriceCapConfig(_defaultPriceCapConfig());
     vm.stopPrank();
 
     address defaultAdmin = ACCESS_MANAGER.getRoleMember(Roles.ACCESS_MANAGER_ADMIN_ROLE, 0);
@@ -166,6 +170,27 @@ contract RiskStewardTestBase is Test {
             maxPercentChange: 5_00,
             isChangeRelative: false
           })
+        })
+      });
+  }
+
+  function _defaultPriceCapConfig() internal pure returns (IRiskSteward.PriceCapConfig memory) {
+    return
+      IRiskSteward.PriceCapConfig({
+        priceCapLst: IRiskSteward.RiskParamConfig({
+          minDelay: 3 days,
+          maxPercentChange: 10_00,
+          isChangeRelative: true
+        }),
+        priceCapStable: IRiskSteward.RiskParamConfig({
+          minDelay: 3 days,
+          maxPercentChange: 5_00,
+          isChangeRelative: true
+        }),
+        discountRatePendle: IRiskSteward.RiskParamConfig({
+          minDelay: 3 days,
+          maxPercentChange: 0.1e18,
+          isChangeRelative: false
         })
       });
   }
@@ -400,6 +425,31 @@ contract RiskStewardTestBase is Test {
     return arr;
   }
 
+  function _toArray(
+    IRiskSteward.PriceCapLstUpdate memory update
+  ) internal pure returns (IRiskSteward.PriceCapLstUpdate[] memory) {
+    IRiskSteward.PriceCapLstUpdate[] memory arr = new IRiskSteward.PriceCapLstUpdate[](1);
+    arr[0] = update;
+    return arr;
+  }
+
+  function _toArray(
+    IRiskSteward.PriceCapStableUpdate memory update
+  ) internal pure returns (IRiskSteward.PriceCapStableUpdate[] memory) {
+    IRiskSteward.PriceCapStableUpdate[] memory arr = new IRiskSteward.PriceCapStableUpdate[](1);
+    arr[0] = update;
+    return arr;
+  }
+
+  function _toArray(
+    IRiskSteward.DiscountRatePendleUpdate memory update
+  ) internal pure returns (IRiskSteward.DiscountRatePendleUpdate[] memory) {
+    IRiskSteward.DiscountRatePendleUpdate[]
+      memory arr = new IRiskSteward.DiscountRatePendleUpdate[](1);
+    arr[0] = update;
+    return arr;
+  }
+
   function assertEq(
     IAssetInterestRateStrategy.InterestRateData memory a,
     IAssetInterestRateStrategy.InterestRateData memory b
@@ -447,5 +497,31 @@ contract RiskStewardTestBase is Test {
     assertEq(a.healthFactorForMaxBonus, b.healthFactorForMaxBonus);
     assertEq(a.liquidationBonusFactor, b.liquidationBonusFactor);
     assertEq(abi.encode(a), abi.encode(b));
+  }
+
+  function assertEq(
+    IPriceCapAdapter adapter,
+    IRiskSteward.PriceCapLstUpdate memory expected
+  ) internal view {
+    assertEq(adapter.getSnapshotRatio(), expected.priceCapUpdateParams.snapshotRatio);
+    assertEq(adapter.getSnapshotTimestamp(), expected.priceCapUpdateParams.snapshotTimestamp);
+    assertEq(
+      adapter.getMaxYearlyGrowthRatePercent(),
+      expected.priceCapUpdateParams.maxYearlyRatioGrowthPercent
+    );
+  }
+
+  function assertEq(
+    IPriceCapAdapterStable adapter,
+    IRiskSteward.PriceCapStableUpdate memory expected
+  ) internal view {
+    assertEq(adapter.getPriceCap(), expected.priceCap.toInt256());
+  }
+
+  function assertEq(
+    IPendlePriceCapAdapter adapter,
+    IRiskSteward.DiscountRatePendleUpdate memory expected
+  ) internal view {
+    assertEq(adapter.discountRatePerYear(), expected.discountRate);
   }
 }
