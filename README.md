@@ -64,10 +64,10 @@ For each risk param, `minDelay` can be configured, which is the minimum amount o
 
 For each risk param, `maxPercentChange` is the maximum percent change allowed (both upwards and downwards) for the risk param using the RiskStewards.
 
-- Hub-spoke caps (addCap, drawCap), spoke collateralRisk, spoke-global targetHealthFactor and healthFactorForMaxBonus: `maxPercentChange` is **relative** and is denominated in BPS. (Ex. `50_00` for ±50% relative change).
+- Hub-spoke caps (addCap, drawCap), spoke-global targetHealthFactor and healthFactorForMaxBonus: `maxPercentChange` is **relative** and is denominated in BPS. (Ex. `50_00` for ±50% relative change).
   For example, with a spoke's current addCap at 1_000_000 and `maxPercentChange` configured at `50_00`, the max addCap the steward can set is 1_500_000 and the minimum 500_000.
 
-- Hub-asset IR params (optimalUsageRatio, baseDrawnRate, rateGrowthBeforeOptimal, rateGrowthAfterOptimal): `maxPercentChange` is in **absolute** values, denominated in BPS. (Ex. `1_00` for ±1% change in optimalUsageRatio).
+- Hub-asset IR params (optimalUsageRatio, baseDrawnRate, rateGrowthBeforeOptimal, rateGrowthAfterOptimal) and spoke collateralRisk: `maxPercentChange` is in **absolute** values, denominated in BPS. (Ex. `1_00` for ±1% change in optimalUsageRatio).
   For example, for a current optimalUsageRatio of an asset configured at 90_00 (90%) and `maxPercentChange` configured at `1_00`, the max optimalUsageRatio that can be configured is 91_00 (91%) and the minimum 89_00 (89%).
 
 - Spoke dynamic params (collateralFactor, maxLiquidationBonus): `maxPercentChange` is in **absolute** values, denominated in BPS — read from `SpokeConfig.dynamicUpdate` for `updateDynamicReserveConfigs` and `SpokeConfig.dynamicAdd` for `addDynamicReserveConfigs`. For additions the change is validated against the values of the **latest existing** dynamicConfigKey on that reserve (read via `ISpoke.getReserve(reserveId).dynamicConfigKey`), and the new entry's `liquidationFee` must equal the latest existing key's `liquidationFee` (otherwise `ParamChangeNotAllowed`).
@@ -78,7 +78,7 @@ After the activation proposal, these params can only be changed by the governanc
 
 _Note: The Risk Stewards will not allow setting the following params to 0 no matter if the `maxPercentChange` has been configured to 100%: `addCap`, `drawCap`, `collateralFactor`, `maxLiquidationBonus`, `targetHealthFactor`, `healthFactorForMaxBonus`, `liquidationBonusFactor` — setting any of these to 0 effectively halts the asset or removes a safety property and should be a governance action. The Risk Stewards will however allow setting the IR params and `collateralRisk` to 0, since `0` is a normal configuration on v4 (e.g. WETH/CORE_HUB currently has `baseDrawnRate = 0`, and WETH/MAIN_SPOKE has `collateralRisk = 0`)._
 
-_Note: For params using **relative** change mode (caps, collateralRisk, targetHealthFactor, healthFactorForMaxBonus), once the on-chain value reaches 0 the steward can no longer change it. The bound is `maxDiff = current * maxPercentChange / 100_00`, which is 0 when `current = 0`, so every non-zero target fails the range check with `UpdateNotInRange`. Moving a relative-mode param off 0 requires governance via the configurator directly._
+_Note: For params using **relative** change mode (caps, targetHealthFactor, healthFactorForMaxBonus), once the on-chain value reaches 0 the steward can no longer change it. The bound is `maxDiff = current * maxPercentChange / 100_00`, which is 0 when `current = 0`, so every non-zero target fails the range check with `UpdateNotInRange`. Moving a relative-mode param off 0 requires governance via the configurator directly._
 
 #### Batch validation semantics (storage-anchored):
 

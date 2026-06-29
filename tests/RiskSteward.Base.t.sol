@@ -128,7 +128,7 @@ contract RiskStewardTestBase is Test {
         collateralRisk: IRiskSteward.RiskParamConfig({
           minDelay: 3 days,
           maxPercentChange: 20_00,
-          isChangeRelative: true
+          isChangeRelative: false
         }),
         dynamicUpdate: IRiskSteward.SpokeDynamicConfig({
           collateralFactor: IRiskSteward.RiskParamConfig({

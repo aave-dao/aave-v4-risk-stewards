@@ -108,9 +108,9 @@ contract RiskStewardAccessControlTest is RiskStewardTestBase {
     steward.setHubConfig(address(HUB), cfg);
   }
 
-  function test_setSpokeConfig_revertsWith_InvalidParamConfig_whenCollateralRiskAbsolute() public {
+  function test_setSpokeConfig_revertsWith_InvalidParamConfig_whenCollateralRiskRelative() public {
     IRiskSteward.SpokeConfig memory cfg = _defaultSpokeConfig();
-    cfg.collateralRisk.isChangeRelative = false; // collateralRisk must be relative
+    cfg.collateralRisk.isChangeRelative = true; // collateralRisk must be absolute
     vm.prank(OWNER);
     vm.expectRevert(IRiskSteward.InvalidParamConfig.selector);
     steward.setSpokeConfig(address(MAIN_SPOKE), cfg);

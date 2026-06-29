@@ -796,7 +796,7 @@ contract RiskSteward is Ownable2Step, IRiskSteward {
 
   /// @dev Enforces the per-field `isChangeRelative` invariants for a `SpokeConfig`.
   function _validateSpokeConfig(SpokeConfig calldata config) internal pure {
-    require(config.collateralRisk.isChangeRelative, InvalidParamConfig());
+    require(!config.collateralRisk.isChangeRelative, InvalidParamConfig());
     require(!config.dynamicUpdate.collateralFactor.isChangeRelative, InvalidParamConfig());
     require(!config.dynamicUpdate.maxLiquidationBonus.isChangeRelative, InvalidParamConfig());
     require(!config.dynamicAdd.collateralFactor.isChangeRelative, InvalidParamConfig());

@@ -173,7 +173,7 @@ interface IRiskSteward {
   /// @notice Owner-set risk config for a spoke. Setting `spokeConfigurator` to the zero address
   /// removes the spoke. The struct also doubles as the registration record.
   /// @dev spokeConfigurator The SpokeConfigurator that owns the spoke.
-  /// @dev collateralRisk Bound for `ReserveConfig.collateralRisk` (relative).
+  /// @dev collateralRisk Bound for `ReserveConfig.collateralRisk` (absolute).
   /// @dev dynamicUpdate Bounds applied by `updateDynamicReserveConfigs` (mutates an existing key
   /// users may be positioned in — typically the stricter of the two).
   /// @dev dynamicAdd Bounds applied by `addDynamicReserveConfigs` (appends a brand-new key with
