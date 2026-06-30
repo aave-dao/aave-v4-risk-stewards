@@ -53,7 +53,7 @@ interface IRiskSteward {
   /// @notice Thrown when adding a dynamic reserve config on a reserve that has no prior key.
   error NoExistingDynamicConfig();
 
-  /// @notice Thrown when an update entry carries a `hubConfigurator` / `spokeConfigurator` that
+  /// @notice Thrown when an update entry uses a `hubConfigurator` / `spokeConfigurator` that
   /// differs from the configurator registered for the targeted hub / spoke.
   error ConfiguratorMismatch();
 
