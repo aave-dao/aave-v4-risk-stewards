@@ -39,7 +39,7 @@ contract RiskStewardHubSpokeCapsTest is RiskStewardTestBase {
   }
 
   function test_fuzz_updateHubSpokeCaps(int256 addCapDeltaBps, int256 drawCapDeltaBps) public {
-    IRiskSteward.HubCapConfig memory capBounds = steward.getHubConfig(address(HUB)).cap;
+    IRiskSteward.HubCapConfig memory capBounds = steward.getConfig().hub.cap;
     IHub.SpokeConfig memory current = _spokeConfig(HUB, MAIN_SPOKE, ASSET);
 
     addCapDeltaBps = _boundDelta(addCapDeltaBps, capBounds.addCap.maxPercentChange);

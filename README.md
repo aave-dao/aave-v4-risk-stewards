@@ -11,7 +11,7 @@ The `RiskSteward` is a smart contract to which the Aave Governance grants the re
 - `Roles.HUB_CONFIGURATOR_DOMAIN_ADMIN_ROLE` — required to call all `HubConfigurator` entrypoints used by the steward (`updateInterestRateData`, `updateSpokeCaps` / `updateSpokeAddCap` / `updateSpokeDrawCap`).
 - `Roles.SPOKE_CONFIGURATOR_DOMAIN_ADMIN_ROLE` — required to call all `SpokeConfigurator` entrypoints used by the steward (`updateCollateralRisk`, `updateDynamicReserveConfig`, `addDynamicReserveConfig`, `updateLiquidationConfig` and its per-field setters).
 
-A single steward instance manages **many** hubs and **many** spokes of the v4 Hub/Spoke deployment. The owner registers each Hub and Spoke individually with its own `RiskParamConfig` bounds (`minDelay` + `maxPercentChange` + `isChangeRelative` per param; the setter enforces the expected mode per field). Registering a hub is achieved by calling `setHubConfig(hub, HubConfig)`; same for spokes via `setSpokeConfig`. Removing a registration is `setHubConfig(hub, zero)` (sugar: `removeHubConfig(hub)`).
+A single steward instance manages **every** Hub and **every** Spoke in the configurator domain. The owner sets a single global `Config` (containing `hub`, `spoke`, and `priceCap` sub-configs, each carrying its `HubConfigurator` / `SpokeConfigurator` address plus per-param `minDelay` + `maxPercentChange` + `isChangeRelative` bounds; the setter enforces the expected mode per field) via `setConfig(Config)`. New Hubs / Spokes listed by governance are automatically in scope. Specific Hubs / Spokes / `(spoke, hub)` pairs / reserves can be excluded via the restriction setters — `setHubRestricted`, `setSpokeRestricted`, `setSpokeHubRestricted`, `setReserveRestricted`.
 
 <br/>
 
@@ -52,7 +52,7 @@ Both updating an existing dynamic config key (`updateDynamicReserveConfigs`) and
 - Stable adapter: `priceCap` via `updateStablePriceCaps`
 - Pendle adapter: `discountRatePerYear` via `updatePendleDiscountRates`
 
-Each oracle has a single shared debounce (`_oracleDebounces[oracle]`) and its bounds come from the global `PriceCapConfig` set by the owner via `setPriceCapConfig`. The LST executor additionally re-reads `isCapped()` after `setCapParameters` and reverts with `InvalidPriceCapUpdate` if the new params would leave the adapter in a capped state.
+Each oracle has a single shared debounce (`_oracleDebounces[oracle]`) and its bounds come from `Config.priceCap` set by the owner via `setConfig`. The LST executor additionally re-reads `isCapped()` after `setCapParameters` and reverts with `InvalidPriceCapUpdate` if the new params would leave the adapter in a capped state.
 
 Refused fields the steward will not change (`ParamChangeNotAllowed`): `liquidityFee`, `riskPremiumThreshold`, `liquidationFee`, every bool toggle (`active`/`halted`/`paused`/`frozen`/`borrowable`/`receiveSharesEnabled`), `priceSource`, `irStrategy` address swap, `feeReceiver`, `reinvestmentController`, all listings, all halts/deactivations/resets, position-manager and access-manager admin. The full per-field matrix lives in [docs/ConfigurableParams.md](./docs/ConfigurableParams.md).
 
@@ -74,7 +74,7 @@ For each risk param, `maxPercentChange` is the maximum percent change allowed (b
 
 - Spoke-global liquidationBonusFactor: `maxPercentChange` is in **absolute** values, denominated in BPS.
 
-After the activation proposal, these params can only be changed by the governance by calling the `setHubConfig` / `setSpokeConfig` methods.
+After the activation proposal, these params can only be changed by the governance by calling `setConfig`.
 
 _Note: The Risk Stewards will not allow setting the following params to 0 no matter if the `maxPercentChange` has been configured to 100%: `addCap`, `drawCap`, `collateralFactor`, `maxLiquidationBonus`, `targetHealthFactor`, `healthFactorForMaxBonus`, `liquidationBonusFactor` — setting any of these to 0 effectively halts the asset or removes a safety property and should be a governance action. The Risk Stewards will however allow setting the IR params and `collateralRisk` to 0, since `0` is a normal configuration on v4 (e.g. WETH/CORE_HUB currently has `baseDrawnRate = 0`, and WETH/MAIN_SPOKE has `collateralRisk = 0`)._
 

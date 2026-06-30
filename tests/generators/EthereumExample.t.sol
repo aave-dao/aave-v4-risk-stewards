@@ -176,10 +176,8 @@ contract EthereumExampleTest is Test {
 
     steward = new RiskSteward(RISK_COUNCIL, OWNER);
 
-    vm.startPrank(OWNER);
-    steward.setHubConfig(address(HUB), _hubConfig());
-    steward.setSpokeConfig(address(SPOKE), _spokeConfig());
-    vm.stopPrank();
+    vm.prank(OWNER);
+    steward.setConfig(_config());
 
     IAccessManagerEnumerable accessManager = AaveV4Ethereum.ACCESS_MANAGER;
     address accessAdmin = accessManager.getRoleMember(Roles.ACCESS_MANAGER_ADMIN_ROLE, 0);
@@ -276,7 +274,7 @@ contract EthereumExampleTest is Test {
     assertEq(example.spokeLiquidationConfigUpdates().length, 2, 'spokeLiquidationConfigUpdates');
   }
 
-  function _hubConfig() internal pure returns (IRiskSteward.HubConfig memory) {
+  function _config() internal pure returns (IRiskSteward.Config memory) {
     IRiskSteward.RiskParamConfig memory wideAbs = IRiskSteward.RiskParamConfig({
       minDelay: 0,
       maxPercentChange: 100_00,
@@ -288,45 +286,38 @@ contract EthereumExampleTest is Test {
       isChangeRelative: true
     });
     return
-      IRiskSteward.HubConfig({
-        hubConfigurator: AaveV4Ethereum.HUB_CONFIGURATOR,
-        rate: IRiskSteward.HubRateConfig({
-          optimalUsageRatio: wideAbs,
-          baseDrawnRate: wideAbs,
-          rateGrowthBeforeOptimal: wideAbs,
-          rateGrowthAfterOptimal: wideAbs
+      IRiskSteward.Config({
+        hub: IRiskSteward.HubConfig({
+          configurator: AaveV4Ethereum.HUB_CONFIGURATOR,
+          rate: IRiskSteward.HubRateConfig({
+            optimalUsageRatio: wideAbs,
+            baseDrawnRate: wideAbs,
+            rateGrowthBeforeOptimal: wideAbs,
+            rateGrowthAfterOptimal: wideAbs
+          }),
+          cap: IRiskSteward.HubCapConfig({addCap: wideRel, drawCap: wideRel})
         }),
-        cap: IRiskSteward.HubCapConfig({addCap: wideRel, drawCap: wideRel})
-      });
-  }
-
-  function _spokeConfig() internal pure returns (IRiskSteward.SpokeConfig memory) {
-    IRiskSteward.RiskParamConfig memory wideAbs = IRiskSteward.RiskParamConfig({
-      minDelay: 0,
-      maxPercentChange: 100_00,
-      isChangeRelative: false
-    });
-    IRiskSteward.RiskParamConfig memory wideRel = IRiskSteward.RiskParamConfig({
-      minDelay: 0,
-      maxPercentChange: 100_00,
-      isChangeRelative: true
-    });
-    return
-      IRiskSteward.SpokeConfig({
-        spokeConfigurator: AaveV4Ethereum.SPOKE_CONFIGURATOR,
-        collateralRisk: wideRel,
-        dynamicUpdate: IRiskSteward.SpokeDynamicConfig({
-          collateralFactor: wideAbs,
-          maxLiquidationBonus: wideAbs
+        spoke: IRiskSteward.SpokeConfig({
+          configurator: AaveV4Ethereum.SPOKE_CONFIGURATOR,
+          collateralRisk: wideAbs,
+          dynamicUpdate: IRiskSteward.SpokeDynamicConfig({
+            collateralFactor: wideAbs,
+            maxLiquidationBonus: wideAbs
+          }),
+          dynamicAdd: IRiskSteward.SpokeDynamicConfig({
+            collateralFactor: wideAbs,
+            maxLiquidationBonus: wideAbs
+          }),
+          liquidation: IRiskSteward.SpokeLiquidationConfig({
+            targetHealthFactor: wideRel,
+            healthFactorForMaxBonus: wideRel,
+            liquidationBonusFactor: wideAbs
+          })
         }),
-        dynamicAdd: IRiskSteward.SpokeDynamicConfig({
-          collateralFactor: wideAbs,
-          maxLiquidationBonus: wideAbs
-        }),
-        liquidation: IRiskSteward.SpokeLiquidationConfig({
-          targetHealthFactor: wideRel,
-          healthFactorForMaxBonus: wideRel,
-          liquidationBonusFactor: wideAbs
+        oracle: IRiskSteward.OracleConfig({
+          priceCapLst: wideRel,
+          priceCapStable: wideRel,
+          discountRatePendle: wideAbs
         })
       });
   }

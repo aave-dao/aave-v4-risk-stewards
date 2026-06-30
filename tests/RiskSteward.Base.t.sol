@@ -54,12 +54,8 @@ contract RiskStewardTestBase is Test {
 
     steward = new RiskSteward(RISK_COUNCIL, OWNER);
 
-    vm.startPrank(OWNER);
-    steward.setHubConfig(address(HUB), _defaultHubConfig());
-    steward.setSpokeConfig(address(MAIN_SPOKE), _defaultSpokeConfig());
-    steward.setSpokeConfig(address(LIDO_SPOKE), _defaultSpokeConfig());
-    steward.setPriceCapConfig(_defaultPriceCapConfig());
-    vm.stopPrank();
+    vm.prank(OWNER);
+    steward.setConfig(_defaultConfig());
 
     address defaultAdmin = ACCESS_MANAGER.getRoleMember(Roles.ACCESS_MANAGER_ADMIN_ROLE, 0);
     vm.startPrank(defaultAdmin);
@@ -80,10 +76,19 @@ contract RiskStewardTestBase is Test {
     vm.label(ASSET, 'WETH');
   }
 
+  function _defaultConfig() internal pure returns (IRiskSteward.Config memory) {
+    return
+      IRiskSteward.Config({
+        hub: _defaultHubConfig(),
+        spoke: _defaultSpokeConfig(),
+        oracle: _defaultOracleConfig()
+      });
+  }
+
   function _defaultHubConfig() internal pure returns (IRiskSteward.HubConfig memory) {
     return
       IRiskSteward.HubConfig({
-        hubConfigurator: HUB_CONFIGURATOR,
+        configurator: HUB_CONFIGURATOR,
         rate: IRiskSteward.HubRateConfig({
           optimalUsageRatio: IRiskSteward.RiskParamConfig({
             minDelay: 3 days,
@@ -124,7 +129,7 @@ contract RiskStewardTestBase is Test {
   function _defaultSpokeConfig() internal pure returns (IRiskSteward.SpokeConfig memory) {
     return
       IRiskSteward.SpokeConfig({
-        spokeConfigurator: SPOKE_CONFIGURATOR,
+        configurator: SPOKE_CONFIGURATOR,
         collateralRisk: IRiskSteward.RiskParamConfig({
           minDelay: 3 days,
           maxPercentChange: 20_00,
@@ -174,9 +179,9 @@ contract RiskStewardTestBase is Test {
       });
   }
 
-  function _defaultPriceCapConfig() internal pure returns (IRiskSteward.PriceCapConfig memory) {
+  function _defaultOracleConfig() internal pure returns (IRiskSteward.OracleConfig memory) {
     return
-      IRiskSteward.PriceCapConfig({
+      IRiskSteward.OracleConfig({
         priceCapLst: IRiskSteward.RiskParamConfig({
           minDelay: 3 days,
           maxPercentChange: 10_00,

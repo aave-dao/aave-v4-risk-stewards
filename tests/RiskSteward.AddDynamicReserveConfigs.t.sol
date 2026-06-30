@@ -41,9 +41,7 @@ contract RiskStewardAddDynamicReserveConfigsTest is RiskStewardTestBase {
   }
 
   function test_fuzz_addDynamicReserveConfigs(int256 cfDelta, int256 mlbDelta) public {
-    IRiskSteward.SpokeDynamicConfig memory dynBounds = steward
-      .getSpokeConfig(address(MAIN_SPOKE))
-      .dynamicAdd;
+    IRiskSteward.SpokeDynamicConfig memory dynBounds = steward.getConfig().spoke.dynamicAdd;
     (ISpoke.DynamicReserveConfig memory ref, uint32 latestKey) = _dynamicReserveConfig(
       MAIN_SPOKE,
       HUB,
@@ -168,11 +166,7 @@ contract RiskStewardAddDynamicReserveConfigsTest is RiskStewardTestBase {
     vm.prank(RISK_COUNCIL);
     steward.addDynamicReserveConfigs(_toArray(u));
 
-    uint256 minDelay = steward
-      .getSpokeConfig(address(MAIN_SPOKE))
-      .dynamicAdd
-      .collateralFactor
-      .minDelay;
+    uint256 minDelay = steward.getConfig().spoke.dynamicAdd.collateralFactor.minDelay;
     skip(minDelay - 1);
 
     IEngine.DynamicReserveConfigAddition memory u2 = _baseAddDynamic(); // same-value add vs new latest
@@ -194,11 +188,7 @@ contract RiskStewardAddDynamicReserveConfigsTest is RiskStewardTestBase {
     vm.prank(RISK_COUNCIL);
     steward.addDynamicReserveConfigs(_toArray(u));
 
-    uint256 minDelay = steward
-      .getSpokeConfig(address(MAIN_SPOKE))
-      .dynamicAdd
-      .collateralFactor
-      .minDelay;
+    uint256 minDelay = steward.getConfig().spoke.dynamicAdd.collateralFactor.minDelay;
     skip(minDelay + 1);
 
     IEngine.DynamicReserveConfigAddition memory u2 = _baseAddDynamic(); // same-value add vs new latest

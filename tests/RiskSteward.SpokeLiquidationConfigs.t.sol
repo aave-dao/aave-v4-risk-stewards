@@ -40,9 +40,7 @@ contract RiskStewardSpokeLiquidationConfigsTest is RiskStewardTestBase {
     int256 healthFactorForMaxBonusDeltaBps,
     int256 liquidationBonusFactorDelta
   ) public {
-    IRiskSteward.SpokeLiquidationConfig memory liqBounds = steward
-      .getSpokeConfig(address(MAIN_SPOKE))
-      .liquidation;
+    IRiskSteward.SpokeLiquidationConfig memory liqBounds = steward.getConfig().spoke.liquidation;
     ISpoke.LiquidationConfig memory current = MAIN_SPOKE.getLiquidationConfig();
 
     targetHealthFactorDeltaBps = _boundDelta(
@@ -134,14 +132,6 @@ contract RiskStewardSpokeLiquidationConfigsTest is RiskStewardTestBase {
 
     vm.prank(RISK_COUNCIL);
     vm.expectRevert(IRiskSteward.ConfiguratorMismatch.selector);
-    steward.updateSpokeLiquidationConfigs(_toArray(u));
-  }
-
-  function test_updateSpokeLiquidationConfigs_revertsWith_SpokeNotRegistered() public {
-    IEngine.LiquidationConfigUpdate memory u = _baseLiquidationUpdate();
-    u.spoke = address(0xbeef);
-    vm.prank(RISK_COUNCIL);
-    vm.expectRevert(IRiskSteward.SpokeNotRegistered.selector);
     steward.updateSpokeLiquidationConfigs(_toArray(u));
   }
 

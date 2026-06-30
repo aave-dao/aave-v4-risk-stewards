@@ -47,7 +47,7 @@ contract RiskStewardHubAssetIRsTest is RiskStewardTestBase {
     int256 rateGrowthBeforeDelta,
     int256 rateGrowthAfterDelta
   ) public {
-    IRiskSteward.HubRateConfig memory rateBounds = steward.getHubConfig(address(HUB)).rate;
+    IRiskSteward.HubRateConfig memory rateBounds = steward.getConfig().hub.rate;
     IAssetInterestRateStrategy.InterestRateData memory current = _interestRateData(HUB, ASSET);
 
     optUsageDelta = _boundDelta(optUsageDelta, rateBounds.optimalUsageRatio.maxPercentChange);
@@ -208,7 +208,7 @@ contract RiskStewardHubAssetIRsTest is RiskStewardTestBase {
 
   function test_updateHubAssetIRs_overUpperBound_revertsWith_UpdateNotInRange() public {
     IAssetInterestRateStrategy.InterestRateData memory current = _interestRateData(HUB, ASSET);
-    IRiskSteward.HubConfig memory hubConfig = steward.getHubConfig(address(HUB));
+    IRiskSteward.HubConfig memory hubConfig = steward.getConfig().hub;
     IEngine.AssetConfigUpdate memory u = _baseIRUpdate();
     u.irData.optimalUsageRatio =
       current.optimalUsageRatio +
@@ -222,7 +222,7 @@ contract RiskStewardHubAssetIRsTest is RiskStewardTestBase {
 
   function test_updateHubAssetIRs_underLowerBound_revertsWith_UpdateNotInRange() public {
     IAssetInterestRateStrategy.InterestRateData memory current = _interestRateData(HUB, ASSET);
-    IRiskSteward.HubConfig memory hubConfig = steward.getHubConfig(address(HUB));
+    IRiskSteward.HubConfig memory hubConfig = steward.getConfig().hub;
     uint16 maxPercentageChange = hubConfig.rate.optimalUsageRatio.maxPercentChange.toUint16();
     vm.assume(current.optimalUsageRatio >= maxPercentageChange + 2); // need room to subtract
 
@@ -252,16 +252,6 @@ contract RiskStewardHubAssetIRsTest is RiskStewardTestBase {
       steward.getHubAssetDebounce(address(HUB), ASSET).baseDrawnRate,
       vm.getBlockTimestamp().toUint40()
     );
-  }
-
-  function test_updateHubAssetIRs_revertsWith_HubNotRegistered() public {
-    address newHub = address(0xbeef);
-    IEngine.AssetConfigUpdate memory u = _baseIRUpdate();
-    u.hub = newHub;
-
-    vm.prank(RISK_COUNCIL);
-    vm.expectRevert(IRiskSteward.HubNotRegistered.selector);
-    steward.updateHubAssetIRs(_toArray(u));
   }
 
   function test_updateHubAssetIRs_revertsWith_ConfiguratorMismatch() public {

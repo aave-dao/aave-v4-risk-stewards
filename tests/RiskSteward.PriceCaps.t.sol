@@ -346,34 +346,27 @@ contract RiskStewardPriceCapsTest is RiskStewardTestBase {
       });
   }
 
-  function test_setPriceCapConfig_revertsWith_InvalidParamConfig_whenLstAbsolute() public {
-    IRiskSteward.PriceCapConfig memory cfg = _defaultPriceCapConfig();
-    cfg.priceCapLst.isChangeRelative = false;
+  function test_setConfig_revertsWith_InvalidParamConfig_whenLstAbsolute() public {
+    IRiskSteward.Config memory cfg = _defaultConfig();
+    cfg.oracle.priceCapLst.isChangeRelative = false;
     vm.prank(OWNER);
     vm.expectRevert(IRiskSteward.InvalidParamConfig.selector);
-    steward.setPriceCapConfig(cfg);
+    steward.setConfig(cfg);
   }
 
-  function test_setPriceCapConfig_revertsWith_InvalidParamConfig_whenStableAbsolute() public {
-    IRiskSteward.PriceCapConfig memory cfg = _defaultPriceCapConfig();
-    cfg.priceCapStable.isChangeRelative = false;
+  function test_setConfig_revertsWith_InvalidParamConfig_whenStableAbsolute() public {
+    IRiskSteward.Config memory cfg = _defaultConfig();
+    cfg.oracle.priceCapStable.isChangeRelative = false;
     vm.prank(OWNER);
     vm.expectRevert(IRiskSteward.InvalidParamConfig.selector);
-    steward.setPriceCapConfig(cfg);
+    steward.setConfig(cfg);
   }
 
-  function test_setPriceCapConfig_revertsWith_InvalidParamConfig_whenPendleRelative() public {
-    IRiskSteward.PriceCapConfig memory cfg = _defaultPriceCapConfig();
-    cfg.discountRatePendle.isChangeRelative = true;
+  function test_setConfig_revertsWith_InvalidParamConfig_whenPendleRelative() public {
+    IRiskSteward.Config memory cfg = _defaultConfig();
+    cfg.oracle.discountRatePendle.isChangeRelative = true;
     vm.prank(OWNER);
     vm.expectRevert(IRiskSteward.InvalidParamConfig.selector);
-    steward.setPriceCapConfig(cfg);
-  }
-
-  function test_setPriceCapConfig_revertsWith_OwnableUnauthorizedAccount() public {
-    vm.expectRevert(
-      abi.encodeWithSelector(Ownable.OwnableUnauthorizedAccount.selector, address(this))
-    );
-    steward.setPriceCapConfig(_defaultPriceCapConfig());
+    steward.setConfig(cfg);
   }
 }

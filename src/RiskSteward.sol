@@ -33,9 +33,7 @@ contract RiskSteward is Ownable2Step, IRiskSteward {
   /// @inheritdoc IRiskSteward
   address public immutable RISK_COUNCIL;
 
-  mapping(IHub hub => HubConfig) internal _hubConfigs;
-  mapping(ISpoke spoke => SpokeConfig) internal _spokeConfigs;
-  PriceCapConfig internal _priceCapConfig;
+  Config internal _config;
 
   mapping(IHub hub => mapping(address asset => HubAssetDebounce)) internal _hubAssetDebounces;
   mapping(IHub hub => mapping(ISpoke spoke => mapping(address asset => HubSpokeAssetDebounce)))
@@ -60,52 +58,17 @@ contract RiskSteward is Ownable2Step, IRiskSteward {
 
   /// @dev Constructor.
   /// @param riskCouncil_ The council address authorized to call update entrypoints.
-  /// @param initialOwner_ The owner authorized to configure hubs, spokes, and restrictions.
+  /// @param initialOwner_ The owner authorized to configure bounds and restrictions.
   constructor(address riskCouncil_, address initialOwner_) Ownable(initialOwner_) {
     require(riskCouncil_ != address(0));
     RISK_COUNCIL = riskCouncil_;
   }
 
   /// @inheritdoc IRiskSteward
-  function setHubConfig(address hub, HubConfig calldata config) external onlyOwner {
-    _validateHubConfig(config);
-    _hubConfigs[IHub(hub)] = config;
-    emit HubConfigSet(hub, config);
-  }
-
-  /// @inheritdoc IRiskSteward
-  function setSpokeConfig(address spoke, SpokeConfig calldata config) external onlyOwner {
-    _validateSpokeConfig(config);
-    _spokeConfigs[ISpoke(spoke)] = config;
-    emit SpokeConfigSet(spoke, config);
-  }
-
-  /// @inheritdoc IRiskSteward
-  function setPriceCapConfig(PriceCapConfig calldata config) external onlyOwner {
-    _validatePriceCapConfig(config);
-    _priceCapConfig = config;
-    emit PriceCapConfigSet(config);
-  }
-
-  /// @inheritdoc IRiskSteward
-  function removeHubConfig(address hub) external onlyOwner {
-    delete _hubConfigs[IHub(hub)];
-    HubConfig memory empty;
-    emit HubConfigSet(hub, empty);
-  }
-
-  /// @inheritdoc IRiskSteward
-  function removeSpokeConfig(address spoke) external onlyOwner {
-    delete _spokeConfigs[ISpoke(spoke)];
-    SpokeConfig memory empty;
-    emit SpokeConfigSet(spoke, empty);
-  }
-
-  /// @inheritdoc IRiskSteward
-  function removePriceCapConfig() external onlyOwner {
-    delete _priceCapConfig;
-    PriceCapConfig memory empty;
-    emit PriceCapConfigSet(empty);
+  function setConfig(Config calldata config) external onlyOwner {
+    _validateConfig(config);
+    _config = config;
+    emit ConfigSet(config);
   }
 
   /// @inheritdoc IRiskSteward
@@ -206,18 +169,8 @@ contract RiskSteward is Ownable2Step, IRiskSteward {
   }
 
   /// @inheritdoc IRiskSteward
-  function getHubConfig(address hub) external view returns (HubConfig memory) {
-    return _hubConfigs[IHub(hub)];
-  }
-
-  /// @inheritdoc IRiskSteward
-  function getSpokeConfig(address spoke) external view returns (SpokeConfig memory) {
-    return _spokeConfigs[ISpoke(spoke)];
-  }
-
-  /// @inheritdoc IRiskSteward
-  function getPriceCapConfig() external view returns (PriceCapConfig memory) {
-    return _priceCapConfig;
+  function getConfig() external view returns (Config memory) {
+    return _config;
   }
 
   /// @inheritdoc IRiskSteward
@@ -422,11 +375,8 @@ contract RiskSteward is Ownable2Step, IRiskSteward {
     require(updates.length != 0, NoZeroUpdates());
     for (uint256 i; i < updates.length; ++i) {
       IHub hub = IHub(updates[i].hub);
-      _requireHubAvailable(hub);
-      require(
-        updates[i].hubConfigurator == _hubConfigs[hub].hubConfigurator,
-        ConfiguratorMismatch()
-      );
+      _requireHubNotRestricted(hub);
+      require(updates[i].hubConfigurator == _config.hub.configurator, ConfiguratorMismatch());
 
       require(updates[i].liquidityFee == EngineFlags.KEEP_CURRENT, ParamChangeNotAllowed());
       require(updates[i].feeReceiver == EngineFlags.KEEP_CURRENT_ADDRESS, ParamChangeNotAllowed());
@@ -438,7 +388,7 @@ contract RiskSteward is Ownable2Step, IRiskSteward {
 
       address asset = updates[i].underlying;
       IAssetInterestRateStrategy.InterestRateData memory current = _getCurrentIRData(hub, asset);
-      HubRateConfig memory rateBounds = _hubConfigs[hub].rate;
+      HubRateConfig memory rateBounds = _config.hub.rate;
       HubAssetDebounce memory debounce = _hubAssetDebounces[hub][asset];
 
       _validateIRFieldUint16({
@@ -474,11 +424,8 @@ contract RiskSteward is Ownable2Step, IRiskSteward {
       IHub hub = IHub(updates[i].hub);
       ISpoke spoke = ISpoke(updates[i].spoke);
       address asset = updates[i].underlying;
-      _requireHubAvailable(hub);
-      require(
-        updates[i].hubConfigurator == _hubConfigs[hub].hubConfigurator,
-        ConfiguratorMismatch()
-      );
+      _requireHubNotRestricted(hub);
+      require(updates[i].hubConfigurator == _config.hub.configurator, ConfiguratorMismatch());
       _requireSpokeNotRestricted(spoke);
       _requireSpokeHubNotRestricted(spoke, hub);
       _requireReserveNotRestricted(spoke, hub, asset);
@@ -498,7 +445,7 @@ contract RiskSteward is Ownable2Step, IRiskSteward {
 
       uint256 assetId = hub.getAssetId(asset);
       IHub.SpokeConfig memory current = hub.getSpokeConfig(assetId, address(spoke));
-      HubCapConfig memory capBounds = _hubConfigs[hub].cap;
+      HubCapConfig memory capBounds = _config.hub.cap;
       HubSpokeAssetDebounce memory debounce = _hubSpokeAssetDebounces[hub][spoke][asset];
 
       _validateParamUpdate(
@@ -526,11 +473,8 @@ contract RiskSteward is Ownable2Step, IRiskSteward {
       ISpoke spoke = ISpoke(updates[i].spoke);
       IHub hub = IHub(updates[i].hub);
       address asset = updates[i].underlying;
-      _requireSpokeAvailable(spoke);
-      require(
-        updates[i].spokeConfigurator == _spokeConfigs[spoke].spokeConfigurator,
-        ConfiguratorMismatch()
-      );
+      _requireSpokeNotRestricted(spoke);
+      require(updates[i].spokeConfigurator == _config.spoke.configurator, ConfiguratorMismatch());
       _requireHubNotRestricted(hub);
       _requireSpokeHubNotRestricted(spoke, hub);
       _requireReserveNotRestricted(spoke, hub, asset);
@@ -549,7 +493,7 @@ contract RiskSteward is Ownable2Step, IRiskSteward {
           currentValue: current.collateralRisk,
           newValue: updates[i].collateralRisk,
           lastUpdated: _spokeReserveDebounces[spoke][hub][asset].collateralRisk,
-          riskConfig: _spokeConfigs[spoke].collateralRisk
+          riskConfig: _config.spoke.collateralRisk
         })
       );
     }
@@ -563,11 +507,8 @@ contract RiskSteward is Ownable2Step, IRiskSteward {
       ISpoke spoke = ISpoke(updates[i].spoke);
       IHub hub = IHub(updates[i].hub);
       address asset = updates[i].underlying;
-      _requireSpokeAvailable(spoke);
-      require(
-        updates[i].spokeConfigurator == _spokeConfigs[spoke].spokeConfigurator,
-        ConfiguratorMismatch()
-      );
+      _requireSpokeNotRestricted(spoke);
+      require(updates[i].spokeConfigurator == _config.spoke.configurator, ConfiguratorMismatch());
       _requireHubNotRestricted(hub);
       _requireSpokeHubNotRestricted(spoke, hub);
       _requireReserveNotRestricted(spoke, hub, asset);
@@ -587,7 +528,7 @@ contract RiskSteward is Ownable2Step, IRiskSteward {
       uint32 key = updates[i].dynamicConfigKey.toUint32();
       uint256 reserveId = _resolveReserveId(spoke, hub, asset);
       ISpoke.DynamicReserveConfig memory current = spoke.getDynamicReserveConfig(reserveId, key);
-      SpokeDynamicConfig memory dynamicBounds = _spokeConfigs[spoke].dynamicUpdate;
+      SpokeDynamicConfig memory dynamicBounds = _config.spoke.dynamicUpdate;
       SpokeDynamicDebounce memory debounce = _spokeDynamicDebounces[spoke][hub][asset];
 
       _validateParamUpdate(
@@ -617,11 +558,8 @@ contract RiskSteward is Ownable2Step, IRiskSteward {
       ISpoke spoke = ISpoke(additions[i].spoke);
       IHub hub = IHub(additions[i].hub);
       address asset = additions[i].underlying;
-      _requireSpokeAvailable(spoke);
-      require(
-        additions[i].spokeConfigurator == _spokeConfigs[spoke].spokeConfigurator,
-        ConfiguratorMismatch()
-      );
+      _requireSpokeNotRestricted(spoke);
+      require(additions[i].spokeConfigurator == _config.spoke.configurator, ConfiguratorMismatch());
       _requireHubNotRestricted(hub);
       _requireSpokeHubNotRestricted(spoke, hub);
       _requireReserveNotRestricted(spoke, hub, asset);
@@ -637,7 +575,7 @@ contract RiskSteward is Ownable2Step, IRiskSteward {
 
       require(newCfg.liquidationFee == ref.liquidationFee, ParamChangeNotAllowed());
 
-      SpokeDynamicConfig memory dynamicBounds = _spokeConfigs[spoke].dynamicAdd;
+      SpokeDynamicConfig memory dynamicBounds = _config.spoke.dynamicAdd;
       SpokeDynamicDebounce memory debounce = _spokeDynamicDebounces[spoke][hub][asset];
 
       _validateParamUpdate(
@@ -665,11 +603,8 @@ contract RiskSteward is Ownable2Step, IRiskSteward {
     require(updates.length != 0, NoZeroUpdates());
     for (uint256 i; i < updates.length; ++i) {
       ISpoke spoke = ISpoke(updates[i].spoke);
-      _requireSpokeAvailable(spoke);
-      require(
-        updates[i].spokeConfigurator == _spokeConfigs[spoke].spokeConfigurator,
-        ConfiguratorMismatch()
-      );
+      _requireSpokeNotRestricted(spoke);
+      require(updates[i].spokeConfigurator == _config.spoke.configurator, ConfiguratorMismatch());
 
       require(
         updates[i].targetHealthFactor == EngineFlags.KEEP_CURRENT ||
@@ -688,7 +623,7 @@ contract RiskSteward is Ownable2Step, IRiskSteward {
       );
 
       ISpoke.LiquidationConfig memory current = spoke.getLiquidationConfig();
-      SpokeLiquidationConfig memory liquidationBounds = _spokeConfigs[spoke].liquidation;
+      SpokeLiquidationConfig memory liquidationBounds = _config.spoke.liquidation;
       SpokeLiquidationDebounce memory debounce = _spokeLiquidationDebounces[spoke];
 
       _validateParamUpdate(
@@ -740,7 +675,7 @@ contract RiskSteward is Ownable2Step, IRiskSteward {
           currentValue: currentMaxYearlyGrowthPercent,
           newValue: params.maxYearlyRatioGrowthPercent,
           lastUpdated: _oracleDebounces[oracle],
-          riskConfig: _priceCapConfig.priceCapLst
+          riskConfig: _config.oracle.priceCapLst
         })
       );
     }
@@ -759,7 +694,7 @@ contract RiskSteward is Ownable2Step, IRiskSteward {
           currentValue: currentPriceCap,
           newValue: updates[i].priceCap,
           lastUpdated: _oracleDebounces[oracle],
-          riskConfig: _priceCapConfig.priceCapStable
+          riskConfig: _config.oracle.priceCapStable
         })
       );
     }
@@ -778,53 +713,43 @@ contract RiskSteward is Ownable2Step, IRiskSteward {
           currentValue: currentDiscount,
           newValue: updates[i].discountRate,
           lastUpdated: _oracleDebounces[oracle],
-          riskConfig: _priceCapConfig.discountRatePendle
+          riskConfig: _config.oracle.discountRatePendle
         })
       );
     }
   }
 
-  /// @dev Enforces the per-field `isChangeRelative` invariants for a `HubConfig`.
-  function _validateHubConfig(HubConfig calldata config) internal pure {
-    require(!config.rate.optimalUsageRatio.isChangeRelative, InvalidParamConfig());
-    require(!config.rate.baseDrawnRate.isChangeRelative, InvalidParamConfig());
-    require(!config.rate.rateGrowthBeforeOptimal.isChangeRelative, InvalidParamConfig());
-    require(!config.rate.rateGrowthAfterOptimal.isChangeRelative, InvalidParamConfig());
-    require(config.cap.addCap.isChangeRelative, InvalidParamConfig());
-    require(config.cap.drawCap.isChangeRelative, InvalidParamConfig());
-  }
+  /// @dev Enforces the per-field `isChangeRelative` invariants for the `config`.
+  function _validateConfig(Config calldata config) internal pure {
+    require(!config.hub.rate.optimalUsageRatio.isChangeRelative, InvalidParamConfig());
+    require(!config.hub.rate.baseDrawnRate.isChangeRelative, InvalidParamConfig());
+    require(!config.hub.rate.rateGrowthBeforeOptimal.isChangeRelative, InvalidParamConfig());
+    require(!config.hub.rate.rateGrowthAfterOptimal.isChangeRelative, InvalidParamConfig());
+    require(config.hub.cap.addCap.isChangeRelative, InvalidParamConfig());
+    require(config.hub.cap.drawCap.isChangeRelative, InvalidParamConfig());
 
-  /// @dev Enforces the per-field `isChangeRelative` invariants for a `SpokeConfig`.
-  function _validateSpokeConfig(SpokeConfig calldata config) internal pure {
-    require(!config.collateralRisk.isChangeRelative, InvalidParamConfig());
-    require(!config.dynamicUpdate.collateralFactor.isChangeRelative, InvalidParamConfig());
-    require(!config.dynamicUpdate.maxLiquidationBonus.isChangeRelative, InvalidParamConfig());
-    require(!config.dynamicAdd.collateralFactor.isChangeRelative, InvalidParamConfig());
-    require(!config.dynamicAdd.maxLiquidationBonus.isChangeRelative, InvalidParamConfig());
-    require(config.liquidation.targetHealthFactor.isChangeRelative, InvalidParamConfig());
-    require(config.liquidation.healthFactorForMaxBonus.isChangeRelative, InvalidParamConfig());
-    require(!config.liquidation.liquidationBonusFactor.isChangeRelative, InvalidParamConfig());
-  }
+    require(!config.spoke.collateralRisk.isChangeRelative, InvalidParamConfig());
+    require(!config.spoke.dynamicUpdate.collateralFactor.isChangeRelative, InvalidParamConfig());
+    require(!config.spoke.dynamicUpdate.maxLiquidationBonus.isChangeRelative, InvalidParamConfig());
+    require(!config.spoke.dynamicAdd.collateralFactor.isChangeRelative, InvalidParamConfig());
+    require(!config.spoke.dynamicAdd.maxLiquidationBonus.isChangeRelative, InvalidParamConfig());
+    require(config.spoke.liquidation.targetHealthFactor.isChangeRelative, InvalidParamConfig());
+    require(
+      config.spoke.liquidation.healthFactorForMaxBonus.isChangeRelative,
+      InvalidParamConfig()
+    );
+    require(
+      !config.spoke.liquidation.liquidationBonusFactor.isChangeRelative,
+      InvalidParamConfig()
+    );
 
-  /// @dev Enforces the per-field `isChangeRelative` invariants for a `PriceCapConfig`.
-  function _validatePriceCapConfig(PriceCapConfig calldata config) internal pure {
-    require(config.priceCapLst.isChangeRelative, InvalidParamConfig());
-    require(config.priceCapStable.isChangeRelative, InvalidParamConfig());
-    require(!config.discountRatePendle.isChangeRelative, InvalidParamConfig());
-  }
-
-  function _requireHubAvailable(IHub hub) internal view {
-    require(address(_hubConfigs[hub].hubConfigurator) != address(0), HubNotRegistered());
-    require(!_restrictedHubs[hub], HubIsRestricted());
+    require(config.oracle.priceCapLst.isChangeRelative, InvalidParamConfig());
+    require(config.oracle.priceCapStable.isChangeRelative, InvalidParamConfig());
+    require(!config.oracle.discountRatePendle.isChangeRelative, InvalidParamConfig());
   }
 
   function _requireHubNotRestricted(IHub hub) internal view {
     require(!_restrictedHubs[hub], HubIsRestricted());
-  }
-
-  function _requireSpokeAvailable(ISpoke spoke) internal view {
-    require(address(_spokeConfigs[spoke].spokeConfigurator) != address(0), SpokeNotRegistered());
-    require(!_restrictedSpokes[spoke], SpokeIsRestricted());
   }
 
   function _requireSpokeNotRestricted(ISpoke spoke) internal view {
@@ -857,8 +782,6 @@ contract RiskSteward is Ownable2Step, IRiskSteward {
     return spoke.getReserveId(address(hub), assetId);
   }
 
-  /// @dev IR params are allowed to be 0 (e.g. `baseDrawnRate = 0` is a normal configuration).
-  /// Only the range + debounce checks apply.
   function _validateIRFieldUint16(
     uint256 currentValue,
     uint16 newValue,

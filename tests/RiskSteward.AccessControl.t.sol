@@ -36,32 +36,11 @@ contract RiskStewardAccessControlTest is RiskStewardTestBase {
     steward.updateSpokeLiquidationConfigs(_toArray(_baseLiquidationUpdate()));
   }
 
-  function test_setHubConfig_revertsWith_OwnableUnauthorizedAccount() public {
+  function test_setConfig_revertsWith_OwnableUnauthorizedAccount() public {
     vm.expectRevert(
       abi.encodeWithSelector(Ownable.OwnableUnauthorizedAccount.selector, address(this))
     );
-    steward.setHubConfig(address(HUB), _defaultHubConfig());
-  }
-
-  function test_setSpokeConfig_revertsWith_OwnableUnauthorizedAccount() public {
-    vm.expectRevert(
-      abi.encodeWithSelector(Ownable.OwnableUnauthorizedAccount.selector, address(this))
-    );
-    steward.setSpokeConfig(address(MAIN_SPOKE), _defaultSpokeConfig());
-  }
-
-  function test_removeHubConfig_revertsWith_OwnableUnauthorizedAccount() public {
-    vm.expectRevert(
-      abi.encodeWithSelector(Ownable.OwnableUnauthorizedAccount.selector, address(this))
-    );
-    steward.removeHubConfig(address(HUB));
-  }
-
-  function test_removeSpokeConfig_revertsWith_OwnableUnauthorizedAccount() public {
-    vm.expectRevert(
-      abi.encodeWithSelector(Ownable.OwnableUnauthorizedAccount.selector, address(this))
-    );
-    steward.removeSpokeConfig(address(MAIN_SPOKE));
+    steward.setConfig(_defaultConfig());
   }
 
   function test_setHubRestricted_revertsWith_OwnableUnauthorizedAccount() public {
@@ -92,85 +71,63 @@ contract RiskStewardAccessControlTest is RiskStewardTestBase {
     steward.setReserveRestricted(address(MAIN_SPOKE), address(HUB), ASSET, true);
   }
 
-  function test_setHubConfig_revertsWith_InvalidParamConfig_whenIRMarkedRelative() public {
-    IRiskSteward.HubConfig memory cfg = _defaultHubConfig();
-    cfg.rate.baseDrawnRate.isChangeRelative = true; // IR must be absolute
+  function test_setConfig_revertsWith_InvalidParamConfig_whenIRMarkedRelative() public {
+    IRiskSteward.Config memory cfg = _defaultConfig();
+    cfg.hub.rate.baseDrawnRate.isChangeRelative = true;
     vm.prank(OWNER);
     vm.expectRevert(IRiskSteward.InvalidParamConfig.selector);
-    steward.setHubConfig(address(HUB), cfg);
+    steward.setConfig(cfg);
   }
 
-  function test_setHubConfig_revertsWith_InvalidParamConfig_whenCapMarkedAbsolute() public {
-    IRiskSteward.HubConfig memory cfg = _defaultHubConfig();
-    cfg.cap.addCap.isChangeRelative = false; // caps must be relative
+  function test_setConfig_revertsWith_InvalidParamConfig_whenCapMarkedAbsolute() public {
+    IRiskSteward.Config memory cfg = _defaultConfig();
+    cfg.hub.cap.addCap.isChangeRelative = false;
     vm.prank(OWNER);
     vm.expectRevert(IRiskSteward.InvalidParamConfig.selector);
-    steward.setHubConfig(address(HUB), cfg);
+    steward.setConfig(cfg);
   }
 
-  function test_setSpokeConfig_revertsWith_InvalidParamConfig_whenCollateralRiskRelative() public {
-    IRiskSteward.SpokeConfig memory cfg = _defaultSpokeConfig();
-    cfg.collateralRisk.isChangeRelative = true; // collateralRisk must be absolute
+  function test_setConfig_revertsWith_InvalidParamConfig_whenCollateralRiskRelative() public {
+    IRiskSteward.Config memory cfg = _defaultConfig();
+    cfg.spoke.collateralRisk.isChangeRelative = true;
     vm.prank(OWNER);
     vm.expectRevert(IRiskSteward.InvalidParamConfig.selector);
-    steward.setSpokeConfig(address(MAIN_SPOKE), cfg);
+    steward.setConfig(cfg);
   }
 
-  function test_setSpokeConfig_revertsWith_InvalidParamConfig_whenDynamicMarkedRelative() public {
-    IRiskSteward.SpokeConfig memory cfg = _defaultSpokeConfig();
-    cfg.dynamicUpdate.collateralFactor.isChangeRelative = true; // dynamic must be absolute
+  function test_setConfig_revertsWith_InvalidParamConfig_whenDynamicMarkedRelative() public {
+    IRiskSteward.Config memory cfg = _defaultConfig();
+    cfg.spoke.dynamicUpdate.collateralFactor.isChangeRelative = true;
     vm.prank(OWNER);
     vm.expectRevert(IRiskSteward.InvalidParamConfig.selector);
-    steward.setSpokeConfig(address(MAIN_SPOKE), cfg);
+    steward.setConfig(cfg);
   }
 
-  function test_setSpokeConfig_revertsWith_InvalidParamConfig_whenLiquidationBonusFactorRelative()
+  function test_setConfig_revertsWith_InvalidParamConfig_whenLiquidationBonusFactorRelative()
     public
   {
-    IRiskSteward.SpokeConfig memory cfg = _defaultSpokeConfig();
-    cfg.liquidation.liquidationBonusFactor.isChangeRelative = true; // LBF must be absolute
+    IRiskSteward.Config memory cfg = _defaultConfig();
+    cfg.spoke.liquidation.liquidationBonusFactor.isChangeRelative = true;
     vm.prank(OWNER);
     vm.expectRevert(IRiskSteward.InvalidParamConfig.selector);
-    steward.setSpokeConfig(address(MAIN_SPOKE), cfg);
+    steward.setConfig(cfg);
   }
 
-  function test_removeHubConfig_clearsRegistration() public {
+  function test_setConfig_revertsWith_InvalidParamConfig_whenPriceCapLstAbsolute() public {
+    IRiskSteward.Config memory cfg = _defaultConfig();
+    cfg.oracle.priceCapLst.isChangeRelative = false;
     vm.prank(OWNER);
-    steward.removeHubConfig(address(HUB));
-
-    IEngine.AssetConfigUpdate memory u = _baseIRUpdate();
-    u.irData.optimalUsageRatio = _interestRateData(HUB, ASSET).optimalUsageRatio + 1;
-
-    skip(4 days);
-    vm.prank(RISK_COUNCIL);
-    vm.expectRevert(IRiskSteward.HubNotRegistered.selector);
-    steward.updateHubAssetIRs(_toArray(u));
+    vm.expectRevert(IRiskSteward.InvalidParamConfig.selector);
+    steward.setConfig(cfg);
   }
 
-  function test_removeSpokeConfig_clearsRegistration() public {
-    vm.prank(OWNER);
-    steward.removeSpokeConfig(address(MAIN_SPOKE));
-
-    IEngine.LiquidationConfigUpdate memory u = _baseLiquidationUpdate();
-    u.targetHealthFactor = MAIN_SPOKE.getLiquidationConfig().targetHealthFactor + 0.01e18;
-
-    skip(4 days);
-    vm.prank(RISK_COUNCIL);
-    vm.expectRevert(IRiskSteward.SpokeNotRegistered.selector);
-    steward.updateSpokeLiquidationConfigs(_toArray(u));
-  }
-
-  function test_getHubConfig_returnsStored() public view {
-    IRiskSteward.HubConfig memory got = steward.getHubConfig(address(HUB));
-    assertEq(address(got.hubConfigurator), address(HUB_CONFIGURATOR));
-    assertEq(got.rate.optimalUsageRatio.minDelay, 3 days);
-    assertEq(got.rate.optimalUsageRatio.maxPercentChange, 3_00);
-  }
-
-  function test_getSpokeConfig_returnsStored() public view {
-    IRiskSteward.SpokeConfig memory got = steward.getSpokeConfig(address(MAIN_SPOKE));
-    assertEq(address(got.spokeConfigurator), address(SPOKE_CONFIGURATOR));
-    assertEq(got.collateralRisk.minDelay, 3 days);
+  function test_getConfig_returnsStored() public view {
+    IRiskSteward.Config memory got = steward.getConfig();
+    assertEq(address(got.hub.configurator), address(HUB_CONFIGURATOR));
+    assertEq(address(got.spoke.configurator), address(SPOKE_CONFIGURATOR));
+    assertEq(got.hub.rate.optimalUsageRatio.minDelay, 3 days);
+    assertEq(got.hub.rate.optimalUsageRatio.maxPercentChange, 3_00);
+    assertEq(got.spoke.collateralRisk.minDelay, 3 days);
   }
 
   function test_restrictionToggles() public {

@@ -32,12 +32,6 @@ interface IRiskSteward {
   /// @notice Thrown when a numeric param is being updated to zero.
   error InvalidUpdateToZero();
 
-  /// @notice Thrown when an update targets a hub the owner has not registered.
-  error HubNotRegistered();
-
-  /// @notice Thrown when an update targets a spoke the owner has not registered.
-  error SpokeNotRegistered();
-
   /// @notice Thrown when an update targets a hub the owner has restricted.
   error HubIsRestricted();
 
@@ -53,28 +47,21 @@ interface IRiskSteward {
   /// @notice Thrown when adding a dynamic reserve config on a reserve that has no prior key.
   error NoExistingDynamicConfig();
 
-  /// @notice Thrown when an update entry uses a `hubConfigurator` / `spokeConfigurator` that
-  /// differs from the configurator registered for the targeted hub / spoke.
+  /// @notice Thrown when an update entry uses an unconfigured
   error ConfiguratorMismatch();
 
   /// @notice Thrown when a `RiskParamConfig` field is submitted with an `isChangeRelative` value
   /// that does not match the param's expected mode (e.g. an IR field must be absolute, a cap must
-  /// be relative). Enforced at `setHubConfig` / `setSpokeConfig` / `setPriceCapConfig` time.
+  /// be relative). Enforced at `setConfig` time.
   error InvalidParamConfig();
 
   /// @notice Thrown when applying a price cap update would leave the adapter in a `isCapped()`
   /// state (only relevant for the LST adapter).
   error InvalidPriceCapUpdate();
 
-  /// @notice Emitted when the owner sets the risk config for a hub.
-  /// @param hub The address of the hub.
-  /// @param config The new hub config.
-  event HubConfigSet(address indexed hub, HubConfig config);
-
-  /// @notice Emitted when the owner sets the risk config for a spoke.
-  /// @param spoke The address of the spoke.
-  /// @param config The new spoke config.
-  event SpokeConfigSet(address indexed spoke, SpokeConfig config);
+  /// @notice Emitted when the owner replaces the global risk config.
+  /// @param config The new config.
+  event ConfigSet(Config config);
 
   /// @notice Emitted when the owner flips the restriction flag for a hub.
   /// @param hub The address of the hub.
@@ -103,10 +90,6 @@ interface IRiskSteward {
     address indexed asset,
     bool isRestricted
   );
-
-  /// @notice Emitted when the owner sets the global price cap bounds.
-  /// @param config The new price cap config.
-  event PriceCapConfigSet(PriceCapConfig config);
 
   /// @notice Per-param risk bound used by `_validateParamUpdate`.
   /// @dev minDelay The minimum number of seconds between successive updates of the param.
@@ -141,13 +124,12 @@ interface IRiskSteward {
     RiskParamConfig drawCap;
   }
 
-  /// @notice Owner-set risk config for a hub. Setting `hubConfigurator` to the zero address
-  /// removes the hub. The struct also doubles as the registration record.
-  /// @dev hubConfigurator The HubConfigurator that owns the hub.
+  /// @notice Owner-set global hub risk config applied to every hub in the configurator domain.
+  /// @dev configurator The HubConfigurator every steward update must route through.
   /// @dev rate Bounds for the four hub-asset IR params.
-  /// @dev cap Bounds for the per-spoke addCap / drawCap on this hub.
+  /// @dev cap Bounds for the per-spoke addCap / drawCap.
   struct HubConfig {
-    IHubConfigurator hubConfigurator;
+    IHubConfigurator configurator;
     HubRateConfig rate;
     HubCapConfig cap;
   }
@@ -170,17 +152,16 @@ interface IRiskSteward {
     RiskParamConfig liquidationBonusFactor;
   }
 
-  /// @notice Owner-set risk config for a spoke. Setting `spokeConfigurator` to the zero address
-  /// removes the spoke. The struct also doubles as the registration record.
-  /// @dev spokeConfigurator The SpokeConfigurator that owns the spoke.
+  /// @notice Owner-set global spoke risk config applied to every spoke in the configurator domain.
+  /// @dev configurator The SpokeConfigurator every steward update must route through.
   /// @dev collateralRisk Bound for `ReserveConfig.collateralRisk` (absolute).
   /// @dev dynamicUpdate Bounds applied by `updateDynamicReserveConfigs` (mutates an existing key
-  /// users may be positioned in — typically the stricter of the two).
+  /// users may be positioned in).
   /// @dev dynamicAdd Bounds applied by `addDynamicReserveConfigs` (appends a brand-new key with
-  /// no users yet — typically looser; allows larger leaps from the latest existing key).
+  /// no users yet).
   /// @dev liquidation Bounds for spoke-global liquidation params.
   struct SpokeConfig {
-    ISpokeConfigurator spokeConfigurator;
+    ISpokeConfigurator configurator;
     RiskParamConfig collateralRisk;
     SpokeDynamicConfig dynamicUpdate;
     SpokeDynamicConfig dynamicAdd;
@@ -192,10 +173,20 @@ interface IRiskSteward {
   /// @dev priceCapLst Bound for the LST adapter's `maxYearlyRatioGrowthPercent` (relative, BPS).
   /// @dev priceCapStable Bound for the stable adapter's `priceCap` (relative, BPS).
   /// @dev discountRatePendle Bound for the Pendle adapter's `discountRatePerYear` (absolute).
-  struct PriceCapConfig {
+  struct OracleConfig {
     RiskParamConfig priceCapLst;
     RiskParamConfig priceCapStable;
     RiskParamConfig discountRatePendle;
+  }
+
+  /// @notice Owner-set global risk config.
+  /// @dev hub Bounds applied to every hub.
+  /// @dev spoke Bounds applied to every spoke.
+  /// @dev oracle Bounds applied to every CAPO oracle.
+  struct Config {
+    HubConfig hub;
+    SpokeConfig spoke;
+    OracleConfig oracle;
   }
 
   /// @notice Per-param debounce timestamps for hub-asset interest-rate updates.
@@ -326,27 +317,9 @@ interface IRiskSteward {
   /// @param updates The discount-rate updates.
   function updatePendleDiscountRates(DiscountRatePendleUpdate[] calldata updates) external;
 
-  /// @notice Owner: register or update the risk config for a hub.
-  /// @dev Setting all-zero (in particular `hubConfigurator == address(0)`) unregisters the hub.
-  /// @param hub The address of the hub.
-  /// @param config The new hub config.
-  function setHubConfig(address hub, HubConfig calldata config) external;
-
-  /// @notice Owner: register or update the risk config for a spoke.
-  /// @param spoke The address of the spoke.
-  /// @param config The new spoke config.
-  function setSpokeConfig(address spoke, SpokeConfig calldata config) external;
-
-  /// @notice Owner: remove a hub's config entirely. Equivalent to `setHubConfig(hub, zero)`.
-  /// @param hub The address of the hub.
-  function removeHubConfig(address hub) external;
-
-  /// @notice Owner: remove a spoke's config entirely. Equivalent to `setSpokeConfig(spoke, zero)`.
-  /// @param spoke The address of the spoke.
-  function removeSpokeConfig(address spoke) external;
-
-  /// @notice Owner: clear the global price-cap bounds. Equivalent to `setPriceCapConfig(zero)`.
-  function removePriceCapConfig() external;
+  /// @notice Owner: replace the global risk config.
+  /// @param config The full new config struct.
+  function setConfig(Config calldata config) external;
 
   /// @notice Owner: mark a hub as restricted (or unrestrict).
   /// @param hub The address of the hub.
@@ -376,17 +349,8 @@ interface IRiskSteward {
     bool isRestricted
   ) external;
 
-  /// @notice Owner: set the global price-cap bounds applied to all CAPO oracle updates.
-  /// @param config The new price-cap config.
-  function setPriceCapConfig(PriceCapConfig calldata config) external;
-
-  /// @notice Returns the registered hub config.
-  function getHubConfig(address hub) external view returns (HubConfig memory);
-
-  /// @notice Returns the registered spoke config.
-  function getSpokeConfig(address spoke) external view returns (SpokeConfig memory);
-  /// @notice Returns the global price-cap bounds.
-  function getPriceCapConfig() external view returns (PriceCapConfig memory);
+  /// @notice Returns the risk configuration set for all the risk params.
+  function getConfig() external view returns (Config memory);
 
   /// @notice Returns the per-param debounce timestamps for the IR updates on `(hub, asset)`.
   /// @param hub The address of the hub.

@@ -41,9 +41,7 @@ contract RiskStewardReserveConfigsTest is RiskStewardTestBase {
     SPOKE_CONFIGURATOR.updateCollateralRisk(address(MAIN_SPOKE), reserveId, 10_00);
     ISpoke.ReserveConfig memory current = _reserveConfig(MAIN_SPOKE, HUB, ASSET);
 
-    IRiskSteward.RiskParamConfig memory crBounds = steward
-      .getSpokeConfig(address(MAIN_SPOKE))
-      .collateralRisk;
+    IRiskSteward.RiskParamConfig memory crBounds = steward.getConfig().spoke.collateralRisk;
     delta = _boundDelta(delta, crBounds.maxPercentChange);
 
     IEngine.ReserveConfigUpdate memory u = _baseReserveUpdate();
@@ -163,14 +161,6 @@ contract RiskStewardReserveConfigsTest is RiskStewardTestBase {
 
     vm.prank(RISK_COUNCIL);
     vm.expectRevert(IRiskSteward.ConfiguratorMismatch.selector);
-    steward.updateReserveConfigs(_toArray(u));
-  }
-
-  function test_updateReserveConfigs_revertsWith_SpokeNotRegistered() public {
-    IEngine.ReserveConfigUpdate memory u = _baseReserveUpdate();
-    u.spoke = address(0xc0ffee);
-    vm.prank(RISK_COUNCIL);
-    vm.expectRevert(IRiskSteward.SpokeNotRegistered.selector);
     steward.updateReserveConfigs(_toArray(u));
   }
 

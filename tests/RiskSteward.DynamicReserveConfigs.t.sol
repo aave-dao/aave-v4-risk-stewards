@@ -42,9 +42,7 @@ contract RiskStewardDynamicReserveConfigsTest is RiskStewardTestBase {
   }
 
   function test_fuzz_updateDynamicReserveConfigs(int256 cfDelta, int256 mlbDelta) public {
-    IRiskSteward.SpokeDynamicConfig memory dynBounds = steward
-      .getSpokeConfig(address(MAIN_SPOKE))
-      .dynamicUpdate;
+    IRiskSteward.SpokeDynamicConfig memory dynBounds = steward.getConfig().spoke.dynamicUpdate;
     (ISpoke.DynamicReserveConfig memory current, uint32 latestKey) = _dynamicReserveConfig(
       MAIN_SPOKE,
       HUB,
