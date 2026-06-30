@@ -1,0 +1,101 @@
+tests/RiskSteward.DynamicReserveConfigs.t.sol
+  s_0cc94e82f85799::t_679b57cefb9b5a 45
+tests/RiskSteward.HubSpokeCaps.t.sol
+  s_0cc94e82f85799::t_1ba7ea641a4431 42
+tests/RiskSteward.AccessControl.t.sol
+  s_0cc94e82f85799::t_dd6b72efef7e84 126-127
+  s_0cc94e82f85799::t_128629d1f5a851 39,43
+  s_0cc94e82f85799::t_42a39eb98ee5bb 74-76,79,82-84,87,90-92,95,98-100,103,106,109-110,113,116-117,120-121,124-125,128-130
+  s_0cc94e82f85799::t_68418c8472f7da 118
+tests/RiskSteward.Base.t.sol
+  s_0cc94e82f85799::t_94ba9f355b247a 91
+  s_0cc94e82f85799::t_77f1db9c6d053c 132
+  s_0cc94e82f85799::t_1ec3311728616f 84
+  s_0cc94e82f85799::t_6d6aea72214921 57-58
+  s_0cc94e82f85799::t_f0dd47282c3186 79-83,85-87
+  s_0cc94e82f85799::t_d0b80987ec51c7 182,184
+tests/generators/EthereumExample.t.sol
+  s_0cc94e82f85799::t_28729e94295d8f 301
+  s_0cc94e82f85799::t_fe7805c6471cc9 179-180
+  s_0cc94e82f85799::t_dfce67f3e61f06 277,289-290,292-298,300,302-315,318-320
+  s_0cc94e82f85799::t_03415ca2caadd2 291
+  s_0cc94e82f85799::t_39f8f6a54ed1dc 317
+tests/RiskSteward.PriceCaps.t.sol
+  s_0cc94e82f85799::t_fdec954e5b0198 349-350,354,357-358,362,365-366,370
+  s_0cc94e82f85799::t_09fbba67b69067 351
+  s_0cc94e82f85799::t_428a8c3f6cfff5 367
+  s_0cc94e82f85799::t_cb9b712fcb01bc 359
+src/interfaces/IRiskSteward.sol
+  s_0cc94e82f85799::t_f5959ed80c888f 50
+  s_0cc94e82f85799::t_819d4474d6b9e7 62-64
+  s_0cc94e82f85799::t_fea274d29aa938 185
+  s_0cc94e82f85799::t_48cae91ca3a8f5 189
+  s_0cc94e82f85799::t_083736f4852d6c 55
+  s_0cc94e82f85799::t_b5d0154e40ff0c 128,132
+  s_0cc94e82f85799::t_07cff3463a94d0 155
+  s_0cc94e82f85799::t_fd625234f5774f 320,322
+  s_0cc94e82f85799::t_5338e2c435fa2b 127,130
+  s_0cc94e82f85799::t_345e5b2b25216e 183-184,186-188,190-191
+  s_0cc94e82f85799::t_6872de3385ca39 353
+  s_0cc94e82f85799::t_1377dc9241060c 156,159,161,164
+  h_739c25e72c37fb 182,321,352
+  s_0cc94e82f85799::t_bcb210c98063df 176
+src/RiskSteward.sol
+  s_0cc94e82f85799::t_3b4e793c84b745 36
+  s_0cc94e82f85799::t_d4a1c5f16525c5 531
+  s_0cc94e82f85799::t_d120292ecf3b4c 697
+  s_0cc94e82f85799::t_68790def606b8b 476,510,606
+  s_0cc94e82f85799::t_2b78aaaa57354f 716
+  h_739c25e72c37fb 722
+  s_0cc94e82f85799::t_9528a091d6fe03 578
+  s_0cc94e82f85799::t_c667e6f5e2156c 626
+  s_0cc94e82f85799::t_230c708b2267ed 561
+  s_0cc94e82f85799::t_8ee0ca2ea1027a 379,428
+  s_0cc94e82f85799::t_0a759c7baf0e3c 172-173
+  s_0cc94e82f85799::t_a9b4e824a5c85b 378,427
+  s_0cc94e82f85799::t_44aab00bcd5227 496
+  s_0cc94e82f85799::t_6369afd257428c 477,511,562,607
+  s_0cc94e82f85799::t_54aa50fb7f9a0c 61
+  s_0cc94e82f85799::t_c5dbdcd999a891 391
+  s_0cc94e82f85799::t_d8368000667aba 678
+  s_0cc94e82f85799::t_d8642d448db40c 448
+  s_0cc94e82f85799::t_149aa83909cfa6 746-748
+  s_0cc94e82f85799::t_a252e7839c6b82 68-71
+  s_0cc94e82f85799::t_40b8f7a7d8f696 723-744
+  s_0cc94e82f85799::t_5e2afa88a76ff0 745
+tests/RiskSteward.ReserveConfigs.t.sol
+  s_0cc94e82f85799::t_ea9770849658d4 44
+tests/RiskSteward.SpokeLiquidationConfigs.t.sol
+  s_0cc94e82f85799::t_dd08ab1bf9c555 43
+tests/RiskSteward.HubAssetIRs.t.sol
+  s_0cc94e82f85799::t_933f7d2e422951 50
+  s_0cc94e82f85799::t_3d1c5e417d5837 211,225
+README.md
+  s_0cc94e82f85799::t_61c09f87abc680 77
+  s_0cc94e82f85799::t_10f0669522c012 14
+  s_0cc94e82f85799::t_dcbf25c414e928 55
+tests/RiskSteward.AddDynamicReserveConfigs.t.sol
+  s_0cc94e82f85799::t_5b648b489bf97b 169,191
+  s_0cc94e82f85799::t_326102afefb56b 44
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.5",
+  "base_commit_sha": "d2111591d739c28adf3af784ea22f5c9f3d73c79",
+  "prompts": {},
+  "humans": {
+    "h_739c25e72c37fb": {
+      "author": "DhairyaSethi <55102840+DhairyaSethi@users.noreply.github.com>"
+    }
+  },
+  "sessions": {
+    "s_0cc94e82f85799": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "198d51c8-ee7e-4915-b351-12e0eac16c5d",
+        "model": "claude-opus-4-7"
+      },
+      "human_author": "DhairyaSethi <55102840+DhairyaSethi@users.noreply.github.com>"
+    }
+  }
+}
