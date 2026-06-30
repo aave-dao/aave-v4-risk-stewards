@@ -1,0 +1,16 @@
+foundry.toml
+  h_739c25e72c37fb 11
+src/interfaces/IRiskSteward.sol
+  h_739c25e72c37fb 56
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.3",
+  "base_commit_sha": "0b01f318d9d727ce04bbd93e04048098c9b632b0",
+  "prompts": {},
+  "humans": {
+    "h_739c25e72c37fb": {
+      "author": "DhairyaSethi <55102840+DhairyaSethi@users.noreply.github.com>"
+    }
+  }
+}
