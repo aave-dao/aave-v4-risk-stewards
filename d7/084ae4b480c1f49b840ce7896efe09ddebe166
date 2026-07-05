@@ -1,0 +1,96 @@
+README.md
+  s_7d34b6e9b9eb51::t_eb76bffc258f7c 81,85
+  s_097b62bc66f91c::t_e2bf96e9393d55 44
+  s_7d34b6e9b9eb51::t_2da8476deceed4 83
+  h_739c25e72c37fb 40,68,129,134,139-140,173
+generator/utils/importsResolver.ts
+  s_7d34b6e9b9eb51::t_8ad212e0c26b4b 69-71
+docs/ConfigurableParams.md
+  s_7d34b6e9b9eb51::t_476b39ead46191 2-4
+  s_097b62bc66f91c::t_4b2f8ef8d85e49 37
+  s_097b62bc66f91c::t_1a1f5ad2282802 73
+  s_097b62bc66f91c::t_e647d81967255b 143
+  s_0cc94e82f85799::t_1529f10012df94 17
+  s_7d34b6e9b9eb51::t_0e862a869ae836 29
+  s_89613e8e40aeb7::t_7b6ee226ee5f5b 78
+  s_89613e8e40aeb7::t_7d0da8b5f7be8e 144
+  s_7d34b6e9b9eb51::t_1a0337ea7c7430 5
+  s_7d34b6e9b9eb51::t_beef2c4257f82a 60-61
+  s_097b62bc66f91c::t_a616a4882d6edc 135
+  s_7d34b6e9b9eb51::t_95c33022b43bfa 57-59
+  s_7d34b6e9b9eb51::t_08da975b305000 125-131
+  s_097b62bc66f91c::t_d3771e4d3722a0 30
+  s_097b62bc66f91c::t_523e796a75b991 146
+  s_7d34b6e9b9eb51::t_3e03ee629be6f4 84
+  s_7d34b6e9b9eb51::t_6d119f187b922b 74-76
+  s_89613e8e40aeb7::t_e146bdda25d146 142
+  s_89613e8e40aeb7::t_20f6083a2b0e68 42,71,98-99,101-107
+  s_7d34b6e9b9eb51::t_80311498910550 45-46
+  s_097b62bc66f91c::t_525fdfb24aea76 56
+  s_097b62bc66f91c::t_22257c95fa2f46 31-36
+  s_7d34b6e9b9eb51::t_dea5bb89ad348d 28
+  s_097b62bc66f91c::t_8a53f39237dea7 44
+  s_097b62bc66f91c::t_0b450a9018f5b3 83
+  s_7d34b6e9b9eb51::t_4cb1219d38a30e 100
+  s_7d34b6e9b9eb51::t_127664e7807fb4 1
+foundry.toml
+  h_739c25e72c37fb 13
+generator/features/mocks/configs.ts
+  h_739c25e72c37fb 109
+generator/e2e.spec.ts
+  h_739c25e72c37fb 166
+generator/features/types.ts
+  h_739c25e72c37fb 42
+  s_7d34b6e9b9eb51::t_97524ac0a81712 39-41
+generator/features/dynamicReserveConfigAdditions.ts
+  h_739c25e72c37fb 90
+  s_7d34b6e9b9eb51::t_1429dc9b5c6db1 45-46
+  s_7d34b6e9b9eb51::t_6308039a1322bb 55-67,80,86-89,91-99
+generator/features/__snapshots__/dynamicReserveConfigAdditions.spec.ts.snap
+  s_7d34b6e9b9eb51::t_16f1496d7ee689 25,52,65,76,91-96,107,118,133-138
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "d7084ae4b480c1f49b840ce7896efe09ddebe166",
+  "prompts": {},
+  "humans": {
+    "h_739c25e72c37fb": {
+      "author": "DhairyaSethi <55102840+DhairyaSethi@users.noreply.github.com>"
+    }
+  },
+  "sessions": {
+    "s_097b62bc66f91c": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "de3847c1-0854-4b72-bd30-efdadb2acf7c",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "DhairyaSethi <55102840+DhairyaSethi@users.noreply.github.com>"
+    },
+    "s_0cc94e82f85799": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "198d51c8-ee7e-4915-b351-12e0eac16c5d",
+        "model": "claude-opus-4-7"
+      },
+      "human_author": "DhairyaSethi <55102840+DhairyaSethi@users.noreply.github.com>"
+    },
+    "s_7d34b6e9b9eb51": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "3d117e65-cd5c-4445-af6a-d389a7b71432",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "DhairyaSethi <55102840+DhairyaSethi@users.noreply.github.com>"
+    },
+    "s_89613e8e40aeb7": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "e47d793f-60e8-494d-b43a-46251277a1dd",
+        "model": "claude-opus-4-7"
+      },
+      "human_author": "DhairyaSethi <55102840+DhairyaSethi@users.noreply.github.com>"
+    }
+  }
+}
