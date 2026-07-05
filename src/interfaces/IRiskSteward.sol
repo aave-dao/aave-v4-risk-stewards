@@ -32,22 +32,15 @@ interface IRiskSteward {
   /// @notice Thrown when a numeric param is being updated to zero.
   error InvalidUpdateToZero();
 
-  /// @notice Thrown when an update targets a hub the owner has restricted.
-  error HubIsRestricted();
-
-  /// @notice Thrown when an update targets a spoke the owner has restricted.
-  error SpokeIsRestricted();
-
-  /// @notice Thrown when an update targets a (spoke, hub) tuple the owner has restricted.
-  error SpokeHubIsRestricted();
-
-  /// @notice Thrown when an update targets a reserve the owner has restricted.
-  error ReserveIsRestricted();
+  /// @notice Thrown when an update touches an address (hub, spoke, asset, or oracle) the owner has
+  /// restricted.
+  /// @param addr The restricted address that caused the revert.
+  error RestrictedAddress(address addr);
 
   /// @notice Thrown when adding a dynamic reserve config on a reserve that has no prior key.
   error NoExistingDynamicConfig();
 
-  /// @notice Thrown when an update entry uses an unconfigured
+  /// @notice Thrown when an update entry uses an unconfigured configurator.
   error ConfiguratorMismatch();
 
   /// @notice Thrown when a `RiskParamConfig` field is submitted with an `isChangeRelative` value
@@ -63,33 +56,10 @@ interface IRiskSteward {
   /// @param config The new config.
   event ConfigSet(Config config);
 
-  /// @notice Emitted when the owner flips the restriction flag for a hub.
-  /// @param hub The address of the hub.
-  /// @param isRestricted True if the hub is restricted, false otherwise.
-  event HubRestrictionUpdated(address indexed hub, bool isRestricted);
-
-  /// @notice Emitted when the owner flips the restriction flag for a spoke.
-  /// @param spoke The address of the spoke.
-  /// @param isRestricted True if the spoke is restricted, false otherwise.
-  event SpokeRestrictionUpdated(address indexed spoke, bool isRestricted);
-
-  /// @notice Emitted when the owner flips the restriction flag for a (spoke, hub) tuple.
-  /// @param spoke The address of the spoke.
-  /// @param hub The address of the hub.
-  /// @param isRestricted True if the tuple is restricted, false otherwise.
-  event SpokeHubRestrictionUpdated(address indexed spoke, address indexed hub, bool isRestricted);
-
-  /// @notice Emitted when the owner flips the restriction flag for a (spoke, hub, asset) reserve.
-  /// @param spoke The address of the spoke.
-  /// @param hub The address of the hub.
-  /// @param asset The address of the underlying asset.
-  /// @param isRestricted True if the reserve is restricted, false otherwise.
-  event ReserveRestrictionUpdated(
-    address indexed spoke,
-    address indexed hub,
-    address indexed asset,
-    bool isRestricted
-  );
+  /// @notice Emitted when the owner flips the restriction flag for an address.
+  /// @param addr The restricted address (a hub, spoke, asset, or oracle).
+  /// @param isRestricted True if the address is restricted, false otherwise.
+  event AddressRestricted(address indexed addr, bool isRestricted);
 
   /// @notice Per-param risk bound used by `_validateParamUpdate`.
   /// @dev minDelay The minimum number of seconds between successive updates of the param.
@@ -321,33 +291,12 @@ interface IRiskSteward {
   /// @param config The full new config struct.
   function setConfig(Config calldata config) external;
 
-  /// @notice Owner: mark a hub as restricted (or unrestrict).
-  /// @param hub The address of the hub.
+  /// @notice Owner: restrict (or unrestrict) an address. A restricted hub, spoke, asset, or oracle
+  /// blocks every steward update that touches it. This is coarse by design: restricting a spoke or
+  /// asset applies everywhere it appears.
+  /// @param addr The address to restrict.
   /// @param isRestricted True to restrict, false to unrestrict.
-  function setHubRestricted(address hub, bool isRestricted) external;
-
-  /// @notice Owner: mark a spoke as restricted (or unrestrict).
-  /// @param spoke The address of the spoke.
-  /// @param isRestricted True to restrict, false to unrestrict.
-  function setSpokeRestricted(address spoke, bool isRestricted) external;
-
-  /// @notice Owner: mark a (spoke, hub) tuple as restricted (or unrestrict).
-  /// @param spoke The address of the spoke.
-  /// @param hub The address of the hub.
-  /// @param isRestricted True to restrict, false to unrestrict.
-  function setSpokeHubRestricted(address spoke, address hub, bool isRestricted) external;
-
-  /// @notice Owner: mark a (spoke, hub, asset) reserve as restricted (or unrestrict).
-  /// @param spoke The address of the spoke.
-  /// @param hub The address of the hub.
-  /// @param asset The address of the underlying asset.
-  /// @param isRestricted True to restrict, false to unrestrict.
-  function setReserveRestricted(
-    address spoke,
-    address hub,
-    address asset,
-    bool isRestricted
-  ) external;
+  function setAddressRestricted(address addr, bool isRestricted) external;
 
   /// @notice Returns the risk configuration set for all the risk params.
   function getConfig() external view returns (Config memory);
@@ -400,21 +349,8 @@ interface IRiskSteward {
   /// @notice Returns the last update timestamp recorded for a CAPO oracle.
   function getOracleDebounce(address oracle) external view returns (uint40);
 
-  /// @notice Returns whether a hub is restricted.
-  function isHubRestricted(address hub) external view returns (bool);
-
-  /// @notice Returns whether a spoke is restricted.
-  function isSpokeRestricted(address spoke) external view returns (bool);
-
-  /// @notice Returns whether a (spoke, hub) tuple is restricted.
-  function isSpokeHubRestricted(address spoke, address hub) external view returns (bool);
-
-  /// @notice Returns whether a (spoke, hub, asset) reserve is restricted.
-  function isReserveRestricted(
-    address spoke,
-    address hub,
-    address asset
-  ) external view returns (bool);
+  /// @notice Returns whether an address (hub, spoke, asset, or oracle) is restricted.
+  function isAddressRestricted(address addr) external view returns (bool);
 
   /// @notice Returns the council address that may call the update entrypoints.
   function RISK_COUNCIL() external view returns (address);

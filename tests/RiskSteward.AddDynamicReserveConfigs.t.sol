@@ -146,12 +146,16 @@ contract RiskStewardAddDynamicReserveConfigsTest is RiskStewardTestBase {
     steward.addDynamicReserveConfigs(_toArray(u));
   }
 
-  function test_addDynamicReserveConfigs_revertsWith_SpokeIsRestricted() public {
+  function test_addDynamicReserveConfigs_whenSpokeRestricted_revertsWith_RestrictedAddress()
+    public
+  {
     vm.prank(OWNER);
-    steward.setSpokeRestricted(address(MAIN_SPOKE), true);
+    steward.setAddressRestricted(address(MAIN_SPOKE), true);
     IEngine.DynamicReserveConfigAddition memory u = _baseAddDynamic();
     vm.prank(RISK_COUNCIL);
-    vm.expectRevert(IRiskSteward.SpokeIsRestricted.selector);
+    vm.expectRevert(
+      abi.encodeWithSelector(IRiskSteward.RestrictedAddress.selector, address(MAIN_SPOKE))
+    );
     steward.addDynamicReserveConfigs(_toArray(u));
   }
 

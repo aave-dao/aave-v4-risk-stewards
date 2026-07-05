@@ -43,32 +43,11 @@ contract RiskStewardAccessControlTest is RiskStewardTestBase {
     steward.setConfig(_defaultConfig());
   }
 
-  function test_setHubRestricted_revertsWith_OwnableUnauthorizedAccount() public {
+  function test_setAddressRestricted_revertsWith_OwnableUnauthorizedAccount() public {
     vm.expectRevert(
       abi.encodeWithSelector(Ownable.OwnableUnauthorizedAccount.selector, address(this))
     );
-    steward.setHubRestricted(address(HUB), true);
-  }
-
-  function test_setSpokeRestricted_revertsWith_OwnableUnauthorizedAccount() public {
-    vm.expectRevert(
-      abi.encodeWithSelector(Ownable.OwnableUnauthorizedAccount.selector, address(this))
-    );
-    steward.setSpokeRestricted(address(MAIN_SPOKE), true);
-  }
-
-  function test_setSpokeHubRestricted_revertsWith_OwnableUnauthorizedAccount() public {
-    vm.expectRevert(
-      abi.encodeWithSelector(Ownable.OwnableUnauthorizedAccount.selector, address(this))
-    );
-    steward.setSpokeHubRestricted(address(MAIN_SPOKE), address(HUB), true);
-  }
-
-  function test_setReserveRestricted_revertsWith_OwnableUnauthorizedAccount() public {
-    vm.expectRevert(
-      abi.encodeWithSelector(Ownable.OwnableUnauthorizedAccount.selector, address(this))
-    );
-    steward.setReserveRestricted(address(MAIN_SPOKE), address(HUB), ASSET, true);
+    steward.setAddressRestricted(address(HUB), true);
   }
 
   function test_setConfig_revertsWith_InvalidParamConfig_whenIRMarkedRelative() public {
@@ -131,20 +110,19 @@ contract RiskStewardAccessControlTest is RiskStewardTestBase {
   }
 
   function test_restrictionToggles() public {
-    vm.prank(OWNER);
-    steward.setHubRestricted(address(HUB), true);
-    assertTrue(steward.isHubRestricted(address(HUB)));
+    address[4] memory targets = [address(HUB), address(MAIN_SPOKE), ASSET, makeAddr('ORACLE')];
+    for (uint256 i; i < targets.length; ++i) {
+      assertFalse(steward.isAddressRestricted(targets[i]));
 
-    vm.prank(OWNER);
-    steward.setSpokeRestricted(address(MAIN_SPOKE), true);
-    assertTrue(steward.isSpokeRestricted(address(MAIN_SPOKE)));
+      vm.prank(OWNER);
+      vm.expectEmit(address(steward));
+      emit IRiskSteward.AddressRestricted(targets[i], true);
+      steward.setAddressRestricted(targets[i], true);
+      assertTrue(steward.isAddressRestricted(targets[i]));
 
-    vm.prank(OWNER);
-    steward.setSpokeHubRestricted(address(MAIN_SPOKE), address(HUB), true);
-    assertTrue(steward.isSpokeHubRestricted(address(MAIN_SPOKE), address(HUB)));
-
-    vm.prank(OWNER);
-    steward.setReserveRestricted(address(MAIN_SPOKE), address(HUB), ASSET, true);
-    assertTrue(steward.isReserveRestricted(address(MAIN_SPOKE), address(HUB), ASSET));
+      vm.prank(OWNER);
+      steward.setAddressRestricted(targets[i], false);
+      assertFalse(steward.isAddressRestricted(targets[i]));
+    }
   }
 }

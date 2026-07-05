@@ -135,14 +135,18 @@ contract RiskStewardSpokeLiquidationConfigsTest is RiskStewardTestBase {
     steward.updateSpokeLiquidationConfigs(_toArray(u));
   }
 
-  function test_updateSpokeLiquidationConfigs_revertsWith_SpokeIsRestricted() public {
+  function test_updateSpokeLiquidationConfigs_whenSpokeRestricted_revertsWith_RestrictedAddress()
+    public
+  {
     ISpoke.LiquidationConfig memory current = MAIN_SPOKE.getLiquidationConfig();
     vm.prank(OWNER);
-    steward.setSpokeRestricted(address(MAIN_SPOKE), true);
+    steward.setAddressRestricted(address(MAIN_SPOKE), true);
     IEngine.LiquidationConfigUpdate memory u = _baseLiquidationUpdate();
     u.targetHealthFactor = current.targetHealthFactor;
     vm.prank(RISK_COUNCIL);
-    vm.expectRevert(IRiskSteward.SpokeIsRestricted.selector);
+    vm.expectRevert(
+      abi.encodeWithSelector(IRiskSteward.RestrictedAddress.selector, address(MAIN_SPOKE))
+    );
     steward.updateSpokeLiquidationConfigs(_toArray(u));
   }
 

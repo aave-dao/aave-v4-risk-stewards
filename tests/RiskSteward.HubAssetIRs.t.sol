@@ -263,15 +263,27 @@ contract RiskStewardHubAssetIRsTest is RiskStewardTestBase {
     steward.updateHubAssetIRs(_toArray(u));
   }
 
-  function test_updateHubAssetIRs_revertsWith_HubIsRestricted() public {
+  function test_updateHubAssetIRs_whenHubRestricted_revertsWith_RestrictedAddress() public {
     vm.prank(OWNER);
-    steward.setHubRestricted(address(HUB), true);
+    steward.setAddressRestricted(address(HUB), true);
 
     IEngine.AssetConfigUpdate memory u = _baseIRUpdate();
     u.irData.optimalUsageRatio = _interestRateData(HUB, ASSET).optimalUsageRatio + 1_00;
 
     vm.prank(RISK_COUNCIL);
-    vm.expectRevert(IRiskSteward.HubIsRestricted.selector);
+    vm.expectRevert(abi.encodeWithSelector(IRiskSteward.RestrictedAddress.selector, address(HUB)));
+    steward.updateHubAssetIRs(_toArray(u));
+  }
+
+  function test_updateHubAssetIRs_whenAssetRestricted_revertsWith_RestrictedAddress() public {
+    vm.prank(OWNER);
+    steward.setAddressRestricted(ASSET, true);
+
+    IEngine.AssetConfigUpdate memory u = _baseIRUpdate();
+    u.irData.optimalUsageRatio = _interestRateData(HUB, ASSET).optimalUsageRatio + 1_00;
+
+    vm.prank(RISK_COUNCIL);
+    vm.expectRevert(abi.encodeWithSelector(IRiskSteward.RestrictedAddress.selector, ASSET));
     steward.updateHubAssetIRs(_toArray(u));
   }
 

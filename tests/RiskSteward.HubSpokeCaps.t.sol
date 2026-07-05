@@ -188,47 +188,38 @@ contract RiskStewardHubSpokeCapsTest is RiskStewardTestBase {
     steward.updateHubSpokeCaps(_toArray(u));
   }
 
-  function test_updateHubSpokeCaps_revertsWith_HubIsRestricted() public {
+  function test_updateHubSpokeCaps_whenHubRestricted_revertsWith_RestrictedAddress() public {
     IHub.SpokeConfig memory current = _spokeConfig(HUB, MAIN_SPOKE, ASSET);
     vm.prank(OWNER);
-    steward.setHubRestricted(address(HUB), true);
+    steward.setAddressRestricted(address(HUB), true);
     IEngine.SpokeConfigUpdate memory u = _baseSpokeCapsUpdate();
     u.addCap = current.addCap;
     vm.prank(RISK_COUNCIL);
-    vm.expectRevert(IRiskSteward.HubIsRestricted.selector);
+    vm.expectRevert(abi.encodeWithSelector(IRiskSteward.RestrictedAddress.selector, address(HUB)));
     steward.updateHubSpokeCaps(_toArray(u));
   }
 
-  function test_updateHubSpokeCaps_revertsWith_SpokeIsRestricted() public {
+  function test_updateHubSpokeCaps_whenSpokeRestricted_revertsWith_RestrictedAddress() public {
     IHub.SpokeConfig memory current = _spokeConfig(HUB, MAIN_SPOKE, ASSET);
     vm.prank(OWNER);
-    steward.setSpokeRestricted(address(MAIN_SPOKE), true);
+    steward.setAddressRestricted(address(MAIN_SPOKE), true);
     IEngine.SpokeConfigUpdate memory u = _baseSpokeCapsUpdate();
     u.addCap = current.addCap;
     vm.prank(RISK_COUNCIL);
-    vm.expectRevert(IRiskSteward.SpokeIsRestricted.selector);
+    vm.expectRevert(
+      abi.encodeWithSelector(IRiskSteward.RestrictedAddress.selector, address(MAIN_SPOKE))
+    );
     steward.updateHubSpokeCaps(_toArray(u));
   }
 
-  function test_updateHubSpokeCaps_revertsWith_SpokeHubIsRestricted() public {
+  function test_updateHubSpokeCaps_whenAssetRestricted_revertsWith_RestrictedAddress() public {
     IHub.SpokeConfig memory current = _spokeConfig(HUB, MAIN_SPOKE, ASSET);
     vm.prank(OWNER);
-    steward.setSpokeHubRestricted(address(MAIN_SPOKE), address(HUB), true);
+    steward.setAddressRestricted(ASSET, true);
     IEngine.SpokeConfigUpdate memory u = _baseSpokeCapsUpdate();
     u.addCap = current.addCap;
     vm.prank(RISK_COUNCIL);
-    vm.expectRevert(IRiskSteward.SpokeHubIsRestricted.selector);
-    steward.updateHubSpokeCaps(_toArray(u));
-  }
-
-  function test_updateHubSpokeCaps_revertsWith_ReserveIsRestricted() public {
-    IHub.SpokeConfig memory current = _spokeConfig(HUB, MAIN_SPOKE, ASSET);
-    vm.prank(OWNER);
-    steward.setReserveRestricted(address(MAIN_SPOKE), address(HUB), ASSET, true);
-    IEngine.SpokeConfigUpdate memory u = _baseSpokeCapsUpdate();
-    u.addCap = current.addCap;
-    vm.prank(RISK_COUNCIL);
-    vm.expectRevert(IRiskSteward.ReserveIsRestricted.selector);
+    vm.expectRevert(abi.encodeWithSelector(IRiskSteward.RestrictedAddress.selector, ASSET));
     steward.updateHubSpokeCaps(_toArray(u));
   }
 

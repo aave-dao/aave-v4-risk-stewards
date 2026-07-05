@@ -45,11 +45,7 @@ contract RiskSteward is Ownable2Step, IRiskSteward {
   mapping(ISpoke spoke => SpokeLiquidationDebounce) internal _spokeLiquidationDebounces;
   mapping(address oracle => uint40 lastUpdated) internal _oracleDebounces;
 
-  mapping(IHub hub => bool) internal _restrictedHubs;
-  mapping(ISpoke spoke => bool) internal _restrictedSpokes;
-  mapping(ISpoke spoke => mapping(IHub hub => bool)) internal _restrictedSpokeHubs;
-  mapping(ISpoke spoke => mapping(IHub hub => mapping(address asset => bool)))
-    internal _restrictedReserves;
+  mapping(address addr => bool) internal _restrictedAddresses;
 
   modifier onlyRiskCouncil() {
     require(msg.sender == RISK_COUNCIL, InvalidCaller());
@@ -72,32 +68,9 @@ contract RiskSteward is Ownable2Step, IRiskSteward {
   }
 
   /// @inheritdoc IRiskSteward
-  function setHubRestricted(address hub, bool isRestricted) external onlyOwner {
-    _restrictedHubs[IHub(hub)] = isRestricted;
-    emit HubRestrictionUpdated(hub, isRestricted);
-  }
-
-  /// @inheritdoc IRiskSteward
-  function setSpokeRestricted(address spoke, bool isRestricted) external onlyOwner {
-    _restrictedSpokes[ISpoke(spoke)] = isRestricted;
-    emit SpokeRestrictionUpdated(spoke, isRestricted);
-  }
-
-  /// @inheritdoc IRiskSteward
-  function setSpokeHubRestricted(address spoke, address hub, bool isRestricted) external onlyOwner {
-    _restrictedSpokeHubs[ISpoke(spoke)][IHub(hub)] = isRestricted;
-    emit SpokeHubRestrictionUpdated(spoke, hub, isRestricted);
-  }
-
-  /// @inheritdoc IRiskSteward
-  function setReserveRestricted(
-    address spoke,
-    address hub,
-    address asset,
-    bool isRestricted
-  ) external onlyOwner {
-    _restrictedReserves[ISpoke(spoke)][IHub(hub)][asset] = isRestricted;
-    emit ReserveRestrictionUpdated(spoke, hub, asset, isRestricted);
+  function setAddressRestricted(address addr, bool isRestricted) external onlyOwner {
+    _restrictedAddresses[addr] = isRestricted;
+    emit AddressRestricted(addr, isRestricted);
   }
 
   /// @inheritdoc IRiskSteward
@@ -221,27 +194,8 @@ contract RiskSteward is Ownable2Step, IRiskSteward {
   }
 
   /// @inheritdoc IRiskSteward
-  function isHubRestricted(address hub) external view returns (bool) {
-    return _restrictedHubs[IHub(hub)];
-  }
-
-  /// @inheritdoc IRiskSteward
-  function isSpokeRestricted(address spoke) external view returns (bool) {
-    return _restrictedSpokes[ISpoke(spoke)];
-  }
-
-  /// @inheritdoc IRiskSteward
-  function isSpokeHubRestricted(address spoke, address hub) external view returns (bool) {
-    return _restrictedSpokeHubs[ISpoke(spoke)][IHub(hub)];
-  }
-
-  /// @inheritdoc IRiskSteward
-  function isReserveRestricted(
-    address spoke,
-    address hub,
-    address asset
-  ) external view returns (bool) {
-    return _restrictedReserves[ISpoke(spoke)][IHub(hub)][asset];
+  function isAddressRestricted(address addr) external view returns (bool) {
+    return _restrictedAddresses[addr];
   }
 
   function _executeHubAssetIRs(IEngine.AssetConfigUpdate[] memory updates) internal {
@@ -374,8 +328,9 @@ contract RiskSteward is Ownable2Step, IRiskSteward {
   function _validateHubAssetIRs(IEngine.AssetConfigUpdate[] calldata updates) internal view {
     require(updates.length != 0, NoZeroUpdates());
     for (uint256 i; i < updates.length; ++i) {
-      IHub hub = IHub(updates[i].hub);
-      _requireHubNotRestricted(hub);
+      IHub hub = IHub(_requireNotRestricted(updates[i].hub));
+      address asset = _requireNotRestricted(updates[i].underlying);
+
       require(updates[i].hubConfigurator == _config.hub.configurator, ConfiguratorMismatch());
 
       require(updates[i].liquidityFee == EngineFlags.KEEP_CURRENT, ParamChangeNotAllowed());
@@ -386,7 +341,6 @@ contract RiskSteward is Ownable2Step, IRiskSteward {
         ParamChangeNotAllowed()
       );
 
-      address asset = updates[i].underlying;
       IAssetInterestRateStrategy.InterestRateData memory current = _getCurrentIRData(hub, asset);
       HubRateConfig memory rateBounds = _config.hub.rate;
       HubAssetDebounce memory debounce = _hubAssetDebounces[hub][asset];
@@ -421,14 +375,11 @@ contract RiskSteward is Ownable2Step, IRiskSteward {
   function _validateHubSpokeCaps(IEngine.SpokeConfigUpdate[] calldata updates) internal view {
     require(updates.length != 0, NoZeroUpdates());
     for (uint256 i; i < updates.length; ++i) {
-      IHub hub = IHub(updates[i].hub);
-      ISpoke spoke = ISpoke(updates[i].spoke);
-      address asset = updates[i].underlying;
-      _requireHubNotRestricted(hub);
+      IHub hub = IHub(_requireNotRestricted(updates[i].hub));
+      ISpoke spoke = ISpoke(_requireNotRestricted(updates[i].spoke));
+      address asset = _requireNotRestricted(updates[i].underlying);
+
       require(updates[i].hubConfigurator == _config.hub.configurator, ConfiguratorMismatch());
-      _requireSpokeNotRestricted(spoke);
-      _requireSpokeHubNotRestricted(spoke, hub);
-      _requireReserveNotRestricted(spoke, hub, asset);
 
       require(updates[i].riskPremiumThreshold == EngineFlags.KEEP_CURRENT, ParamChangeNotAllowed());
       require(updates[i].active == EngineFlags.KEEP_CURRENT, ParamChangeNotAllowed());
@@ -461,14 +412,11 @@ contract RiskSteward is Ownable2Step, IRiskSteward {
   function _validateReserveConfigs(IEngine.ReserveConfigUpdate[] calldata updates) internal view {
     require(updates.length != 0, NoZeroUpdates());
     for (uint256 i; i < updates.length; ++i) {
-      ISpoke spoke = ISpoke(updates[i].spoke);
-      IHub hub = IHub(updates[i].hub);
-      address asset = updates[i].underlying;
-      _requireSpokeNotRestricted(spoke);
+      ISpoke spoke = ISpoke(_requireNotRestricted(updates[i].spoke));
+      IHub hub = IHub(_requireNotRestricted(updates[i].hub));
+      address asset = _requireNotRestricted(updates[i].underlying);
+
       require(updates[i].spokeConfigurator == _config.spoke.configurator, ConfiguratorMismatch());
-      _requireHubNotRestricted(hub);
-      _requireSpokeHubNotRestricted(spoke, hub);
-      _requireReserveNotRestricted(spoke, hub, asset);
 
       require(updates[i].priceSource == EngineFlags.KEEP_CURRENT_ADDRESS, ParamChangeNotAllowed());
       require(updates[i].paused == EngineFlags.KEEP_CURRENT, ParamChangeNotAllowed());
@@ -495,14 +443,11 @@ contract RiskSteward is Ownable2Step, IRiskSteward {
   ) internal view {
     require(updates.length != 0, NoZeroUpdates());
     for (uint256 i; i < updates.length; ++i) {
-      ISpoke spoke = ISpoke(updates[i].spoke);
-      IHub hub = IHub(updates[i].hub);
-      address asset = updates[i].underlying;
-      _requireSpokeNotRestricted(spoke);
+      ISpoke spoke = ISpoke(_requireNotRestricted(updates[i].spoke));
+      IHub hub = IHub(_requireNotRestricted(updates[i].hub));
+      address asset = _requireNotRestricted(updates[i].underlying);
+
       require(updates[i].spokeConfigurator == _config.spoke.configurator, ConfiguratorMismatch());
-      _requireHubNotRestricted(hub);
-      _requireSpokeHubNotRestricted(spoke, hub);
-      _requireReserveNotRestricted(spoke, hub, asset);
 
       require(updates[i].liquidationFee == EngineFlags.KEEP_CURRENT, ParamChangeNotAllowed());
 
@@ -546,14 +491,11 @@ contract RiskSteward is Ownable2Step, IRiskSteward {
   ) internal view {
     require(additions.length != 0, NoZeroUpdates());
     for (uint256 i; i < additions.length; ++i) {
-      ISpoke spoke = ISpoke(additions[i].spoke);
-      IHub hub = IHub(additions[i].hub);
-      address asset = additions[i].underlying;
-      _requireSpokeNotRestricted(spoke);
+      ISpoke spoke = ISpoke(_requireNotRestricted(additions[i].spoke));
+      IHub hub = IHub(_requireNotRestricted(additions[i].hub));
+      address asset = _requireNotRestricted(additions[i].underlying);
+
       require(additions[i].spokeConfigurator == _config.spoke.configurator, ConfiguratorMismatch());
-      _requireHubNotRestricted(hub);
-      _requireSpokeHubNotRestricted(spoke, hub);
-      _requireReserveNotRestricted(spoke, hub, asset);
 
       ISpoke.DynamicReserveConfig memory newCfg = additions[i].dynamicConfig;
       require(newCfg.collateralFactor != 0, InvalidUpdateToZero());
@@ -593,8 +535,8 @@ contract RiskSteward is Ownable2Step, IRiskSteward {
   ) internal view {
     require(updates.length != 0, NoZeroUpdates());
     for (uint256 i; i < updates.length; ++i) {
-      ISpoke spoke = ISpoke(updates[i].spoke);
-      _requireSpokeNotRestricted(spoke);
+      ISpoke spoke = ISpoke(_requireNotRestricted(updates[i].spoke));
+
       require(updates[i].spokeConfigurator == _config.spoke.configurator, ConfiguratorMismatch());
 
       require(
@@ -647,7 +589,7 @@ contract RiskSteward is Ownable2Step, IRiskSteward {
   function _validateLstPriceCaps(PriceCapLstUpdate[] calldata updates) internal view {
     require(updates.length != 0, NoZeroUpdates());
     for (uint256 i; i < updates.length; ++i) {
-      address oracle = updates[i].oracle;
+      address oracle = _requireNotRestricted(updates[i].oracle);
 
       IPriceCapAdapter.PriceCapUpdateParams memory params = updates[i].priceCapUpdateParams;
       require(params.snapshotRatio != 0, InvalidUpdateToZero());
@@ -675,7 +617,7 @@ contract RiskSteward is Ownable2Step, IRiskSteward {
   function _validateStablePriceCaps(PriceCapStableUpdate[] calldata updates) internal view {
     require(updates.length != 0, NoZeroUpdates());
     for (uint256 i; i < updates.length; ++i) {
-      address oracle = updates[i].oracle;
+      address oracle = _requireNotRestricted(updates[i].oracle);
       require(updates[i].priceCap != 0, InvalidUpdateToZero());
 
       uint256 currentPriceCap = IPriceCapAdapterStable(oracle).getPriceCap().toUint256();
@@ -694,7 +636,7 @@ contract RiskSteward is Ownable2Step, IRiskSteward {
   function _validatePendleDiscountRates(DiscountRatePendleUpdate[] calldata updates) internal view {
     require(updates.length != 0, NoZeroUpdates());
     for (uint256 i; i < updates.length; ++i) {
-      address oracle = updates[i].oracle;
+      address oracle = _requireNotRestricted(updates[i].oracle);
       require(updates[i].discountRate != 0, InvalidUpdateToZero());
 
       uint256 currentDiscount = IPendlePriceCapAdapter(oracle).discountRatePerYear();
@@ -739,20 +681,9 @@ contract RiskSteward is Ownable2Step, IRiskSteward {
     require(!config.oracle.discountRatePendle.isChangeRelative, InvalidParamConfig());
   }
 
-  function _requireHubNotRestricted(IHub hub) internal view {
-    require(!_restrictedHubs[hub], HubIsRestricted());
-  }
-
-  function _requireSpokeNotRestricted(ISpoke spoke) internal view {
-    require(!_restrictedSpokes[spoke], SpokeIsRestricted());
-  }
-
-  function _requireSpokeHubNotRestricted(ISpoke spoke, IHub hub) internal view {
-    require(!_restrictedSpokeHubs[spoke][hub], SpokeHubIsRestricted());
-  }
-
-  function _requireReserveNotRestricted(ISpoke spoke, IHub hub, address asset) internal view {
-    require(!_restrictedReserves[spoke][hub][asset], ReserveIsRestricted());
+  function _requireNotRestricted(address addr) internal view returns (address) {
+    require(!_restrictedAddresses[addr], RestrictedAddress(addr));
+    return addr;
   }
 
   function _getCurrentIRData(

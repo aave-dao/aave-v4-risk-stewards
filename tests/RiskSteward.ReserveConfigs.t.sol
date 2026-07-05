@@ -164,25 +164,38 @@ contract RiskStewardReserveConfigsTest is RiskStewardTestBase {
     steward.updateReserveConfigs(_toArray(u));
   }
 
-  function test_updateReserveConfigs_revertsWith_HubIsRestricted() public {
+  function test_updateReserveConfigs_whenHubRestricted_revertsWith_RestrictedAddress() public {
     ISpoke.ReserveConfig memory current = _reserveConfig(MAIN_SPOKE, HUB, ASSET);
     vm.prank(OWNER);
-    steward.setHubRestricted(address(HUB), true);
+    steward.setAddressRestricted(address(HUB), true);
     IEngine.ReserveConfigUpdate memory u = _baseReserveUpdate();
     u.collateralRisk = current.collateralRisk;
     vm.prank(RISK_COUNCIL);
-    vm.expectRevert(IRiskSteward.HubIsRestricted.selector);
+    vm.expectRevert(abi.encodeWithSelector(IRiskSteward.RestrictedAddress.selector, address(HUB)));
     steward.updateReserveConfigs(_toArray(u));
   }
 
-  function test_updateReserveConfigs_revertsWith_ReserveIsRestricted() public {
+  function test_updateReserveConfigs_whenSpokeRestricted_revertsWith_RestrictedAddress() public {
     ISpoke.ReserveConfig memory current = _reserveConfig(MAIN_SPOKE, HUB, ASSET);
     vm.prank(OWNER);
-    steward.setReserveRestricted(address(MAIN_SPOKE), address(HUB), ASSET, true);
+    steward.setAddressRestricted(address(MAIN_SPOKE), true);
     IEngine.ReserveConfigUpdate memory u = _baseReserveUpdate();
     u.collateralRisk = current.collateralRisk;
     vm.prank(RISK_COUNCIL);
-    vm.expectRevert(IRiskSteward.ReserveIsRestricted.selector);
+    vm.expectRevert(
+      abi.encodeWithSelector(IRiskSteward.RestrictedAddress.selector, address(MAIN_SPOKE))
+    );
+    steward.updateReserveConfigs(_toArray(u));
+  }
+
+  function test_updateReserveConfigs_whenAssetRestricted_revertsWith_RestrictedAddress() public {
+    ISpoke.ReserveConfig memory current = _reserveConfig(MAIN_SPOKE, HUB, ASSET);
+    vm.prank(OWNER);
+    steward.setAddressRestricted(ASSET, true);
+    IEngine.ReserveConfigUpdate memory u = _baseReserveUpdate();
+    u.collateralRisk = current.collateralRisk;
+    vm.prank(RISK_COUNCIL);
+    vm.expectRevert(abi.encodeWithSelector(IRiskSteward.RestrictedAddress.selector, ASSET));
     steward.updateReserveConfigs(_toArray(u));
   }
 }

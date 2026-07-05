@@ -346,6 +346,41 @@ contract RiskStewardPriceCapsTest is RiskStewardTestBase {
       });
   }
 
+  function test_updateLstPriceCaps_whenOracleRestricted_revertsWith_RestrictedAddress() public {
+    IRiskSteward.PriceCapLstUpdate[] memory p = _toArray(_baseLstUpdate());
+    vm.prank(OWNER);
+    steward.setAddressRestricted(address(wstEthAdapter), true);
+    vm.prank(RISK_COUNCIL);
+    vm.expectRevert(
+      abi.encodeWithSelector(IRiskSteward.RestrictedAddress.selector, address(wstEthAdapter))
+    );
+    steward.updateLstPriceCaps(p);
+  }
+
+  function test_updateStablePriceCaps_whenOracleRestricted_revertsWith_RestrictedAddress() public {
+    IRiskSteward.PriceCapStableUpdate[] memory p = _toArray(_baseStableUpdate());
+    vm.prank(OWNER);
+    steward.setAddressRestricted(address(stableAdapter), true);
+    vm.prank(RISK_COUNCIL);
+    vm.expectRevert(
+      abi.encodeWithSelector(IRiskSteward.RestrictedAddress.selector, address(stableAdapter))
+    );
+    steward.updateStablePriceCaps(p);
+  }
+
+  function test_updatePendleDiscountRates_whenOracleRestricted_revertsWith_RestrictedAddress()
+    public
+  {
+    IRiskSteward.DiscountRatePendleUpdate[] memory p = _toArray(_basePendleUpdate());
+    vm.prank(OWNER);
+    steward.setAddressRestricted(address(pendleAdapter), true);
+    vm.prank(RISK_COUNCIL);
+    vm.expectRevert(
+      abi.encodeWithSelector(IRiskSteward.RestrictedAddress.selector, address(pendleAdapter))
+    );
+    steward.updatePendleDiscountRates(p);
+  }
+
   function test_setConfig_revertsWith_InvalidParamConfig_whenLstAbsolute() public {
     IRiskSteward.Config memory cfg = _defaultConfig();
     cfg.oracle.priceCapLst.isChangeRelative = false;
