@@ -1,0 +1,70 @@
+tests/RiskSteward.PriceCaps.t.sol
+  s_7d34b6e9b9eb51::t_bbbbf0f505840a 354,356
+  s_7d34b6e9b9eb51::t_2da8476deceed4 349,355,360,366,371,379
+  s_7d34b6e9b9eb51::t_36948af0eb28ba 365,367
+  s_7d34b6e9b9eb51::t_27026aab4efaa3 378,380
+  s_7d34b6e9b9eb51::t_4cca53db90f0d3 351-353,358-359,362-364,369-370,372-373,375-377,382-383
+  s_7d34b6e9b9eb51::t_c22834da9aa618 350,357,361,368,374,381
+tests/RiskSteward.ReserveConfigs.t.sol
+  s_7d34b6e9b9eb51::t_3fa0ce9765f2e3 170,181,188-190,192-197
+  s_7d34b6e9b9eb51::t_45b2f83ed6fb8c 185,187
+  s_7d34b6e9b9eb51::t_2da8476deceed4 167,174,178,186,191,198
+tests/RiskSteward.HubAssetIRs.t.sol
+  s_7d34b6e9b9eb51::t_2ee4d014090b13 268,275-277,279-285
+  s_7d34b6e9b9eb51::t_2da8476deceed4 266,274,278,286
+tests/RiskSteward.AccessControl.t.sol
+  s_7d34b6e9b9eb51::t_19e557db07717f 114-126
+  s_7d34b6e9b9eb51::t_832920bccd2bc6 113
+  s_7d34b6e9b9eb51::t_33d5ce3466fd83 46,50
+tests/RiskSteward.AddDynamicReserveConfigs.t.sol
+  s_7d34b6e9b9eb51::t_dcf9e48ef17029 149-151
+  s_7d34b6e9b9eb51::t_2503980c83fc89 153
+  s_7d34b6e9b9eb51::t_92802bcd5d1460 156,158
+  s_7d34b6e9b9eb51::t_2da8476deceed4 157
+src/interfaces/IRiskSteward.sol
+  s_7d34b6e9b9eb51::t_5f4c015b3ccb7d 35-36
+  s_7d34b6e9b9eb51::t_8e56e7a051b506 294-296,299
+  h_739c25e72c37fb 43,297
+  s_7d34b6e9b9eb51::t_2da8476deceed4 38
+  s_7d34b6e9b9eb51::t_c4f2d76ad102cc 352-353
+  s_7d34b6e9b9eb51::t_29b673b6bb79d5 37
+  s_7d34b6e9b9eb51::t_5b67875932ec95 59-62
+src/RiskSteward.sol
+  s_7d34b6e9b9eb51::t_2da8476deceed4 685
+  s_7d34b6e9b9eb51::t_9bfe13071d34e7 197-198
+  s_7d34b6e9b9eb51::t_27026aab4efaa3 333,381,418,449,497,539
+  s_7d34b6e9b9eb51::t_4f10c2efe0d2cc 71-73
+  h_739c25e72c37fb 331-332,378-380,415-417,446-448,538,684,686
+  s_7d34b6e9b9eb51::t_783ff1f16a0302 494-496
+  s_7d34b6e9b9eb51::t_619d6a960bbc8e 48
+  s_7d34b6e9b9eb51::t_d1e4b9b9c57fdd 592,620,639
+tests/RiskSteward.SpokeLiquidationConfigs.t.sol
+  s_7d34b6e9b9eb51::t_fca86bdf9a0b87 147,149
+  s_7d34b6e9b9eb51::t_c4b9d8129e4532 139-140,143
+  s_7d34b6e9b9eb51::t_2da8476deceed4 138,148
+tests/RiskSteward.HubSpokeCaps.t.sol
+  s_7d34b6e9b9eb51::t_33864e1ea0a3c4 194,205,218
+  s_7d34b6e9b9eb51::t_2da8476deceed4 191,198,202,210,215,222
+  s_7d34b6e9b9eb51::t_9435073ec98eb5 209,211
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "dba567d83fccd1cdce95daecf849104072e51a8c",
+  "prompts": {},
+  "humans": {
+    "h_739c25e72c37fb": {
+      "author": "DhairyaSethi <55102840+DhairyaSethi@users.noreply.github.com>"
+    }
+  },
+  "sessions": {
+    "s_7d34b6e9b9eb51": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "3d117e65-cd5c-4445-af6a-d389a7b71432",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "DhairyaSethi <55102840+DhairyaSethi@users.noreply.github.com>"
+    }
+  }
+}
