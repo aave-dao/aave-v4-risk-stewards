@@ -1,0 +1,30 @@
+tests/RiskSteward.HubSpokeCaps.t.sol
+  s_7d34b6e9b9eb51::t_28e7648a65c02f 109,116-117,131-132,141-153
+  s_7d34b6e9b9eb51::t_b10a0441178c70 107-108
+  s_7d34b6e9b9eb51::t_292b554c7cacdf 110-111
+  s_7d34b6e9b9eb51::t_e1d45feeefc858 114-115
+  s_7d34b6e9b9eb51::t_114e468b9aff18 118-120
+  s_7d34b6e9b9eb51::t_e2b9248c56312a 129-130
+  s_7d34b6e9b9eb51::t_2b7d7a1548c1af 133-135,138-140
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "c20a7e6d0887cb61c021e20b254aca4284dd803e",
+  "prompts": {},
+  "humans": {
+    "h_739c25e72c37fb": {
+      "author": "DhairyaSethi <55102840+DhairyaSethi@users.noreply.github.com>"
+    }
+  },
+  "sessions": {
+    "s_7d34b6e9b9eb51": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "3d117e65-cd5c-4445-af6a-d389a7b71432",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "DhairyaSethi <55102840+DhairyaSethi@users.noreply.github.com>"
+    }
+  }
+}
