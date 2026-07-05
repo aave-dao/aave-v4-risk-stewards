@@ -434,15 +434,6 @@ contract RiskSteward is Ownable2Step, IRiskSteward {
       require(updates[i].active == EngineFlags.KEEP_CURRENT, ParamChangeNotAllowed());
       require(updates[i].halted == EngineFlags.KEEP_CURRENT, ParamChangeNotAllowed());
 
-      require(
-        updates[i].addCap == EngineFlags.KEEP_CURRENT || updates[i].addCap != 0,
-        InvalidUpdateToZero()
-      );
-      require(
-        updates[i].drawCap == EngineFlags.KEEP_CURRENT || updates[i].drawCap != 0,
-        InvalidUpdateToZero()
-      );
-
       uint256 assetId = hub.getAssetId(asset);
       IHub.SpokeConfig memory current = hub.getSpokeConfig(assetId, address(spoke));
       HubCapConfig memory capBounds = _config.hub.cap;

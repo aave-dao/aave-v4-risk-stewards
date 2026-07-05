@@ -46,15 +46,11 @@ contract RiskStewardHubSpokeCapsTest is RiskStewardTestBase {
     drawCapDeltaBps = _boundDelta(drawCapDeltaBps, capBounds.drawCap.maxPercentChange);
 
     IEngine.SpokeConfigUpdate memory u = _baseSpokeCapsUpdate();
-    u.addCap = _applyRelativeDelta({
-      current: current.addCap,
-      deltaBps: addCapDeltaBps,
-      floor: 1 // avoid InvalidUpdateToZero
-    });
+    u.addCap = _applyRelativeDelta({current: current.addCap, deltaBps: addCapDeltaBps, floor: 0});
     u.drawCap = _applyRelativeDelta({
       current: current.drawCap,
       deltaBps: drawCapDeltaBps,
-      floor: 1 // avoid InvalidUpdateToZero
+      floor: 0
     });
 
     uint256 assetId = HUB.getAssetId(ASSET);
@@ -108,12 +104,53 @@ contract RiskStewardHubSpokeCapsTest is RiskStewardTestBase {
     steward.updateHubSpokeCaps(_toArray(u2));
   }
 
-  function test_updateHubSpokeCaps_revertsWith_InvalidUpdateToZero() public {
+  function test_updateHubSpokeCaps_toZero_succeeds() public {
+    IHub.SpokeConfig memory current = _spokeConfig(HUB, MAIN_SPOKE, ASSET);
+    assertGt(current.addCap, 0);
+    assertGt(current.drawCap, 0);
+
+    IEngine.SpokeConfigUpdate memory u = _baseSpokeCapsUpdate();
+    u.addCap = 0;
+    u.drawCap = 0;
+
+    uint256 assetId = HUB.getAssetId(ASSET);
+    IHub.SpokeConfig memory expected = IHub.SpokeConfig({
+      addCap: 0,
+      drawCap: 0,
+      riskPremiumThreshold: current.riskPremiumThreshold,
+      active: current.active,
+      halted: current.halted
+    });
+    vm.expectEmit(address(HUB));
+    emit IHub.UpdateSpokeConfig(assetId, address(MAIN_SPOKE), expected);
+
+    vm.prank(RISK_COUNCIL);
+    steward.updateHubSpokeCaps(_toArray(u));
+
+    assertEq(_spokeConfig(HUB, MAIN_SPOKE, ASSET), expected);
+
+    IRiskSteward.HubSpokeAssetDebounce memory debounce = steward.getHubSpokeAssetDebounce(
+      address(HUB),
+      address(MAIN_SPOKE),
+      ASSET
+    );
+    assertEq(debounce.addCap, vm.getBlockTimestamp().toUint40());
+    assertEq(debounce.drawCap, vm.getBlockTimestamp().toUint40());
+  }
+
+  function test_updateHubSpokeCaps_cannotRaiseFromZero_revertsWith_UpdateNotInRange() public {
     IEngine.SpokeConfigUpdate memory u = _baseSpokeCapsUpdate();
     u.addCap = 0;
     vm.prank(RISK_COUNCIL);
-    vm.expectRevert(IRiskSteward.InvalidUpdateToZero.selector);
     steward.updateHubSpokeCaps(_toArray(u));
+
+    skip(3 days + 1); // clear the debounce
+
+    IEngine.SpokeConfigUpdate memory u2 = _baseSpokeCapsUpdate();
+    u2.addCap = 1;
+    vm.prank(RISK_COUNCIL);
+    vm.expectRevert(IRiskSteward.UpdateNotInRange.selector);
+    steward.updateHubSpokeCaps(_toArray(u2));
   }
 
   function test_updateHubSpokeCaps_riskPremiumThresholdChange_revertsWith_ParamChangeNotAllowed()
