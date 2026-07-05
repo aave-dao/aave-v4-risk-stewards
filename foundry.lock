@@ -1,0 +1,23 @@
+{
+  "lib/aave-helpers": {
+    "tag": {
+      "name": "v4.0.0",
+      "rev": "e00496037f076b804de231203212e0ecd91c7de6"
+    }
+  },
+  "lib/aave-price-feeds": {
+    "rev": "4e34b01274c394f083c27c53a8b4c15cc2e98153"
+  },
+  "lib/forge-std": {
+    "tag": {
+      "name": "v1.16.1",
+      "rev": "620536fa5277db4e3fd46772d5cbc1ea0696fb43"
+    }
+  },
+  "lib/safe-utils": {
+    "tag": {
+      "name": "v0.0.22",
+      "rev": "273945a35ade03a78648a350140aace72707d5a7"
+    }
+  }
+}

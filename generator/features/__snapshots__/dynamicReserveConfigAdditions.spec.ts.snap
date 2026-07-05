@@ -1,0 +1,142 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`feature: dynamicReserveConfigAdditions > should properly generate files 1`] = `
+{
+  "jsonConfig": "import {ConfigFile} from '../../../generator/types';
+export const config: ConfigFile = {
+  rootOptions: {
+    chains: ['AaveV4Ethereum'],
+    title: 'test',
+    shortName: 'Test',
+    date: '20260525',
+    author: 'test',
+    discussion: 'test',
+  },
+  chainOptions: {
+    AaveV4Ethereum: {
+      configs: {
+        DYNAMIC_RESERVE_CONFIG_ADDITION: [
+          {
+            hub: 'CORE_HUB',
+            spoke: 'MAIN_SPOKE',
+            asset: 'WETH',
+            collateralFactor: '82',
+            maxLiquidationBonus: '5',
+            liquidationFee: '',
+          },
+          {
+            hub: 'CORE_HUB',
+            spoke: 'LIDO_ESPOKE',
+            asset: 'wstETH',
+            collateralFactor: '80',
+            maxLiquidationBonus: '6',
+            liquidationFee: '10',
+          },
+        ],
+      },
+      cache: {blockNumber: 42},
+    },
+  },
+};
+",
+  "payloads": [
+    {
+      "chain": "AaveV4Ethereum",
+      "contractName": "AaveV4Ethereum_Test_20260525",
+      "payload": "// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
+
+import {AaveV4Ethereum, AaveV4EthereumAssets, AaveV4EthereumHubs, AaveV4EthereumSpokes} from 'aave-address-book/AaveV4Ethereum.sol';
+import {RiskStewardsEthereum} from '../../../scripts/networks/RiskStewardsEthereum.s.sol';
+import {IAaveV4ConfigEngine} from 'aave-v4/config-engine/interfaces/IAaveV4ConfigEngine.sol';
+import {IHub} from 'aave-v4/hub/interfaces/IHub.sol';
+import {ISpoke} from 'aave-v4/spoke/interfaces/ISpoke.sol';
+/**
+ * @title test
+ * @author test
+ * - discussion: test
+ * - deploy-command: make run-script contract=src/updates/20260525_AaveV4Ethereum_Test/AaveV4Ethereum_Test_20260525.sol:AaveV4Ethereum_Test_20260525 network=mainnet broadcast=false generate_diff=true skip_timelock=false
+ */
+contract AaveV4Ethereum_Test_20260525 is RiskStewardsEthereum {
+  function name() public pure override returns (string memory) {
+    return 'AaveV4Ethereum_Test_20260525';
+  }
+
+  function dynamicReserveConfigAdditions() public view override returns (IAaveV4ConfigEngine.DynamicReserveConfigAddition[] memory additions) {
+            additions = new IAaveV4ConfigEngine.DynamicReserveConfigAddition[](2);
+
+            additions[0] = IAaveV4ConfigEngine.DynamicReserveConfigAddition({
+              spokeConfigurator: AaveV4Ethereum.SPOKE_CONFIGURATOR,
+              spoke: address(AaveV4EthereumSpokes.MAIN_SPOKE),
+              hub: address(AaveV4EthereumHubs.CORE_HUB),
+              underlying: AaveV4EthereumAssets.WETH_UNDERLYING,
+              dynamicConfig: ISpoke.DynamicReserveConfig({
+                collateralFactor: 82_00,
+                maxLiquidationBonus: 5_00,
+                liquidationFee: _priorLiquidationFee(AaveV4EthereumHubs.CORE_HUB, AaveV4EthereumSpokes.MAIN_SPOKE, AaveV4EthereumAssets.WETH_UNDERLYING)
+              })
+            });
+additions[1] = IAaveV4ConfigEngine.DynamicReserveConfigAddition({
+              spokeConfigurator: AaveV4Ethereum.SPOKE_CONFIGURATOR,
+              spoke: address(AaveV4EthereumSpokes.LIDO_ESPOKE),
+              hub: address(AaveV4EthereumHubs.CORE_HUB),
+              underlying: AaveV4EthereumAssets.wstETH_UNDERLYING,
+              dynamicConfig: ISpoke.DynamicReserveConfig({
+                collateralFactor: 80_00,
+                maxLiquidationBonus: 6_00,
+                liquidationFee: 10_00
+              })
+            });
+          }
+/// @dev Reads \`liquidationFee\` from the reserve's latest dynamic config key.
+          function _priorLiquidationFee(IHub hub, ISpoke spoke, address underlying) private view returns (uint16) {
+            uint256 reserveId = spoke.getReserveId(address(hub), hub.getAssetId(underlying));
+            return
+              spoke.getDynamicReserveConfig(reserveId, spoke.getReserve(reserveId).dynamicConfigKey).liquidationFee;
+          }
+}",
+    },
+  ],
+}
+`;
+
+exports[`feature: dynamicReserveConfigAdditions > should return reasonable code 1`] = `
+{
+  "code": {
+    "fn": [
+      "function dynamicReserveConfigAdditions() public view override returns (IAaveV4ConfigEngine.DynamicReserveConfigAddition[] memory additions) {
+            additions = new IAaveV4ConfigEngine.DynamicReserveConfigAddition[](2);
+
+            additions[0] = IAaveV4ConfigEngine.DynamicReserveConfigAddition({
+              spokeConfigurator: AaveV4Ethereum.SPOKE_CONFIGURATOR,
+              spoke: address(AaveV4EthereumSpokes.MAIN_SPOKE),
+              hub: address(AaveV4EthereumHubs.CORE_HUB),
+              underlying: AaveV4EthereumAssets.WETH_UNDERLYING,
+              dynamicConfig: ISpoke.DynamicReserveConfig({
+                collateralFactor: 82_00,
+                maxLiquidationBonus: 5_00,
+                liquidationFee: _priorLiquidationFee(AaveV4EthereumHubs.CORE_HUB, AaveV4EthereumSpokes.MAIN_SPOKE, AaveV4EthereumAssets.WETH_UNDERLYING)
+              })
+            });
+additions[1] = IAaveV4ConfigEngine.DynamicReserveConfigAddition({
+              spokeConfigurator: AaveV4Ethereum.SPOKE_CONFIGURATOR,
+              spoke: address(AaveV4EthereumSpokes.LIDO_ESPOKE),
+              hub: address(AaveV4EthereumHubs.CORE_HUB),
+              underlying: AaveV4EthereumAssets.wstETH_UNDERLYING,
+              dynamicConfig: ISpoke.DynamicReserveConfig({
+                collateralFactor: 80_00,
+                maxLiquidationBonus: 6_00,
+                liquidationFee: 10_00
+              })
+            });
+          }",
+      "/// @dev Reads \`liquidationFee\` from the reserve's latest dynamic config key.
+          function _priorLiquidationFee(IHub hub, ISpoke spoke, address underlying) private view returns (uint16) {
+            uint256 reserveId = spoke.getReserveId(address(hub), hub.getAssetId(underlying));
+            return
+              spoke.getDynamicReserveConfig(reserveId, spoke.getReserve(reserveId).dynamicConfigKey).liquidationFee;
+          }",
+    ],
+  },
+}
+`;

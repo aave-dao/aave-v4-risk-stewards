@@ -1,0 +1,49 @@
+name: Tests
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  lint:
+    name: Prettier lint check
+    uses: aave-dao/github-workflows/.github/workflows/foundry-lint-prettier.yml@main
+  test:
+    name: Foundry build n test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - uses: aave-dao/action-rpc-env@main
+        with:
+          ALCHEMY_API_KEY: ${{ secrets.ALCHEMY_API_KEY }}
+          QUICKNODE_TOKEN: ${{ secrets.QUICKNODE_TOKEN }}
+          QUICKNODE_ENDPOINT_NAME: ${{ secrets.QUICKNODE_ENDPOINT_NAME }}
+
+      - uses: aave-dao/github-workflows/.github/actions/foundry-setup@main
+
+      - uses: aave-dao/github-workflows/.github/actions/setup-node@main
+
+      - name: Run Forge size
+        uses: aave-dao/github-workflows/.github/actions/foundry-size@main
+        continue-on-error: true
+
+      - name: Run Forge tests
+        uses: aave-dao/github-workflows/.github/actions/foundry-test@main
+
+      - name: Run Generator tests
+        run: pnpm run test
+
+      - name: Upload & Trigger Comment artifact
+        uses: aave-dao/github-workflows/.github/actions/comment-artifact@main
+        with:
+          nameSuffix: "default"
