@@ -66,6 +66,9 @@ export function prefixWithImports(code: string) {
   if (findMatch(code, 'IAssetInterestRateStrategy')) {
     imports += `import {IAssetInterestRateStrategy} from 'aave-v4/hub/interfaces/IAssetInterestRateStrategy.sol';\n`;
   }
+  if (findMatch(code, '\\bIHub\\b')) {
+    imports += `import {IHub} from 'aave-v4/hub/interfaces/IHub.sol';\n`;
+  }
   if (findMatch(code, 'ISpoke')) {
     imports += `import {ISpoke} from 'aave-v4/spoke/interfaces/ISpoke.sol';\n`;
   }

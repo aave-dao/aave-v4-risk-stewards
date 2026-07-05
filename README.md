@@ -2,17 +2,6 @@
 
 A single `RiskSteward` contract lets risk service providers push hardly-constrained risk parameter updates across every hub and spoke of the v4 hub/spoke deployment, reducing governance overhead.
 
-<br>
-
-## Specification
-
-The `RiskSteward` is a smart contract to which the Aave Governance grants the relevant `AccessManager` roles on the `HubConfigurator` and `SpokeConfigurator`. Specifically, the steward needs:
-
-- `Roles.HUB_CONFIGURATOR_DOMAIN_ADMIN_ROLE` — required to call all `HubConfigurator` entrypoints used by the steward (`updateInterestRateData`, `updateSpokeCaps` / `updateSpokeAddCap` / `updateSpokeDrawCap`).
-- `Roles.SPOKE_CONFIGURATOR_DOMAIN_ADMIN_ROLE` — required to call all `SpokeConfigurator` entrypoints used by the steward (`updateCollateralRisk`, `updateDynamicReserveConfig`, `addDynamicReserveConfig`, `updateLiquidationConfig` and its per-field setters).
-
-A single steward instance manages **every** Hub and **every** Spoke in the configurator domain. The owner sets a single global `Config` (containing `hub`, `spoke`, and `priceCap` sub-configs, each carrying its `HubConfigurator` / `SpokeConfigurator` address plus per-param `minDelay` + `maxPercentChange` + `isChangeRelative` bounds; the setter enforces the expected mode per field) via `setConfig(Config)`. New Hubs / Spokes listed by governance are automatically in scope. Specific Hubs / Spokes / `(spoke, hub)` pairs / reserves can be excluded via the restriction setters — `setHubRestricted`, `setSpokeRestricted`, `setSpokeHubRestricted`, `setReserveRestricted`.
-
 <br/>
 
 The following risk params can be changed by the v4 `RiskSteward`:
@@ -38,7 +27,7 @@ The following risk params can be changed by the v4 `RiskSteward`:
 - collateralFactor
 - maxLiquidationBonus
 
-Both updating an existing dynamic config key (`updateDynamicReserveConfigs`) and appending a new one (`addDynamicReserveConfigs`) are supported. The two modes are governed by **independent** `SpokeDynamicConfig` bounds — `SpokeConfig.dynamicUpdate` (typically stricter, mutates a tier users may be positioned in) and `SpokeConfig.dynamicAdd` (typically looser, appends a brand-new tier).
+Both updating an existing dynamic config key (`updateDynamicReserveConfigs`) and appending a new one (`addDynamicReserveConfigs`) are supported. The two modes are governed by **independent** `SpokeDynamicConfig` bounds — `SpokeConfig.dynamicUpdate` and `SpokeConfig.dynamicAdd`.
 
 **Spoke-global liquidation config** (per `spoke`)
 
@@ -48,13 +37,13 @@ Both updating an existing dynamic config key (`updateDynamicReserveConfigs`) and
 
 **CAPO oracle params** (per `oracle`)
 
-- LST adapter: `maxYearlyRatioGrowthPercent` (and a fresh `snapshotRatio` / `snapshotTimestamp`) via `updateLstPriceCaps`
+- LST adapter: `maxYearlyRatioGrowthPercent`, `snapshotRatio`, `snapshotTimestamp` via `updateLstPriceCaps`
 - Stable adapter: `priceCap` via `updateStablePriceCaps`
 - Pendle adapter: `discountRatePerYear` via `updatePendleDiscountRates`
 
-Each oracle has a single shared debounce (`_oracleDebounces[oracle]`) and its bounds come from `Config.priceCap` set by the owner via `setConfig`. The LST executor additionally re-reads `isCapped()` after `setCapParameters` and reverts with `InvalidPriceCapUpdate` if the new params would leave the adapter in a capped state.
+Each oracle has a single shared debounce (`_oracleDebounces[oracle]`) and its bounds come from `Config.oracle` set by the owner via `setConfig`.
 
-Refused fields the steward will not change (`ParamChangeNotAllowed`): `liquidityFee`, `riskPremiumThreshold`, `liquidationFee`, every bool toggle (`active`/`halted`/`paused`/`frozen`/`borrowable`/`receiveSharesEnabled`), `priceSource`, `irStrategy` address swap, `feeReceiver`, `reinvestmentController`, all listings, all halts/deactivations/resets, position-manager and access-manager admin. The full per-field matrix lives in [docs/ConfigurableParams.md](./docs/ConfigurableParams.md).
+The full per-field matrix lives in [docs/ConfigurableParams.md](./docs/ConfigurableParams.md).
 
 #### Min Delay:
 
@@ -76,7 +65,7 @@ For each risk param, `maxPercentChange` is the maximum percent change allowed (b
 
 After the activation proposal, these params can only be changed by the governance by calling `setConfig`.
 
-_Note: The Risk Stewards will not allow setting the following params to 0 no matter if the `maxPercentChange` has been configured to 100%: `addCap`, `drawCap`, `collateralFactor`, `maxLiquidationBonus`, `targetHealthFactor`, `healthFactorForMaxBonus`, `liquidationBonusFactor` — setting any of these to 0 effectively halts the asset or removes a safety property and should be a governance action. The Risk Stewards will however allow setting the IR params and `collateralRisk` to 0, since `0` is a normal configuration on v4 (e.g. WETH/CORE_HUB currently has `baseDrawnRate = 0`, and WETH/MAIN_SPOKE has `collateralRisk = 0`)._
+_Note: The Risk Stewards will not allow setting the following params to 0 no matter if the `maxPercentChange` has been configured to 100%: `collateralFactor`, `maxLiquidationBonus`, `targetHealthFactor`, `healthFactorForMaxBonus`, `liquidationBonusFactor` — setting any of these to 0 removes a safety property and should be a governance action. The Risk Stewards will however allow setting the IR params, `collateralRisk`, and the caps (`addCap` / `drawCap`) to 0. The steward does not check for `MAX_ALLOWED_SPOKE_CAP` because it is infeasible to reach._
 
 _Note: For params using **relative** change mode (caps, targetHealthFactor, healthFactorForMaxBonus), once the on-chain value reaches 0 the steward can no longer change it. The bound is `maxDiff = current * maxPercentChange / 100_00`, which is 0 when `current = 0`, so every non-zero target fails the range check with `UpdateNotInRange`. Moving a relative-mode param off 0 requires governance via the configurator directly._
 
@@ -89,14 +78,11 @@ Every council entry-point takes an array. Both the debounce check and the `maxPe
 
 - **No in-batch deduplication (intentional)**: the steward deliberately does **not** deduplicate or reject duplicate / overlapping entries that target the same `(scope, param)` within one array. It is safe to omit dedup because validation is storage-anchored and runs to completion before any execution: every duplicate is checked against the same pre-tx on-chain value and the same pre-tx `lastUpdated`, and each must independently satisfy the range and debounce checks. For the overwrite-style entrypoints (`updateHubAssetIRs`, `updateHubSpokeCaps`, `updateReserveConfigs`, `updateDynamicReserveConfigs`, `updateSpokeLiquidationConfigs`, `updateLstPriceCaps`, `updateStablePriceCaps`, `updatePendleDiscountRates`) the engine/adapter then applies the array in order so only the **last** write per param is committed — earlier duplicates are overwritten mid-batch and are redundant, yet the committed value is still one of the validated entries and therefore within bounds. The debounce is stamped once (to `block.timestamp`), so duplicates cannot stack changes beyond `maxPercentChange` nor bypass `minDelay`. `addDynamicReserveConfigs` is the one nuance: the engine **appends** rather than overwrites, so each addition becomes a new `dynamicConfigKey` and both persist in storage — but only the latest key is reachable by new positions (any earlier key created in the same batch is superseded with zero positions on it), and all additions are validated against the same latest pre-existing key, so the active config remains within `maxPercentChange`. This is covered by `test_addDynamicReserveConfigs_duplicateInBatch_succeedsAndStampsOnce`.
 
-#### Restricted Hubs, Spokes, (Spoke, Hub) tuples, and Reserves:
+#### Restricted addresses:
 
-Specific entities can be restricted on the RiskSteward by calling the owner methods. Once restricted, the steward will reject any update that touches that entity:
+Any address — a hub, spoke, asset, or CAPO oracle — can be restricted on the RiskSteward via the single owner method `setAddressRestricted(addr, true)`. Once restricted, the steward rejects (with `RestrictedAddress`) every update that touches that address: e.g. restricting a hub blocks all updates routed to it, restricting an asset blocks every update touching that asset across all spokes/hubs, and restricting an oracle blocks its price-cap updates. One example of a restricted asset is GHO, which should be excluded here since it has its own dedicated stewards.
 
-- `setHubRestricted(hub, true)` — blocks every update targeting the given hub.
-- `setSpokeRestricted(spoke, true)` — blocks every spoke-side update on the given spoke and every hub-spoke cap update routed to it.
-- `setSpokeHubRestricted(spoke, hub, true)` — blocks every update whose input struct carries both that spoke and that hub.
-- `setReserveRestricted(spoke, hub, asset, true)` — blocks every update touching that specific reserve.
+This is deliberately coarse: there is a single flat mapping and no per-`(spoke, hub)` or per-reserve granularity — restricting a spoke or asset applies everywhere it appears. That loss of granularity is acceptable for the steward's purpose (an owner-held emergency exclusion), and keeps the restriction surface simple.
 
 <br>
 
@@ -140,23 +126,22 @@ Run `pnpm run generate` on your terminal in order to start the generator. The ge
 
 To get a full list of available commands run `pnpm run generate --help`
 
-```sh
+````sh
 pnpm run generate --help
 $ tsx generator/cli --help
 Usage: proposal-generator [options]
 
-CLI to generate aave v4 risk steward proposals
+CLI to generate Aave v4 RiskSteward payloads
 
 Options:
   -V, --version              output the version number
   -f, --force                force creation (might overwrite existing files)
-  -p, --pools <pools...>     (choices: "AaveV4Ethereum")
-  -t, --title <string>       aip title
+  -c, --chains <chains...>   (choices: "AaveV4Ethereum")
+  -t, --title <string>       payload title
   -a, --author <string>      author
   -d, --discussion <string>  forum link
-  -c, --configFile <string>  path to config file
-  -h, --help                 display help for command
-```
+  --configFile <string>      path to config file
+  -h, --help                 display help for command```
 
 Running `pnpm run generate` you should be able to do the risk updates:
 
@@ -185,7 +170,7 @@ $ tsx generator/cli
 ? collateralFactor 80 %
 ? maxLiquidationBonus 105 %
 ✨  Done in 38.32s.
-```
+````
 
 The generator generates the scripts for doing the updates in `src/updates` directory.
 

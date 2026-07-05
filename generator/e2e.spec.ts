@@ -163,7 +163,7 @@ describe('generator e2e', () => {
           asset,
           collateralFactor: '82',
           maxLiquidationBonus: '5',
-          liquidationFee: '10',
+          liquidationFee: '',
         },
         {
           hub,

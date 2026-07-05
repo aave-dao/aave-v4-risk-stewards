@@ -36,8 +36,10 @@ export interface DynamicReserveConfigUpdate extends HubSpokeAssetSelector {
   maxLiquidationBonus: PercentInputValues;
 }
 
-/// Addition appends a new key; the steward reads the latest existing key on-chain to validate
-/// the change, so the author only supplies the new value (or empty to copy from the prior key).
+/// Addition appends a new key; the steward validates the change against the reserve's latest
+/// on-chain key at execution time. `collateralFactor` / `maxLiquidationBonus` are the new target
+/// values; `liquidationFee` must stay equal to the prior key, so leaving it empty makes the payload
+/// copy it from the latest key on-chain
 export interface DynamicReserveConfigAddition extends HubSpokeAssetSelector {
   collateralFactor: PercentInputValues;
   maxLiquidationBonus: PercentInputValues;

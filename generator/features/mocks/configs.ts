@@ -106,7 +106,7 @@ export const dynamicReserveConfigAddition: DynamicReserveConfigAddition[] = [
     asset: 'WETH',
     collateralFactor: '82',
     maxLiquidationBonus: '5',
-    liquidationFee: '10',
+    liquidationFee: '',
   },
   {
     hub: 'CORE_HUB',

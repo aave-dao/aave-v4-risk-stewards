@@ -22,7 +22,7 @@ export const config: ConfigFile = {
             asset: 'WETH',
             collateralFactor: '82',
             maxLiquidationBonus: '5',
-            liquidationFee: '10',
+            liquidationFee: '',
           },
           {
             hub: 'CORE_HUB',
@@ -49,6 +49,7 @@ pragma solidity ^0.8.0;
 import {AaveV4Ethereum, AaveV4EthereumAssets, AaveV4EthereumHubs, AaveV4EthereumSpokes} from 'aave-address-book/AaveV4Ethereum.sol';
 import {RiskStewardsEthereum} from '../../../scripts/networks/RiskStewardsEthereum.s.sol';
 import {IAaveV4ConfigEngine} from 'aave-v4/config-engine/interfaces/IAaveV4ConfigEngine.sol';
+import {IHub} from 'aave-v4/hub/interfaces/IHub.sol';
 import {ISpoke} from 'aave-v4/spoke/interfaces/ISpoke.sol';
 /**
  * @title test
@@ -61,7 +62,7 @@ contract AaveV4Ethereum_Test_20260525 is RiskStewardsEthereum {
     return 'AaveV4Ethereum_Test_20260525';
   }
 
-  function dynamicReserveConfigAdditions() public pure override returns (IAaveV4ConfigEngine.DynamicReserveConfigAddition[] memory additions) {
+  function dynamicReserveConfigAdditions() public view override returns (IAaveV4ConfigEngine.DynamicReserveConfigAddition[] memory additions) {
             additions = new IAaveV4ConfigEngine.DynamicReserveConfigAddition[](2);
 
             additions[0] = IAaveV4ConfigEngine.DynamicReserveConfigAddition({
@@ -72,7 +73,7 @@ contract AaveV4Ethereum_Test_20260525 is RiskStewardsEthereum {
               dynamicConfig: ISpoke.DynamicReserveConfig({
                 collateralFactor: 82_00,
                 maxLiquidationBonus: 5_00,
-                liquidationFee: 10_00
+                liquidationFee: _priorLiquidationFee(AaveV4EthereumHubs.CORE_HUB, AaveV4EthereumSpokes.MAIN_SPOKE, AaveV4EthereumAssets.WETH_UNDERLYING)
               })
             });
 additions[1] = IAaveV4ConfigEngine.DynamicReserveConfigAddition({
@@ -87,6 +88,12 @@ additions[1] = IAaveV4ConfigEngine.DynamicReserveConfigAddition({
               })
             });
           }
+/// @dev Reads \`liquidationFee\` from the reserve's latest dynamic config key.
+          function _priorLiquidationFee(IHub hub, ISpoke spoke, address underlying) private view returns (uint16) {
+            uint256 reserveId = spoke.getReserveId(address(hub), hub.getAssetId(underlying));
+            return
+              spoke.getDynamicReserveConfig(reserveId, spoke.getReserve(reserveId).dynamicConfigKey).liquidationFee;
+          }
 }",
     },
   ],
@@ -97,7 +104,7 @@ exports[`feature: dynamicReserveConfigAdditions > should return reasonable code 
 {
   "code": {
     "fn": [
-      "function dynamicReserveConfigAdditions() public pure override returns (IAaveV4ConfigEngine.DynamicReserveConfigAddition[] memory additions) {
+      "function dynamicReserveConfigAdditions() public view override returns (IAaveV4ConfigEngine.DynamicReserveConfigAddition[] memory additions) {
             additions = new IAaveV4ConfigEngine.DynamicReserveConfigAddition[](2);
 
             additions[0] = IAaveV4ConfigEngine.DynamicReserveConfigAddition({
@@ -108,7 +115,7 @@ exports[`feature: dynamicReserveConfigAdditions > should return reasonable code 
               dynamicConfig: ISpoke.DynamicReserveConfig({
                 collateralFactor: 82_00,
                 maxLiquidationBonus: 5_00,
-                liquidationFee: 10_00
+                liquidationFee: _priorLiquidationFee(AaveV4EthereumHubs.CORE_HUB, AaveV4EthereumSpokes.MAIN_SPOKE, AaveV4EthereumAssets.WETH_UNDERLYING)
               })
             });
 additions[1] = IAaveV4ConfigEngine.DynamicReserveConfigAddition({
@@ -122,6 +129,12 @@ additions[1] = IAaveV4ConfigEngine.DynamicReserveConfigAddition({
                 liquidationFee: 10_00
               })
             });
+          }",
+      "/// @dev Reads \`liquidationFee\` from the reserve's latest dynamic config key.
+          function _priorLiquidationFee(IHub hub, ISpoke spoke, address underlying) private view returns (uint16) {
+            uint256 reserveId = spoke.getReserveId(address(hub), hub.getAssetId(underlying));
+            return
+              spoke.getDynamicReserveConfig(reserveId, spoke.getReserve(reserveId).dynamicConfigKey).liquidationFee;
           }",
     ],
   },

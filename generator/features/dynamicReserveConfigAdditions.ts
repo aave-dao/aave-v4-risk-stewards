@@ -42,8 +42,8 @@ export const dynamicReserveConfigAdditions: FeatureModule<DynamicReserveConfigAd
               required: true,
             }),
             liquidationFee: await percentPrompt({
-              message: 'liquidationFee for new key — MUST equal prior key (BPS, required)',
-              required: true,
+              message:
+                'liquidationFee for new key — blank copies the prior key on-chain (recommended; the steward requires it to equal the prior key)',
             }),
           });
         }
@@ -52,10 +52,19 @@ export const dynamicReserveConfigAdditions: FeatureModule<DynamicReserveConfigAd
     return response;
   },
   build({chain, cfg}) {
-    const response: CodeArtifact = {
-      code: {
-        fn: [
-          `function dynamicReserveConfigAdditions() public pure override returns (IAaveV4ConfigEngine.DynamicReserveConfigAddition[] memory additions) {
+    const needsPriorFeeHelper = cfg.some((c) => !c.liquidationFee);
+    const mutability = needsPriorFeeHelper ? 'view' : 'pure';
+
+    const liquidationFeeExpr = (c: (typeof cfg)[number]) =>
+      c.liquidationFee
+        ? translateJsPercentToSol(c.liquidationFee)
+        : `_priorLiquidationFee(${translateHubToHubLib(c.hub, chain)}, ${translateSpokeToSpokeLib(
+            c.spoke,
+            chain,
+          )}, ${translateAssetToAssetLibUnderlying(c.asset, chain)})`;
+
+    const fn = [
+      `function dynamicReserveConfigAdditions() public ${mutability} override returns (IAaveV4ConfigEngine.DynamicReserveConfigAddition[] memory additions) {
             additions = new IAaveV4ConfigEngine.DynamicReserveConfigAddition[](${cfg.length});
 
             ${cfg
@@ -68,15 +77,26 @@ export const dynamicReserveConfigAdditions: FeatureModule<DynamicReserveConfigAd
               dynamicConfig: ISpoke.DynamicReserveConfig({
                 collateralFactor: ${translateJsPercentToSol(c.collateralFactor)},
                 maxLiquidationBonus: ${translateJsPercentToSol(c.maxLiquidationBonus)},
-                liquidationFee: ${translateJsPercentToSol(c.liquidationFee)}
+                liquidationFee: ${liquidationFeeExpr(c)}
               })
             });`,
               )
               .join('\n')}
           }`,
-        ],
-      },
-    };
+    ];
+
+    if (needsPriorFeeHelper) {
+      fn.push(
+        `/// @dev Reads \`liquidationFee\` from the reserve's latest dynamic config key.
+          function _priorLiquidationFee(IHub hub, ISpoke spoke, address underlying) private view returns (uint16) {
+            uint256 reserveId = spoke.getReserveId(address(hub), hub.getAssetId(underlying));
+            return
+              spoke.getDynamicReserveConfig(reserveId, spoke.getReserve(reserveId).dynamicConfigKey).liquidationFee;
+          }`,
+      );
+    }
+
+    const response: CodeArtifact = {code: {fn}};
     return response;
   },
 };
