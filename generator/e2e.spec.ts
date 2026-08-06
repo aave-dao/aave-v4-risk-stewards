@@ -3,7 +3,7 @@ import {execSync} from 'child_process';
 import fs from 'fs';
 import path from 'path';
 
-import {getHubs, getSpokes, getAssets, generateFolderName} from './common';
+import {CHAIN_TO_VIEM_CHAIN, getHubs, getSpokes, getAssets, generateFolderName} from './common';
 import {generateFiles, writeFiles} from './generator';
 import {hubAssetIrUpdates} from './features/hubAssetIrUpdates';
 import {hubSpokeCapsUpdates} from './features/hubSpokeCapsUpdates';
@@ -11,7 +11,7 @@ import {reserveConfigUpdates} from './features/reserveConfigUpdates';
 import {dynamicReserveConfigUpdates} from './features/dynamicReserveConfigUpdates';
 import {dynamicReserveConfigAdditions} from './features/dynamicReserveConfigAdditions';
 import {spokeLiquidationConfigUpdates} from './features/spokeLiquidationConfigUpdates';
-import {ChainConfigs, ChainIdentifier, FEATURE, Options} from './types';
+import {CHAINS, ChainConfigs, ChainIdentifier, FEATURE, Options} from './types';
 import {
   translateHubToHubLib,
   translateSpokeToSpokeLib,
@@ -63,6 +63,16 @@ describe('generator e2e', () => {
       expect(assets).toContain('USDC');
       expect(assets).toContain('USDT');
     });
+  });
+
+  /// Every selectable chain needs a viem chain carrying a default RPC url — the CLI reads the
+  /// block number from it before the first prompt, and a missing entry throws `UrlRequiredError`.
+  it('CHAIN_TO_VIEM_CHAIN resolves an RPC url for every selectable chain', () => {
+    for (const chain of CHAINS) {
+      const viemChain = CHAIN_TO_VIEM_CHAIN[chain];
+      expect(viemChain, `no viem chain mapped for ${chain}`).toBeDefined();
+      expect(viemChain.rpcUrls.default.http[0], `no default rpc url for ${chain}`).toBeTruthy();
+    }
   });
 
   /// Spot-check the JS→Sol translation helpers — each emits a Solidity identifier the on-disk

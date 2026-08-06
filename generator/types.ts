@@ -7,7 +7,7 @@ import {
   SpokeLiquidationConfigUpdate,
 } from './features/types';
 
-export const V4_CHAINS = ['AaveV4Ethereum'] as const;
+export const V4_CHAINS = ['AaveV4Ethereum', 'AaveV4Avalanche'] as const;
 
 export const CHAINS = [...V4_CHAINS] as const;
 

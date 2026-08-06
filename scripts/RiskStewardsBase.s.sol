@@ -2,7 +2,6 @@
 pragma solidity ^0.8.0;
 
 import {ProtocolV4TestBase} from 'aave-helpers/ProtocolV4TestBase.sol';
-import {ISpoke, IHub, ITokenizationSpoke} from 'aave-address-book/AaveV4.sol';
 import {Types} from 'aave-helpers/dependencies/v4/Types.sol';
 import {IAaveV4ConfigEngine as IEngine} from 'aave-v4/config-engine/interfaces/IAaveV4ConfigEngine.sol';
 import {Safe} from 'safe-utils/Safe.sol';
@@ -28,22 +27,8 @@ abstract contract RiskStewardsBase is ProtocolV4TestBase {
 
   Safe.Client internal _safe;
 
-  ISpoke[] internal _spokes;
-  IHub[] internal _hubs;
-  ITokenizationSpoke[] internal _tokenizationSpokes;
-
-  constructor(
-    address steward,
-    ISpoke[] memory spokes,
-    IHub[] memory hubs,
-    ITokenizationSpoke[] memory tokenizationSpokes
-  ) {
+  constructor(address steward) {
     STEWARD = IRiskSteward(steward);
-    for (uint256 i; i < spokes.length; i++) _spokes.push(spokes[i]);
-    for (uint256 i; i < hubs.length; i++) _hubs.push(hubs[i]);
-    for (uint256 i; i < tokenizationSpokes.length; i++) {
-      _tokenizationSpokes.push(tokenizationSpokes[i]);
-    }
   }
 
   function hubAssetIrUpdates() public view virtual returns (IEngine.AssetConfigUpdate[] memory) {}
@@ -134,7 +119,7 @@ abstract contract RiskStewardsBase is ProtocolV4TestBase {
 
     if (generateDiffReport) {
       vm.createDir('./reports', true);
-      Types.V4Snapshot memory snapBefore = createV4Snapshot(_spokes, _hubs);
+      Types.V4Snapshot memory snapBefore = createV4Snapshot(_getSpokes(), _getHubs());
       writeV4SnapshotJson(pre, snapBefore);
     }
 
@@ -181,7 +166,7 @@ abstract contract RiskStewardsBase is ProtocolV4TestBase {
     }
 
     if (generateDiffReport) {
-      Types.V4Snapshot memory snapAfter = createV4Snapshot(_spokes, _hubs);
+      Types.V4Snapshot memory snapAfter = createV4Snapshot(_getSpokes(), _getHubs());
       writeV4SnapshotJson(post, snapAfter);
       _diffV4Snapshots(name());
     }

@@ -6,6 +6,15 @@
 | ---------------- | ------------ | ----------- |
 | dynamicConfigKey | 0            | 1           |
 
+**dynamicConfigs**
+
+| key   | field               | before         | after          |
+| ----- | ------------------- | -------------- | -------------- |
+| key 0 | collateralFactor    | 83.00 % [8300] | 80.00 % [8000] |
+| key 1 | collateralFactor    | _missing_      | 83.00 % [8300] |
+| key 1 | maxLiquidationBonus | _missing_      | 5.55 % [10555] |
+| key 1 | liquidationFee      | _missing_      | 10.00 % [1000] |
+
 ## Hub Asset Changes
 
 ### WETH (assetId: 0) on Hub [0xCca852Bc40e560adC3b1Cc58CA5b55638ce826c9](https://etherscan.io/address/0xCca852Bc40e560adC3b1Cc58CA5b55638ce826c9)
@@ -76,6 +85,22 @@
         "dynamicConfigKey": {
           "from": 0,
           "to": 1
+        },
+        "dynamicConfigs": {
+          "0": {
+            "collateralFactor": {
+              "from": 8300,
+              "to": 8000
+            }
+          },
+          "1": {
+            "from": null,
+            "to": {
+              "collateralFactor": 8300,
+              "liquidationFee": 1000,
+              "maxLiquidationBonus": 10555
+            }
+          }
         }
       }
     }
