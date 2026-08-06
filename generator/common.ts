@@ -1,8 +1,9 @@
 import * as addressBook from '@aave-dao/aave-address-book';
-import {mainnet} from 'viem/chains';
+import {Chain} from 'viem';
+import {avalanche, mainnet} from 'viem/chains';
 import {ChainIdentifier, Options} from './types';
 
-export const AVAILABLE_CHAINS = ['Ethereum'] as const;
+export const AVAILABLE_CHAINS = ['Ethereum', 'Avalanche'] as const;
 
 export function getChainSuffix(chain: ChainIdentifier) {
   return chain.replace('AaveV4', '');
@@ -68,8 +69,12 @@ export function pascalCase(str: string) {
     .replace(/ /g, '');
 }
 
-export const CHAIN_TO_CHAIN_ID: Record<ChainIdentifier, number> = {
-  AaveV4Ethereum: mainnet.id,
+/// Every chain in `CHAINS` must have an entry here — the viem chain carries the default RPC url
+/// the generator reads the block number from. A missing entry makes `http()` throw
+/// `UrlRequiredError` before the first prompt.
+export const CHAIN_TO_VIEM_CHAIN: Record<ChainIdentifier, Chain> = {
+  AaveV4Ethereum: mainnet,
+  AaveV4Avalanche: avalanche,
 };
 
 export function flagAsRequired(message: string, required?: boolean) {

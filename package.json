@@ -16,7 +16,7 @@
   },
   "homepage": "https://github.com/aave-dao/aave-v4-risk-stewards#readme",
   "devDependencies": {
-    "@aave-dao/aave-address-book": "^4.52.3",
+    "@aave-dao/aave-address-book": "^4.62.6",
     "@bgd-labs/js-utils": "^1.4.8",
     "@inquirer/core": "^11.1.10",
     "@inquirer/prompts": "^8.4.3",
@@ -30,7 +30,7 @@
     "prettier-plugin-solidity": "^2.3.1",
     "tsx": "^4.22.3",
     "typescript": "^6.0.3",
-    "viem": "^2.51.0",
+    "viem": "^2.55.11",
     "vitest": "^4.1.7"
   },
   "lint-staged": {
