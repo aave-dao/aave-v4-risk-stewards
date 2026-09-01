@@ -1,0 +1,74 @@
+name: Certora
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    name: Run all Certora configurations
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      statuses: write
+      pull-requests: write
+      id-token: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+        with:
+          submodules: recursive
+
+      - name: Find Certora configurations
+        id: configurations
+        shell: bash
+        run: |
+          mapfile -t configurations < <(find certora/confs -type f -name '*.conf' -print | sort)
+
+          if (( ${#configurations[@]} == 0 )); then
+            echo "::error::No Certora configurations found under certora/confs."
+            exit 1
+          fi
+
+          {
+            echo 'list<<CERTORA_CONFIGURATIONS'
+            printf '%s\n' "${configurations[@]}"
+            echo 'CERTORA_CONFIGURATIONS'
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 11.3.0
+
+      - name: Install Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - name: Install project dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Run Certora Prover
+        uses: Certora/certora-run-action@v2
+        with:
+          cli-version: 8.19.1
+          configurations: ${{ steps.configurations.outputs.list }}
+          solc-versions: 0.8.28
+          comment-fail-only: false
+          job-name: Risk Steward V4
+          certora-key: ${{ secrets.CERTORAKEY }}
+          install-java: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
