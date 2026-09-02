@@ -311,7 +311,7 @@ rule dynamicAdditionStampsBoth(env e, address otherSpoke, address otherHub, addr
 }
 
 // ---------------------------------------------------------------------------
-// ENFORCEMENT — the read side of every governed (field, entrypoint) pair.
+// Debounce check enforcement 
 // ---------------------------------------------------------------------------
 
 // Four fields, each with its width-matched sentinel.

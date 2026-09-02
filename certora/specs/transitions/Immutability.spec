@@ -33,8 +33,8 @@ methods {
     function Hub._mintFeeShares(IHub.Asset storage, uint256) internal returns (uint256) => NONDET;
 
     // priceSource lives in the out-of-scene oracle, so we candetect attempted writes.
-    function _.setReserveSource(uint256 reserveId, address source)
-        external => markPriceSource() expect void;
+    function _.setReserveSource(uint256 reserveId, address source) external 
+        => markPriceSource() expect void;
 
     // `=> anyIRData()` rather than `=> NONDET`: CVL rejects NONDET on a reference return type. 
     function RiskSteward._getCurrentIRData(address, address) internal returns (IAssetInterestRateStrategy.InterestRateData memory) 
@@ -129,7 +129,7 @@ rule reserveKeepsPriceSource(env e) {
     assert !priceSourceTouched;
 }
 
-// Make sure immutable parameters are not touched
+// Make sure immutable parameters from reserve config are not touched
 rule reserveKeepsFlags(env e, uint256 reserveId) {
     // Require the caller to be the RiskCouncil (Prover Performances Helper)
     require e.msg.sender == RISK_COUNCIL();
@@ -183,6 +183,7 @@ rule dynKeepsLiquidationFee(env e, uint256 reserveId, uint32 key) {
 // (i) FIELD isolation — same key, sibling field untouched
 // ---------------------------------------------------------------------------
 
+// Make sure add cap does not move draw cap
 rule addCapDoesNotMoveDrawCap(env e, IAaveV4ConfigEngine.SpokeConfigUpdate u) {
     require getConfig().hub.configurator == hubConfig, "Prevents HAVOC_ALL on the unresolved HubEngine caps call";
 
@@ -207,6 +208,7 @@ rule addCapDoesNotMoveDrawCap(env e, IAaveV4ConfigEngine.SpokeConfigUpdate u) {
         => hubH.getSpokeConfig(assetId, u.spoke).drawCap == drawBefore;
 }
 
+// Make sure draw cap does not move add cap
 rule drawCapDoesNotMoveAddCap(env e, IAaveV4ConfigEngine.SpokeConfigUpdate u) {
     require getConfig().hub.configurator == hubConfig, "Prevents HAVOC_ALL on the unresolved HubEngine caps call";
    
@@ -231,6 +233,7 @@ rule drawCapDoesNotMoveAddCap(env e, IAaveV4ConfigEngine.SpokeConfigUpdate u) {
         => hubH.getSpokeConfig(assetId, u.spoke).addCap == addBefore;
 }
 
+// Make sure collateral factor does not move max bonus
 rule collateralFactorKeepsMaxBonus(env e, IAaveV4ConfigEngine.DynamicReserveConfigUpdate u) {
     // Create a valid DynamicReserveConfigUpdate array and constrain it to the input
     IAaveV4ConfigEngine.DynamicReserveConfigUpdate[] updates;
@@ -256,6 +259,7 @@ rule collateralFactorKeepsMaxBonus(env e, IAaveV4ConfigEngine.DynamicReserveConf
         => spokeH.getDynamicReserveConfig(reserveId, key).maxLiquidationBonus == bonusBefore;
 }
 
+// Make sure max bonus does not move collateral factor
 rule maxBonusKeepsCollateralFactor(env e, IAaveV4ConfigEngine.DynamicReserveConfigUpdate u) {
     // Create a valid DynamicReserveConfigUpdate array and constrain it to the input
     IAaveV4ConfigEngine.DynamicReserveConfigUpdate[] updates;
@@ -312,7 +316,7 @@ function dynBatchAvoids(IAaveV4ConfigEngine.DynamicReserveConfigUpdate[] updates
     require updates.length < 3 || spokeH.getReserveId(updates[2].hub, hubH.getAssetId(updates[2].underlying)) != otherReserveId || to_mathint(updates[2].dynamicConfigKey) != to_mathint(otherKey);
 }
 
-// Verify that the add cap and draw cap were not touched
+// Verify that the add cap and draw cap of other asset id and other spoke were not touched
 rule hubCapsKeyIsolation(env e, uint256 otherAssetId, address otherSpoke) {
     require getConfig().hub.configurator == hubConfig, "Prevents HAVOC_ALL on the unresolved HubEngine caps call";
 
@@ -333,7 +337,7 @@ rule hubCapsKeyIsolation(env e, uint256 otherAssetId, address otherSpoke) {
     assert after.addCap == before.addCap && after.drawCap == before.drawCap;
 }
 
-// Verify that the collateral risk was not touched
+// Verify that the collateral risk of other reserve id was not touched
 rule reserveConfigKeyIsolation(env e, uint256 otherReserveId) {
     // Create a valid ReserveConfigUpdate batch that avoids the snapshotted cell
     IAaveV4ConfigEngine.ReserveConfigUpdate[] updates;
@@ -352,7 +356,7 @@ rule reserveConfigKeyIsolation(env e, uint256 otherReserveId) {
     assert after.collateralRisk == before.collateralRisk;
 }
 
-// Verify that the collateral factor and max liquidation bonus were not touched
+// Verify that the collateral factor and max liquidation bonus of other reserve id and other key were not touched
 rule dynamicConfigKeyIsolation(env e, uint256 otherReserveId, uint32 otherKey) {
     // Create a valid DynamicReserveConfigUpdate batch that avoids the snapshotted cell
     IAaveV4ConfigEngine.DynamicReserveConfigUpdate[] updates;

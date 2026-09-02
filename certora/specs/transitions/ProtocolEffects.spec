@@ -143,6 +143,7 @@ function absDiff(mathint a, mathint b) returns mathint {
 // updateHubSpokeCaps : addCap / drawCap  (relative mode)
 // ---------------------------------------------------------------------------
 
+// Make sure add cap moves within the configured bound
 rule capsAddCapMagnitude(env e, uint256 assetId, address spoke) {
     require getConfig().hub.configurator == hubConfig, "Prevents HAVOC_ALL on the unresolved HubEngine caps call";
 
@@ -164,6 +165,7 @@ rule capsAddCapMagnitude(env e, uint256 assetId, address spoke) {
     assert absDiff(post, from) <= allowedDiff(isRelative, maxPercentChange, from);
 }
 
+// Make sure draw cap moves within the configured bound
 rule capsDrawCapMagnitude(env e, uint256 assetId, address spoke) {
     // Keeps the merged HubEngine.sol call inside the DISPATCH list
     require getConfig().hub.configurator == hubConfig, "Prevents HAVOC_ALL on the unresolved HubEngine caps call";
@@ -189,6 +191,7 @@ rule capsDrawCapMagnitude(env e, uint256 assetId, address spoke) {
 // updateReserveConfigs : collateralRisk
 // ---------------------------------------------------------------------------
 
+// Make sure collateral risk moves within the configured bound
 rule reserveCollateralRiskMagnitude(env e, uint256 reserveId) {
     // Create a valid ReserveConfigUpdate array
     IAaveV4ConfigEngine.ReserveConfigUpdate[] updates;
@@ -211,6 +214,7 @@ rule reserveCollateralRiskMagnitude(env e, uint256 reserveId) {
 // updateDynamicReserveConfigs : collateralFactor / maxLiquidationBonus
 // ---------------------------------------------------------------------------
 
+// Make sure collateral factor moves within the configured bound
 rule dynUpdateCollateralFactorMagnitude(env e, uint256 reserveId, uint32 key) {
 
     // Create a valid DynamicReserveConfigUpdate array
@@ -230,6 +234,7 @@ rule dynUpdateCollateralFactorMagnitude(env e, uint256 reserveId, uint32 key) {
     assert absDiff(post, from) <= allowedDiff(isRelative, maxPercentChange, from);
 }
 
+// Make sure max bonus moves within the configured bound
 rule dynUpdateMaxLiquidationBonusMagnitude(env e, uint256 reserveId, uint32 key) {
     // Create a valid DynamicReserveConfigUpdate array
     IAaveV4ConfigEngine.DynamicReserveConfigUpdate[] updates;
@@ -255,6 +260,7 @@ rule dynUpdateMaxLiquidationBonusMagnitude(env e, uint256 reserveId, uint32 key)
 // No sentinel exists for additions, so every successful addition is in scope.
 // ---------------------------------------------------------------------------
 
+// Make sure collateral factor moves within the configured bound
 rule dynAddCollateralFactorMagnitude(env e, uint256 reserveId) {
     // Create a valid DynamicReserveConfigAddition array
     IAaveV4ConfigEngine.DynamicReserveConfigAddition[] additions;
@@ -273,6 +279,7 @@ rule dynAddCollateralFactorMagnitude(env e, uint256 reserveId) {
     assert absDiff(post, from) <= allowedDiff(isRelative, maxPercentChange, from);
 }
 
+// Make sure max bonus moves within the configured bound
 rule dynAddMaxLiquidationBonusMagnitude(env e, uint256 reserveId) {
     // Create a valid DynamicReserveConfigAddition array
     IAaveV4ConfigEngine.DynamicReserveConfigAddition[] additions;
@@ -296,7 +303,7 @@ rule dynAddMaxLiquidationBonusMagnitude(env e, uint256 reserveId) {
 // addDynamicReserveConfigs
 // ---------------------------------------------------------------------------
 
-// liquidationFee is frozen by equality against `ref`,not by a KEEP_CURRENT sentinel
+// Make sure liquidation fee does not move
 rule dynAddLiquidationFeeFrozen(env e) {
 
     IAaveV4ConfigEngine.DynamicReserveConfigAddition[] additions;
@@ -314,7 +321,7 @@ rule dynAddLiquidationFeeFrozen(env e) {
     assert newFee != refFee => lastReverted;
 }
 
-// An addition must extend an existing dynamic config, never bootstrap one (NoExistingDynamicConfig). 
+// An addition must extend an existing dynamic config, never bootstrap one 
 rule dynAddRequiresExistingConfig(env e) {
 
     IAaveV4ConfigEngine.DynamicReserveConfigAddition[] additions;
@@ -335,6 +342,7 @@ rule dynAddRequiresExistingConfig(env e) {
 // updateSpokeLiquidationConfigs : three fields
 // ---------------------------------------------------------------------------
 
+// Make sure target health factor moves within the configured bound
 rule liqTargetHealthFactorMagnitude(env e) {
     // Create a valid LiquidationConfigUpdate array
     IAaveV4ConfigEngine.LiquidationConfigUpdate[] updates;
@@ -353,6 +361,7 @@ rule liqTargetHealthFactorMagnitude(env e) {
     assert absDiff(post, from) <= allowedDiff(isRelative, maxPercentChange, from);
 }
 
+// Make sure health factor for max bonus moves within the configured bound
 rule liqHealthFactorForMaxBonusMagnitude(env e, IAaveV4ConfigEngine.LiquidationConfigUpdate u) {
     // Pin sibling liquidation fields to KEEP_CURRENT so their validations
     // early-return and their writes no-op, leaving only the current field live.
@@ -382,6 +391,7 @@ rule liqHealthFactorForMaxBonusMagnitude(env e, IAaveV4ConfigEngine.LiquidationC
         => absDiff(post, from) <= allowedDiff(isRelative, maxPercentChange, from);
 }
 
+// Make sure liquidation bonus factor moves within the configured bound
 rule liqBonusFactorMagnitude(env e, IAaveV4ConfigEngine.LiquidationConfigUpdate u) {
     // Pin sibling liquidation fields to KEEP_CURRENT so their validations
     // early-return and their writes no-op, leaving only the current field live.
@@ -415,6 +425,7 @@ rule liqBonusFactorMagnitude(env e, IAaveV4ConfigEngine.LiquidationConfigUpdate 
 // updateHubAssetIRs : the four interest-rate data fields
 // ---------------------------------------------------------------------------
 
+// Make sure optimal usage ratio moves within the configured bound
 rule assetIROptimalUsageRatioMagnitude(env e, uint256 assetId) {
     // Create a valid AssetConfigUpdate array
     IAaveV4ConfigEngine.AssetConfigUpdate[] updates;
@@ -433,6 +444,7 @@ rule assetIROptimalUsageRatioMagnitude(env e, uint256 assetId) {
     assert absDiff(post, from) <= allowedDiff(isRelative, maxPercentChange, from);
 }
 
+// Make sure base drawn rate moves within the configured bound
 rule assetIRBaseDrawnRateMagnitude(env e, uint256 assetId) {
     // Create a valid AssetConfigUpdate array
     IAaveV4ConfigEngine.AssetConfigUpdate[] updates;
@@ -451,6 +463,7 @@ rule assetIRBaseDrawnRateMagnitude(env e, uint256 assetId) {
     assert absDiff(post, from) <= allowedDiff(isRelative, maxPercentChange, from);
 }
 
+// Make sure rate growth before optimal moves within the configured bound
 rule assetIRRateGrowthBeforeOptimalMagnitude(env e, uint256 assetId) {
     // Create a valid AssetConfigUpdate array
     IAaveV4ConfigEngine.AssetConfigUpdate[] updates;
@@ -469,6 +482,7 @@ rule assetIRRateGrowthBeforeOptimalMagnitude(env e, uint256 assetId) {
     assert absDiff(post, from) <= allowedDiff(isRelative, maxPercentChange, from);
 }
 
+// Make sure rate growth after optimal moves within the configured bound
 rule assetIRRateGrowthAfterOptimalMagnitude(env e, uint256 assetId) {
     // Create a valid AssetConfigUpdate array
     IAaveV4ConfigEngine.AssetConfigUpdate[] updates;
@@ -496,6 +510,7 @@ rule assetIRRateGrowthAfterOptimalMagnitude(env e, uint256 assetId) {
 // updateHubSpokeCaps : addCap / drawCap
 // ---------------------------------------------------------------------------
 
+// Make sure add cap is written to the Hub
 rule spokeCapsAddCapFidelity(env e, IAaveV4ConfigEngine.SpokeConfigUpdate u) {
     require getConfig().hub.configurator == hubConfig, "Prevents HAVOC_ALL on the unresolved HubEngine caps call";
 
@@ -517,6 +532,7 @@ rule spokeCapsAddCapFidelity(env e, IAaveV4ConfigEngine.SpokeConfigUpdate u) {
         => to_mathint(hubH.getSpokeConfig(assetId, u.spoke).addCap) == to_mathint(u.addCap);
 }
 
+// Make sure draw cap is written to the Hub
 rule spokeCapsDrawCapFidelity(env e, IAaveV4ConfigEngine.SpokeConfigUpdate u) {
     require getConfig().hub.configurator == hubConfig, "Prevents HAVOC_ALL on the unresolved HubEngine caps call";
 
@@ -542,6 +558,7 @@ rule spokeCapsDrawCapFidelity(env e, IAaveV4ConfigEngine.SpokeConfigUpdate u) {
 // updateReserveConfigs : collateralRisk
 // ---------------------------------------------------------------------------
 
+// Make sure collateral risk is written to the Spoke
 rule reserveCollateralRiskFidelity(env e, IAaveV4ConfigEngine.ReserveConfigUpdate u) {
     // Create a valid ReserveConfigUpdate array and constrain it to the input
     IAaveV4ConfigEngine.ReserveConfigUpdate[] updates;
@@ -568,6 +585,7 @@ rule reserveCollateralRiskFidelity(env e, IAaveV4ConfigEngine.ReserveConfigUpdat
 // updateDynamicReserveConfigs : collateralFactor / maxLiquidationBonus
 // ---------------------------------------------------------------------------
 
+// Make sure collateral factor is written to the Spoke
 rule dynUpdateCollateralFactorFidelity(env e, IAaveV4ConfigEngine.DynamicReserveConfigUpdate u) {
     // Create a valid DynamicReserveConfigUpdate array and constrain it to the input
     IAaveV4ConfigEngine.DynamicReserveConfigUpdate[] updates;
@@ -591,6 +609,7 @@ rule dynUpdateCollateralFactorFidelity(env e, IAaveV4ConfigEngine.DynamicReserve
         => to_mathint(spokeH.getDynamicReserveConfig(reserveId, key).collateralFactor) == to_mathint(u.collateralFactor);
 }
 
+// Make sure max bonus is written to the Spoke
 rule dynUpdateMaxLiquidationBonusFidelity(env e, IAaveV4ConfigEngine.DynamicReserveConfigUpdate u) {
     // Create a valid DynamicReserveConfigUpdate array and constrain it to the input
     IAaveV4ConfigEngine.DynamicReserveConfigUpdate[] updates;
@@ -631,6 +650,7 @@ function dynAddBatch(IAaveV4ConfigEngine.DynamicReserveConfigAddition[] addition
         && additions[0].dynamicConfig.liquidationFee == a.dynamicConfig.liquidationFee;
 }
 
+// Make sure collateral factor is written to the Spoke
 rule dynAddCollateralFactorFidelity(env e, IAaveV4ConfigEngine.DynamicReserveConfigAddition a) {
     require getConfig().spoke.configurator == spokeConfig, "Keeps the SpokeEngine hop dispatched";
     require a.spoke == spokeH && a.hub == hubH, "Pins the addition to the snapshotted scene contracts";
@@ -650,6 +670,7 @@ rule dynAddCollateralFactorFidelity(env e, IAaveV4ConfigEngine.DynamicReserveCon
         == a.dynamicConfig.collateralFactor;
 }
 
+// Make sure max bonus is written to the Spoke
 rule dynAddMaxLiquidationBonusFidelity(env e, IAaveV4ConfigEngine.DynamicReserveConfigAddition a) {
     require getConfig().spoke.configurator == spokeConfig, "Keeps the SpokeEngine hop dispatched";
     require a.spoke == spokeH && a.hub == hubH, "Pins the addition to the snapshotted scene contracts";
@@ -673,6 +694,7 @@ rule dynAddMaxLiquidationBonusFidelity(env e, IAaveV4ConfigEngine.DynamicReserve
 // updateSpokeLiquidationConfigs : three fields
 // ---------------------------------------------------------------------------
 
+// Make sure target health factor is written to the Spoke
 rule liqTargetHealthFactorFidelity(env e, IAaveV4ConfigEngine.LiquidationConfigUpdate u) {
     // Create a valid LiquidationConfigUpdate array and constrain it to the input
     IAaveV4ConfigEngine.LiquidationConfigUpdate[] updates;
@@ -690,6 +712,7 @@ rule liqTargetHealthFactorFidelity(env e, IAaveV4ConfigEngine.LiquidationConfigU
         => to_mathint(spokeH.getLiquidationConfig().targetHealthFactor) == to_mathint(u.targetHealthFactor);
 }
 
+// Make sure health factor for max bonus is written to the Spoke
 rule liqHealthFactorForMaxBonusFidelity(env e, IAaveV4ConfigEngine.LiquidationConfigUpdate u) {
     require e.msg.sender == RISK_COUNCIL(),"Require the caller to be the RiskCouncil (Prover Performances Helper)";
     require getConfig().spoke.configurator == spokeConfig, "Speeds up SpokeEngine dispatch; not needed for soundness";
@@ -716,6 +739,7 @@ rule liqHealthFactorForMaxBonusFidelity(env e, IAaveV4ConfigEngine.LiquidationCo
         => to_mathint(spokeH.getLiquidationConfig().healthFactorForMaxBonus) == to_mathint(u.healthFactorForMaxBonus);
 }
 
+// Make sure liquidation bonus factor is written to the Spoke
 rule liqBonusFactorFidelity(env e, IAaveV4ConfigEngine.LiquidationConfigUpdate u) {
     require e.msg.sender == RISK_COUNCIL(); // Prover Performances Helper
     require getConfig().spoke.configurator == spokeConfig, "Speeds up SpokeEngine dispatch; not needed for soundness";
@@ -761,6 +785,7 @@ function assetIRBatch(IAaveV4ConfigEngine.AssetConfigUpdate[] updates, IAaveV4Co
         && updates[0].irData.rateGrowthAfterOptimal == u.irData.rateGrowthAfterOptimal;
 }
 
+// Make sure optimal usage ratio is written to the strategy
 rule assetIROptimalUsageRatioFidelity(env e, IAaveV4ConfigEngine.AssetConfigUpdate u) {
     // Fetch the assetId of underlying asset
     uint256 assetId = hubH.getAssetId(u.underlying);
@@ -777,6 +802,7 @@ rule assetIROptimalUsageRatioFidelity(env e, IAaveV4ConfigEngine.AssetConfigUpda
         => irH.getInterestRateData(assetId).optimalUsageRatio == u.irData.optimalUsageRatio;
 }
 
+// Make sure base drawn rate is written to the strategy
 rule assetIRBaseDrawnRateFidelity(env e, IAaveV4ConfigEngine.AssetConfigUpdate u) {
     // Fetch the assetId of underlying asset
     uint256 assetId = hubH.getAssetId(u.underlying);
@@ -793,6 +819,7 @@ rule assetIRBaseDrawnRateFidelity(env e, IAaveV4ConfigEngine.AssetConfigUpdate u
         => irH.getInterestRateData(assetId).baseDrawnRate == u.irData.baseDrawnRate;
 }
 
+// Make sure rate growth before optimal is written to the strategy
 rule assetIRRateGrowthBeforeOptimalFidelity(env e, IAaveV4ConfigEngine.AssetConfigUpdate u) {
     // Fetch the assetId of underlying asset
     uint256 assetId = hubH.getAssetId(u.underlying);
@@ -809,6 +836,7 @@ rule assetIRRateGrowthBeforeOptimalFidelity(env e, IAaveV4ConfigEngine.AssetConf
         => irH.getInterestRateData(assetId).rateGrowthBeforeOptimal == u.irData.rateGrowthBeforeOptimal;
 }
 
+// Make sure rate growth after optimal is written to the strategy
 rule assetIRRateGrowthAfterOptimalFidelity(env e, IAaveV4ConfigEngine.AssetConfigUpdate u) {
     // Fetch the assetId of underlying asset
     uint256 assetId = hubH.getAssetId(u.underlying);
