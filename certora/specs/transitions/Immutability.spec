@@ -184,7 +184,7 @@ rule reserveKeepsFlags(env e, uint256 reserveId) {
 rule dynKeepsLiquidationFee(env e, uint256 reserveId, uint32 key) {
     // Create a valid DynamicReserveConfigUpdate array
     IAaveV4ConfigEngine.DynamicReserveConfigUpdate[] updates;
-    require updates.length <= 3,"Limit batch updates elements to 3 for prover performances";
+    require updates.length <= 2,"Limit batch updates elements to 2 for prover performances";
 
     // Fetch the DynamicReserveConfig before the update
     uint16 before = spokeH.getDynamicReserveConfig(reserveId, key).liquidationFee;

@@ -303,6 +303,56 @@ rule dynAddMaxLiquidationBonusMagnitude(env e, IAaveV4ConfigEngine.DynamicReserv
 }
 
 // ---------------------------------------------------------------------------
+// addDynamicReserveConfigs : the two gates RevertConditions.spec cannot express
+//
+// Both compare the addition against `ref`, the config at the latest existing key
+// (RiskSteward.sol:474-477). That value lives in the Spoke, so a steward-only scene
+// NONDETs it and the comparison is unobservable — these belong here, where spokeH is
+// a real contract, even though they are revert conditions.
+// ---------------------------------------------------------------------------
+
+// Pin the batch to the scene so `refFee` below reads the same slot the steward validates.
+function oneSceneAddition() returns IAaveV4ConfigEngine.DynamicReserveConfigAddition[] {
+    IAaveV4ConfigEngine.DynamicReserveConfigAddition[] additions;
+    require additions.length == 1
+        && additions[0].spoke == spokeH
+        && additions[0].hub == hubH;
+    require getConfig().spoke.configurator == spokeConfig, "Keeps the SpokeEngine hop dispatched";
+    return additions;
+}
+
+// S1 for addDynamicReserveConfigs: liquidationFee is frozen by equality against `ref`,
+// not by a KEEP_CURRENT sentinel — the only frozen field in the contract shaped this way.
+rule dynAddLiquidationFeeFrozen(env e) {
+    IAaveV4ConfigEngine.DynamicReserveConfigAddition[] additions = oneSceneAddition();
+
+    uint256 reserveId = spokeH.getReserveId(additions[0].hub, hubH.getAssetId(additions[0].underlying));
+    uint16 refFee = spokeH.getDynamicReserveConfig(reserveId, spokeH.latestDynamicConfigKey(reserveId)).liquidationFee;
+    uint16 newFee = additions[0].dynamicConfig.liquidationFee;
+
+    // Execute the addition
+    addDynamicReserveConfigs@withrevert(e, additions);
+
+    // Assert that changing liquidationFee causes a revert
+    assert newFee != refFee => lastReverted;
+}
+
+// An addition must extend an existing dynamic config, never bootstrap one
+// (NoExistingDynamicConfig). Without it the magnitude bound anchors to zero.
+rule dynAddRequiresExistingConfig(env e) {
+    IAaveV4ConfigEngine.DynamicReserveConfigAddition[] additions = oneSceneAddition();
+
+    uint256 reserveId = spokeH.getReserveId(additions[0].hub, hubH.getAssetId(additions[0].underlying));
+    uint16 refFactor = spokeH.getDynamicReserveConfig(reserveId, spokeH.latestDynamicConfigKey(reserveId)).collateralFactor;
+
+    // Execute the addition
+    addDynamicReserveConfigs@withrevert(e, additions);
+
+    // Assert that an absent reference config causes a revert
+    assert refFactor == 0 => lastReverted;
+}
+
+// ---------------------------------------------------------------------------
 // updateSpokeLiquidationConfigs : three fields
 // ---------------------------------------------------------------------------
 

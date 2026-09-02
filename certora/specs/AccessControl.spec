@@ -222,3 +222,10 @@ rule restrictedPendleDiscountRatesReverts(env e, IRiskSteward.DiscountRatePendle
     // Assert that a restricted address causes a revert
     assert restricted => lastReverted;
 }
+
+rule setAddressRestrictedTouchesOnlyItsKey(env e, address a, bool v, address other) {
+    require other != a;
+    bool before = isAddressRestricted(other);
+    setAddressRestricted(e, a, v);
+    assert isAddressRestricted(a) == v && isAddressRestricted(other) == before;
+}

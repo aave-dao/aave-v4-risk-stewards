@@ -15,22 +15,6 @@
  * proofs to abandon RiskSteward and enter the engine directly off calldata (see
  * certora/harness/EngineScene.sol).
  *
- * Two distinct failures, two distinct fixes:
- *
- *   1. Callee contract unresolved, SIGHASH RESOLVED.
- *      `=> DISPATCHER(true)` case-splits over the scene contracts implementing that
- *      sighash, so the call executes the real body.
- *      NOTE: `=> AUTO` does NOT work. AUTO re-selects the Prover's DEFAULT
- *      resolution, and the default for an unresolved callee IS a havoc.
- *
- *   2. BOTH callee contract and sighash unresolved (e.g. HubEngine.sol:329).
- *      Sighash-keyed `_.foo(...)` summaries cannot bind to such a site at all, so it
- *      needs the explicit `unresolved external ... => DISPATCH [...]` list below.
- *
- * The write path is two hops deep and BOTH need resolving:
- *   engine -> configurator   (receiver = updates[i].hubConfigurator, from memory)
- *   configurator -> instance (receiver = the `hub` / `spoke` function parameter)
- *
  * SOUNDNESS
  * ---------
  * DISPATCHER(true) is optimistic: it assumes the callee is one of the scene

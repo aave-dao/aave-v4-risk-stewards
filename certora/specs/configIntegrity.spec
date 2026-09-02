@@ -7,6 +7,7 @@
 
 methods {
     function getConfig() external returns (IRiskSteward.Config) envfree;
+    function isAddressRestricted(address addr) external returns (bool) envfree;
 
     // See header: keep currentContract storage intact across external hops so R2
     // measures the real (unhavoced) `_config`.
@@ -44,7 +45,7 @@ function configEq(IRiskSteward.Config a, IRiskSteward.Config b) returns bool {
         && paramEq(a.oracle.discountRatePendle, b.oracle.discountRatePendle);
 }
 
-// R1 — establishment: a non-reverting setConfig (owner + all 17 polarity
+// Establishment: a non-reverting setConfig (owner + all 17 polarity
 // requires passed) leaves `_config` equal to the validated argument.
 rule setConfigWritesArg(env e, IRiskSteward.Config cfg) {
     // Execute setConfig
@@ -54,7 +55,7 @@ rule setConfigWritesArg(env e, IRiskSteward.Config cfg) {
     assert configEq(getConfig(), cfg);
 }
 
-// R2 — non-interference: every other method leaves `_config` byte-identical, i.e. setConfig is the sole writer.
+// Non-interference: every other method leaves `_config` byte-identical, i.e. setConfig is the sole writer.
 rule configIntactExceptSetConfig(method f, env e)
     filtered { f -> f.selector != sig:setConfig(IRiskSteward.Config).selector }
 {
@@ -67,4 +68,44 @@ rule configIntactExceptSetConfig(method f, env e)
 
     // Assert that `_config` was not touched
     assert configEq(getConfig(), before);
+}
+
+// Restriction map integrity: every other method leaves the restriction map intact
+// i.e. setAddressRestricted is the sole writer.
+rule restrictionMapIntactExceptSetter(method f, env e, address a)
+    filtered { f -> f.selector != sig:setAddressRestricted(address,bool).selector }
+{
+    bool before = isAddressRestricted(a);
+    calldataarg args;
+    f(e, args);
+    assert isAddressRestricted(a) == before;
+}
+
+// setConfig rejects any config with wrong per-field polarity.
+
+definition polarityOk(IRiskSteward.Config c) returns bool =
+    !c.hub.rate.optimalUsageRatio.isChangeRelative &&
+    !c.hub.rate.baseDrawnRate.isChangeRelative &&
+    !c.hub.rate.rateGrowthBeforeOptimal.isChangeRelative &&
+    !c.hub.rate.rateGrowthAfterOptimal.isChangeRelative &&
+     c.hub.cap.addCap.isChangeRelative &&
+     c.hub.cap.drawCap.isChangeRelative &&
+    !c.spoke.collateralRisk.isChangeRelative &&
+    !c.spoke.dynamicUpdate.collateralFactor.isChangeRelative &&
+    !c.spoke.dynamicUpdate.maxLiquidationBonus.isChangeRelative &&
+    !c.spoke.dynamicAdd.collateralFactor.isChangeRelative &&
+    !c.spoke.dynamicAdd.maxLiquidationBonus.isChangeRelative &&
+     c.spoke.liquidation.targetHealthFactor.isChangeRelative &&
+     c.spoke.liquidation.healthFactorForMaxBonus.isChangeRelative &&
+    !c.spoke.liquidation.liquidationBonusFactor.isChangeRelative &&
+     c.oracle.priceCapLst.isChangeRelative &&
+     c.oracle.priceCapStable.isChangeRelative &&
+    !c.oracle.discountRatePendle.isChangeRelative;
+// R4 — G1: setConfig rejects any config with wrong per-field polarity.
+// With R1 (storage == arg) and R2 (sole writer), this gives G1 for every
+// reachable non-genesis state. Genesis is all-zero, so the six relative-mode
+// fields are false there — that is G1's genesis disjunct, not a violation.
+rule setConfigEnforcesPolarity(env e, IRiskSteward.Config cfg) {
+    setConfig@withrevert(e, cfg);
+    assert !polarityOk(cfg) => lastReverted;
 }
