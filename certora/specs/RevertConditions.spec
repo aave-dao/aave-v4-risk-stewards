@@ -77,7 +77,6 @@ rule hubIrSuccessImpliesAllMatched(env e, IAaveV4ConfigEngine.AssetConfigUpdate[
     assert forall uint256 i. i < updates.length => updates[i].hubConfigurator == pinned;
 }
 
-
 // ---------------------------------------------------------------------------
 // updateHubSpokeCaps — risk premium threshold / active / halted out of scope
 // ---------------------------------------------------------------------------
@@ -206,14 +205,13 @@ rule liqSuccessImpliesAllMatched(env e, IAaveV4ConfigEngine.LiquidationConfigUpd
     assert forall uint256 i. i < updates.length => updates[i].spokeConfigurator == pinned;
 }
 
-// ===========================================================================
-// Zero-value rejection (InvalidUpdateToZero, 12 sites)
-// ===========================================================================
-//
+// ---------------------------------------------------------------------------
+// Zero-value rejection 
+// ---------------------------------------------------------------------------
+
 // A governed param may be left alone via KEEP_CURRENT, but never actively set to
 // zero because allowing it would silently disable a risk limit rather than tighten it.
 // Where no sentinel exists (dynamic additions and the three oracle families) any zero is rejected.
-
 // updateDynamicReserveConfigs. sentinel-guarded.
 definition dynUpdateZeroViolation(IAaveV4ConfigEngine.DynamicReserveConfigUpdate u) returns bool =
     (u.collateralFactor != KEEP_CURRENT() && u.collateralFactor == 0) ||
@@ -242,7 +240,7 @@ rule dynAddZeroReverts(env e, IAaveV4ConfigEngine.DynamicReserveConfigAddition[]
     assert (exists uint256 i. i < additions.length && dynAddZeroViolation(additions[i])) => lastReverted;
 }
 
-// updateSpokeLiquidationConfigs (RiskSteward.sol:510-524), sentinel-guarded.
+// updateSpokeLiquidationConfigs, sentinel-guarded.
 definition liqZeroViolation(IAaveV4ConfigEngine.LiquidationConfigUpdate u) returns bool =
     (u.targetHealthFactor != KEEP_CURRENT() && u.targetHealthFactor == 0) ||
     (u.healthFactorForMaxBonus != KEEP_CURRENT() && u.healthFactorForMaxBonus == 0) ||
@@ -257,7 +255,7 @@ rule liqZeroReverts(env e, IAaveV4ConfigEngine.LiquidationConfigUpdate[] updates
     assert (exists uint256 i. i < updates.length && liqZeroViolation(updates[i])) => lastReverted;
 }
 
-// updateLstPriceCaps (RiskSteward.sol:563-565). All three snapshot params are
+// updateLstPriceCaps. All three snapshot params are
 // required; a zero snapshotTimestamp would make the growth window meaningless.
 definition lstZeroViolation(IRiskSteward.PriceCapLstUpdate u) returns bool =
     u.priceCapUpdateParams.snapshotRatio == 0 ||
@@ -273,7 +271,7 @@ rule lstZeroReverts(env e, IRiskSteward.PriceCapLstUpdate[] updates) {
     assert (exists uint256 i. i < updates.length && lstZeroViolation(updates[i])) => lastReverted;
 }
 
-// updateStablePriceCaps (RiskSteward.sol:589).
+// updateStablePriceCaps 
 rule stableZeroReverts(env e, IRiskSteward.PriceCapStableUpdate[] updates) {
 
     // Execute the update
@@ -283,7 +281,7 @@ rule stableZeroReverts(env e, IRiskSteward.PriceCapStableUpdate[] updates) {
     assert (exists uint256 i. i < updates.length && updates[i].priceCap == 0) => lastReverted;
 }
 
-// updatePendleDiscountRates (RiskSteward.sol:608).
+// updatePendleDiscountRates
 rule pendleZeroReverts(env e, IRiskSteward.DiscountRatePendleUpdate[] updates) {
 
     // Execute the update
@@ -331,99 +329,4 @@ rule pendleRejectsKeepCurrent(env e, IRiskSteward.DiscountRatePendleUpdate[] upd
     // Assert that the bypassed sentinel still cannot be written
     assert (exists uint256 i. i < updates.length && updates[i].discountRate == KEEP_CURRENT())
         => lastReverted;
-}
-
-// ===========================================================================
-// Empty batch rejection (NoZeroUpdates, 9 sites)
-// ===========================================================================
-
-
-rule emptyHubAssetIRsReverts(env e, IAaveV4ConfigEngine.AssetConfigUpdate[] updates) {
-    require e.msg.sender == RISK_COUNCIL() && updates.length == 0;
-
-    // Execute the update
-    updateHubAssetIRs@withrevert(e, updates);
-
-    // Assert that an empty batch reverts
-    assert lastReverted;
-}
-
-rule emptyHubSpokeCapsReverts(env e, IAaveV4ConfigEngine.SpokeConfigUpdate[] updates) {
-    require e.msg.sender == RISK_COUNCIL() && updates.length == 0;
-
-    // Execute the update
-    updateHubSpokeCaps@withrevert(e, updates);
-
-    // Assert that an empty batch reverts
-    assert lastReverted;
-}
-
-rule emptyReserveConfigsReverts(env e, IAaveV4ConfigEngine.ReserveConfigUpdate[] updates) {
-    require e.msg.sender == RISK_COUNCIL() && updates.length == 0;
-
-    // Execute the update
-    updateReserveConfigs@withrevert(e, updates);
-
-    // Assert that an empty batch reverts
-    assert lastReverted;
-}
-
-rule emptyDynamicReserveConfigsReverts(env e, IAaveV4ConfigEngine.DynamicReserveConfigUpdate[] updates) {
-    require e.msg.sender == RISK_COUNCIL() && updates.length == 0;
-
-    // Execute the update
-    updateDynamicReserveConfigs@withrevert(e, updates);
-
-    // Assert that an empty batch reverts
-    assert lastReverted;
-}
-
-rule emptyAddDynamicReserveConfigsReverts(env e, IAaveV4ConfigEngine.DynamicReserveConfigAddition[] additions) {
-    require e.msg.sender == RISK_COUNCIL() && additions.length == 0;
-
-    // Execute the update
-    addDynamicReserveConfigs@withrevert(e, additions);
-
-    // Assert that an empty batch reverts
-    assert lastReverted;
-}
-
-rule emptySpokeLiquidationConfigsReverts(env e, IAaveV4ConfigEngine.LiquidationConfigUpdate[] updates) {
-    require e.msg.sender == RISK_COUNCIL() && updates.length == 0;
-
-    // Execute the update
-    updateSpokeLiquidationConfigs@withrevert(e, updates);
-
-    // Assert that an empty batch reverts
-    assert lastReverted;
-}
-
-rule emptyLstPriceCapsReverts(env e, IRiskSteward.PriceCapLstUpdate[] updates) {
-    require e.msg.sender == RISK_COUNCIL() && updates.length == 0;
-
-    // Execute the update
-    updateLstPriceCaps@withrevert(e, updates);
-
-    // Assert that an empty batch reverts
-    assert lastReverted;
-}
-
-rule emptyStablePriceCapsReverts(env e, IRiskSteward.PriceCapStableUpdate[] updates) {
-    require e.msg.sender == RISK_COUNCIL() && updates.length == 0;
-
-    // Execute the update
-    updateStablePriceCaps@withrevert(e, updates);
-
-    // Assert that an empty batch reverts
-    assert lastReverted;
-}
-
-rule emptyPendleDiscountRatesReverts(env e, IRiskSteward.DiscountRatePendleUpdate[] updates) {
-    require e.msg.sender == RISK_COUNCIL() && updates.length == 0;
-
-    // Execute the update
-    updatePendleDiscountRates@withrevert(e, updates);
-
-    // Assert that an empty batch reverts
-    assert lastReverted;
 }

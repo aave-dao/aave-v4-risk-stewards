@@ -3,6 +3,17 @@
  *
  * Property: a successful update writes the submitted value, and the move from
  * the pre-tx protocol value is at most the configured maxPercentChange.
+ *
+ * The magnitude rules take the observed cell as a free parameter rather than
+ * deriving it from an update struct, so they bound *every* cell of the mapping
+ * across an arbitrary batch, not just the one the batch names.
+ *
+ * Batching: conf `loop_iter` is 1 and the entrypoints reject empty batches, so
+ * the prover sees exactly one element. This generalises because `_validateX` is
+ * `view` and runs over the whole batch before `_executeX` writes anything: every
+ * element is range-checked against the same pre-tx value, and last-write-wins
+ * leaves the final value inside that bound. Interleaving validation and
+ * execution per element would break this and the rules would not notice.
  */
 
 import "../common/PercentMath.spec";
@@ -23,9 +34,8 @@ methods {
     function hubH.getSpokeConfig(uint256 assetId, address spoke) external returns (IHub.SpokeConfig) envfree;
     function hubH.getAssetConfig(uint256 assetId) external returns (IHub.AssetConfig) envfree;
 
-    // Interest-rate strategy getters (anchor + read-back for the asset-IR rules).
+    // Interest-rate strategy read-back for the asset-IR rules.
     function irH.getInterestRateData(uint256 assetId) external returns (IAssetInterestRateStrategy.InterestRateData) envfree;
-    function irH.HUB() external returns (address) envfree;
 
     // Spoke getters.
     function spokeH.getReserveId(address hub, uint256 assetId) external returns (uint256) envfree;
@@ -38,9 +48,8 @@ methods {
     function AuthorityUtils.canCallWithDelay(address authority, address caller, address target, bytes4 selector) internal returns (bool, uint32) 
         => alwaysAllowed();
 
-    // DISPATCHER(true): the engine copies the update array to memory, so callees
-    // are symbolic. DISPATCHER case-splits over the scene contracts that implement
-    // the sighash.
+    // DISPATCHER(true): the engine copies the update array to memory, so callees are symbolic.
+    // DISPATCHER case-splits over the scene contracts that implement the sighash.
     function _.getAssetId(address) external => DISPATCHER(true);
     function _.getSpokeConfig(uint256, address) external => DISPATCHER(true);
     function _.getReserveId(address, uint256) external => DISPATCHER(true);
@@ -134,30 +143,28 @@ function absDiff(mathint a, mathint b) returns mathint {
 // updateHubSpokeCaps : addCap / drawCap  (relative mode)
 // ---------------------------------------------------------------------------
 
-rule capsAddCapMagnitude(env e, IAaveV4ConfigEngine.SpokeConfigUpdate u) {
+rule capsAddCapMagnitude(env e, uint256 assetId, address spoke) {
     require getConfig().hub.configurator == hubConfig, "Prevents HAVOC_ALL on the unresolved HubEngine caps call";
 
     // Create a valid SpokeConfigUpdate array
     IAaveV4ConfigEngine.SpokeConfigUpdate[] updates;
 
     // Fetch the addCap before the update
-    uint256 assetId = hubH.getAssetId(u.underlying);
     bool isRelative = getConfig().hub.cap.addCap.isChangeRelative;
     mathint maxPercentChange = to_mathint(getConfig().hub.cap.addCap.maxPercentChange);
-    mathint from = to_mathint(hubH.getSpokeConfig(assetId, u.spoke).addCap);
+    mathint from = to_mathint(hubH.getSpokeConfig(assetId, spoke).addCap);
 
     // Execute the update
     updateHubSpokeCaps(e, updates);
 
     // Fetch the addCap after the update
-    mathint post = to_mathint(hubH.getSpokeConfig(assetId, u.spoke).addCap);
+    mathint post = to_mathint(hubH.getSpokeConfig(assetId, spoke).addCap);
 
     // Assert that the change is within the configured bound
-    assert u.addCap != KEEP_CURRENT()
-        => absDiff(post, from) <= allowedDiff(isRelative, maxPercentChange, from);
+    assert absDiff(post, from) <= allowedDiff(isRelative, maxPercentChange, from);
 }
 
-rule capsDrawCapMagnitude(env e, IAaveV4ConfigEngine.SpokeConfigUpdate u) {
+rule capsDrawCapMagnitude(env e, uint256 assetId, address spoke) {
     // Keeps the merged HubEngine.sol call inside the DISPATCH list
     require getConfig().hub.configurator == hubConfig, "Prevents HAVOC_ALL on the unresolved HubEngine caps call";
 
@@ -165,32 +172,28 @@ rule capsDrawCapMagnitude(env e, IAaveV4ConfigEngine.SpokeConfigUpdate u) {
     IAaveV4ConfigEngine.SpokeConfigUpdate[] updates;
 
     // Fetch the drawCap before the update
-    uint256 assetId = hubH.getAssetId(u.underlying);
     bool isRelative = getConfig().hub.cap.drawCap.isChangeRelative;
     mathint maxPercentChange = to_mathint(getConfig().hub.cap.drawCap.maxPercentChange);
-    mathint from = to_mathint(hubH.getSpokeConfig(assetId, u.spoke).drawCap);
+    mathint from = to_mathint(hubH.getSpokeConfig(assetId, spoke).drawCap);
 
     // Execute the update
     updateHubSpokeCaps(e, updates);
 
     // Fetch the drawCap after the update
-    mathint post = to_mathint(hubH.getSpokeConfig(assetId, u.spoke).drawCap);
+    mathint post = to_mathint(hubH.getSpokeConfig(assetId, spoke).drawCap);
     // Assert that the change is within the configured bound
-    assert u.drawCap != KEEP_CURRENT()
-        => absDiff(post, from) <= allowedDiff(isRelative, maxPercentChange, from);
+    assert absDiff(post, from) <= allowedDiff(isRelative, maxPercentChange, from);
 }
 
 // ---------------------------------------------------------------------------
 // updateReserveConfigs : collateralRisk
 // ---------------------------------------------------------------------------
 
-rule reserveCollateralRiskMagnitude(env e, IAaveV4ConfigEngine.ReserveConfigUpdate u) {
+rule reserveCollateralRiskMagnitude(env e, uint256 reserveId) {
     // Create a valid ReserveConfigUpdate array
     IAaveV4ConfigEngine.ReserveConfigUpdate[] updates;
 
     // Fetch the collateralRisk before the update
-    uint256 assetId = hubH.getAssetId(u.underlying);
-    uint256 reserveId = spokeH.getReserveId(u.hub, assetId);
     bool isRelative = getConfig().spoke.collateralRisk.isChangeRelative;
     mathint maxPercentChange = to_mathint(getConfig().spoke.collateralRisk.maxPercentChange);
     mathint from = to_mathint(spokeH.getReserveConfig(reserveId).collateralRisk);
@@ -201,23 +204,19 @@ rule reserveCollateralRiskMagnitude(env e, IAaveV4ConfigEngine.ReserveConfigUpda
     // Fetch the collateralRisk after the update
     mathint post = to_mathint(spokeH.getReserveConfig(reserveId).collateralRisk);
     // Assert that the change is within the configured bound
-    assert u.collateralRisk != KEEP_CURRENT()
-        => absDiff(post, from) <= allowedDiff(isRelative, maxPercentChange, from);
+    assert absDiff(post, from) <= allowedDiff(isRelative, maxPercentChange, from);
 }
 
 // ---------------------------------------------------------------------------
 // updateDynamicReserveConfigs : collateralFactor / maxLiquidationBonus
 // ---------------------------------------------------------------------------
 
-rule dynUpdateCollateralFactorMagnitude(env e, IAaveV4ConfigEngine.DynamicReserveConfigUpdate u) {
+rule dynUpdateCollateralFactorMagnitude(env e, uint256 reserveId, uint32 key) {
 
     // Create a valid DynamicReserveConfigUpdate array
     IAaveV4ConfigEngine.DynamicReserveConfigUpdate[] updates;
 
     // Fetch the collateralFactor before the update
-    uint256 assetId = hubH.getAssetId(u.underlying);
-    uint256 reserveId = spokeH.getReserveId(u.hub, assetId);
-    uint32 key = require_uint32(u.dynamicConfigKey);
     bool isRelative = getConfig().spoke.dynamicUpdate.collateralFactor.isChangeRelative;
     mathint maxPercentChange = to_mathint(getConfig().spoke.dynamicUpdate.collateralFactor.maxPercentChange);
     mathint from = to_mathint(spokeH.getDynamicReserveConfig(reserveId, key).collateralFactor);
@@ -228,18 +227,14 @@ rule dynUpdateCollateralFactorMagnitude(env e, IAaveV4ConfigEngine.DynamicReserv
     // Fetch the collateralFactor after the update
     mathint post = to_mathint(spokeH.getDynamicReserveConfig(reserveId, key).collateralFactor);
     // Assert that the change is within the configured bound
-    assert u.collateralFactor != KEEP_CURRENT()
-        => absDiff(post, from) <= allowedDiff(isRelative, maxPercentChange, from);
+    assert absDiff(post, from) <= allowedDiff(isRelative, maxPercentChange, from);
 }
 
-rule dynUpdateMaxLiquidationBonusMagnitude(env e, IAaveV4ConfigEngine.DynamicReserveConfigUpdate u) {
+rule dynUpdateMaxLiquidationBonusMagnitude(env e, uint256 reserveId, uint32 key) {
     // Create a valid DynamicReserveConfigUpdate array
     IAaveV4ConfigEngine.DynamicReserveConfigUpdate[] updates;
 
     // Fetch the maxLiquidationBonus before the update
-    uint256 assetId = hubH.getAssetId(u.underlying);
-    uint256 reserveId = spokeH.getReserveId(u.hub, assetId);
-    uint32 key = require_uint32(u.dynamicConfigKey);
     bool isRelative = getConfig().spoke.dynamicUpdate.maxLiquidationBonus.isChangeRelative;
     mathint maxPercentChange = to_mathint(getConfig().spoke.dynamicUpdate.maxLiquidationBonus.maxPercentChange);
     mathint from = to_mathint(spokeH.getDynamicReserveConfig(reserveId, key).maxLiquidationBonus);
@@ -250,8 +245,7 @@ rule dynUpdateMaxLiquidationBonusMagnitude(env e, IAaveV4ConfigEngine.DynamicRes
     // Fetch the maxLiquidationBonus after the update
     mathint post = to_mathint(spokeH.getDynamicReserveConfig(reserveId, key).maxLiquidationBonus);
     // Assert that the change is within the configured bound
-    assert u.maxLiquidationBonus != KEEP_CURRENT()
-        => absDiff(post, from) <= allowedDiff(isRelative, maxPercentChange, from);
+    assert absDiff(post, from) <= allowedDiff(isRelative, maxPercentChange, from);
 }
 
 // ---------------------------------------------------------------------------
@@ -261,13 +255,11 @@ rule dynUpdateMaxLiquidationBonusMagnitude(env e, IAaveV4ConfigEngine.DynamicRes
 // No sentinel exists for additions, so every successful addition is in scope.
 // ---------------------------------------------------------------------------
 
-rule dynAddCollateralFactorMagnitude(env e, IAaveV4ConfigEngine.DynamicReserveConfigAddition a) {
+rule dynAddCollateralFactorMagnitude(env e, uint256 reserveId) {
     // Create a valid DynamicReserveConfigAddition array
     IAaveV4ConfigEngine.DynamicReserveConfigAddition[] additions;
 
     // Fetch the collateralFactor of the latest key before the update
-    uint256 assetId = hubH.getAssetId(a.underlying);
-    uint256 reserveId = spokeH.getReserveId(a.hub, assetId);
     bool isRelative = getConfig().spoke.dynamicAdd.collateralFactor.isChangeRelative;
     mathint maxPercentChange = to_mathint(getConfig().spoke.dynamicAdd.collateralFactor.maxPercentChange);
     mathint from = to_mathint(spokeH.getDynamicReserveConfig(reserveId, spokeH.latestDynamicConfigKey(reserveId)).collateralFactor);
@@ -281,13 +273,11 @@ rule dynAddCollateralFactorMagnitude(env e, IAaveV4ConfigEngine.DynamicReserveCo
     assert absDiff(post, from) <= allowedDiff(isRelative, maxPercentChange, from);
 }
 
-rule dynAddMaxLiquidationBonusMagnitude(env e, IAaveV4ConfigEngine.DynamicReserveConfigAddition a) {
+rule dynAddMaxLiquidationBonusMagnitude(env e, uint256 reserveId) {
     // Create a valid DynamicReserveConfigAddition array
     IAaveV4ConfigEngine.DynamicReserveConfigAddition[] additions;
 
     // Fetch the maxLiquidationBonus of the latest key before the update
-    uint256 assetId = hubH.getAssetId(a.underlying);
-    uint256 reserveId = spokeH.getReserveId(a.hub, assetId);
     bool isRelative = getConfig().spoke.dynamicAdd.maxLiquidationBonus.isChangeRelative;
     mathint maxPercentChange = to_mathint(getConfig().spoke.dynamicAdd.maxLiquidationBonus.maxPercentChange);
     mathint from = to_mathint(spokeH.getDynamicReserveConfig(reserveId, spokeH.latestDynamicConfigKey(reserveId)).maxLiquidationBonus);
@@ -345,7 +335,7 @@ rule dynAddRequiresExistingConfig(env e) {
 // updateSpokeLiquidationConfigs : three fields
 // ---------------------------------------------------------------------------
 
-rule liqTargetHealthFactorMagnitude(env e, IAaveV4ConfigEngine.LiquidationConfigUpdate u) {
+rule liqTargetHealthFactorMagnitude(env e) {
     // Create a valid LiquidationConfigUpdate array
     IAaveV4ConfigEngine.LiquidationConfigUpdate[] updates;
 
@@ -360,8 +350,7 @@ rule liqTargetHealthFactorMagnitude(env e, IAaveV4ConfigEngine.LiquidationConfig
     // Fetch the targetHealthFactor after the update
     mathint post = to_mathint(spokeH.getLiquidationConfig().targetHealthFactor);
     // Assert that the change is within the configured bound
-    assert u.targetHealthFactor != KEEP_CURRENT()
-        => absDiff(post, from) <= allowedDiff(isRelative, maxPercentChange, from);
+    assert absDiff(post, from) <= allowedDiff(isRelative, maxPercentChange, from);
 }
 
 rule liqHealthFactorForMaxBonusMagnitude(env e, IAaveV4ConfigEngine.LiquidationConfigUpdate u) {
@@ -426,9 +415,7 @@ rule liqBonusFactorMagnitude(env e, IAaveV4ConfigEngine.LiquidationConfigUpdate 
 // updateHubAssetIRs : the four interest-rate data fields
 // ---------------------------------------------------------------------------
 
-rule assetIROptimalUsageRatioMagnitude(env e, IAaveV4ConfigEngine.AssetConfigUpdate u) {
-    uint256 assetId = hubH.getAssetId(u.underlying);
-
+rule assetIROptimalUsageRatioMagnitude(env e, uint256 assetId) {
     // Create a valid AssetConfigUpdate array
     IAaveV4ConfigEngine.AssetConfigUpdate[] updates;
 
@@ -443,13 +430,10 @@ rule assetIROptimalUsageRatioMagnitude(env e, IAaveV4ConfigEngine.AssetConfigUpd
     // Fetch the optimalUsageRatio after the update
     mathint post = to_mathint(irH.getInterestRateData(assetId).optimalUsageRatio);
     // Assert that the change is within the configured bound
-    assert u.irData.optimalUsageRatio != KEEP_CURRENT_UINT16()
-        => absDiff(post, from) <= allowedDiff(isRelative, maxPercentChange, from);
+    assert absDiff(post, from) <= allowedDiff(isRelative, maxPercentChange, from);
 }
 
-rule assetIRBaseDrawnRateMagnitude(env e, IAaveV4ConfigEngine.AssetConfigUpdate u) {
-    uint256 assetId = hubH.getAssetId(u.underlying);
-
+rule assetIRBaseDrawnRateMagnitude(env e, uint256 assetId) {
     // Create a valid AssetConfigUpdate array
     IAaveV4ConfigEngine.AssetConfigUpdate[] updates;
 
@@ -464,13 +448,10 @@ rule assetIRBaseDrawnRateMagnitude(env e, IAaveV4ConfigEngine.AssetConfigUpdate 
     // Fetch the baseDrawnRate after the update
     mathint post = to_mathint(irH.getInterestRateData(assetId).baseDrawnRate);
     // Assert that the change is within the configured bound
-    assert u.irData.baseDrawnRate != KEEP_CURRENT_UINT32()
-        => absDiff(post, from) <= allowedDiff(isRelative, maxPercentChange, from);
+    assert absDiff(post, from) <= allowedDiff(isRelative, maxPercentChange, from);
 }
 
-rule assetIRRateGrowthBeforeOptimalMagnitude(env e, IAaveV4ConfigEngine.AssetConfigUpdate u) {
-    uint256 assetId = hubH.getAssetId(u.underlying);
-
+rule assetIRRateGrowthBeforeOptimalMagnitude(env e, uint256 assetId) {
     // Create a valid AssetConfigUpdate array
     IAaveV4ConfigEngine.AssetConfigUpdate[] updates;
 
@@ -485,13 +466,10 @@ rule assetIRRateGrowthBeforeOptimalMagnitude(env e, IAaveV4ConfigEngine.AssetCon
     // Fetch the rateGrowthBeforeOptimal after the update
     mathint post = to_mathint(irH.getInterestRateData(assetId).rateGrowthBeforeOptimal);
     // Assert that the change is within the configured bound
-    assert u.irData.rateGrowthBeforeOptimal != KEEP_CURRENT_UINT32()
-        => absDiff(post, from) <= allowedDiff(isRelative, maxPercentChange, from);
+    assert absDiff(post, from) <= allowedDiff(isRelative, maxPercentChange, from);
 }
 
-rule assetIRRateGrowthAfterOptimalMagnitude(env e, IAaveV4ConfigEngine.AssetConfigUpdate u) {
-    uint256 assetId = hubH.getAssetId(u.underlying);
-
+rule assetIRRateGrowthAfterOptimalMagnitude(env e, uint256 assetId) {
     // Create a valid AssetConfigUpdate array
     IAaveV4ConfigEngine.AssetConfigUpdate[] updates;
 
@@ -506,8 +484,7 @@ rule assetIRRateGrowthAfterOptimalMagnitude(env e, IAaveV4ConfigEngine.AssetConf
     // Fetch the rateGrowthAfterOptimal after the update
     mathint post = to_mathint(irH.getInterestRateData(assetId).rateGrowthAfterOptimal);
     // Assert that the change is within the configured bound
-    assert u.irData.rateGrowthAfterOptimal != KEEP_CURRENT_UINT32()
-        => absDiff(post, from) <= allowedDiff(isRelative, maxPercentChange, from);
+    assert absDiff(post, from) <= allowedDiff(isRelative, maxPercentChange, from);
 }
 
 // ===========================================================================
@@ -634,6 +611,62 @@ rule dynUpdateMaxLiquidationBonusFidelity(env e, IAaveV4ConfigEngine.DynamicRese
     // Assert that a non-sentinel maxLiquidationBonus was written to the Spoke
     assert u.maxLiquidationBonus != KEEP_CURRENT() 
         => to_mathint(spokeH.getDynamicReserveConfig(reserveId, key).maxLiquidationBonus) == to_mathint(u.maxLiquidationBonus);
+}
+
+// ---------------------------------------------------------------------------
+// addDynamicReserveConfigs : collateralFactor / maxLiquidationBonus
+//
+// Read back at the appended key, which is `latestDynamicConfigKey` after the call.
+// Additions have no KEEP_CURRENT sentinel, so every successful addition is in scope
+// and the assertion needs no guard.
+// ---------------------------------------------------------------------------
+
+// Constrain a singleton DynamicReserveConfigAddition batch to the input.
+function dynAddBatch(IAaveV4ConfigEngine.DynamicReserveConfigAddition[] additions, IAaveV4ConfigEngine.DynamicReserveConfigAddition a) returns bool {
+    return additions.length == 1 && additions[0].spoke == a.spoke
+        && additions[0].hub == a.hub && additions[0].underlying == a.underlying
+        && additions[0].spokeConfigurator == a.spokeConfigurator
+        && additions[0].dynamicConfig.collateralFactor == a.dynamicConfig.collateralFactor
+        && additions[0].dynamicConfig.maxLiquidationBonus == a.dynamicConfig.maxLiquidationBonus
+        && additions[0].dynamicConfig.liquidationFee == a.dynamicConfig.liquidationFee;
+}
+
+rule dynAddCollateralFactorFidelity(env e, IAaveV4ConfigEngine.DynamicReserveConfigAddition a) {
+    require getConfig().spoke.configurator == spokeConfig, "Keeps the SpokeEngine hop dispatched";
+    require a.spoke == spokeH && a.hub == hubH, "Pins the addition to the snapshotted scene contracts";
+
+    // Create a valid DynamicReserveConfigAddition array and constrain it to the input
+    IAaveV4ConfigEngine.DynamicReserveConfigAddition[] additions;
+    require dynAddBatch(additions, a);
+
+    // Execute the addition
+    addDynamicReserveConfigs(e, additions);
+
+    uint256 assetId = hubH.getAssetId(a.underlying);
+    uint256 reserveId = spokeH.getReserveId(a.hub, assetId);
+
+    // Assert that the submitted collateralFactor was written to the appended key
+    assert spokeH.getDynamicReserveConfig(reserveId, spokeH.latestDynamicConfigKey(reserveId)).collateralFactor
+        == a.dynamicConfig.collateralFactor;
+}
+
+rule dynAddMaxLiquidationBonusFidelity(env e, IAaveV4ConfigEngine.DynamicReserveConfigAddition a) {
+    require getConfig().spoke.configurator == spokeConfig, "Keeps the SpokeEngine hop dispatched";
+    require a.spoke == spokeH && a.hub == hubH, "Pins the addition to the snapshotted scene contracts";
+
+    // Create a valid DynamicReserveConfigAddition array and constrain it to the input
+    IAaveV4ConfigEngine.DynamicReserveConfigAddition[] additions;
+    require dynAddBatch(additions, a);
+
+    // Execute the addition
+    addDynamicReserveConfigs(e, additions);
+
+    uint256 assetId = hubH.getAssetId(a.underlying);
+    uint256 reserveId = spokeH.getReserveId(a.hub, assetId);
+
+    // Assert that the submitted maxLiquidationBonus was written to the appended key
+    assert spokeH.getDynamicReserveConfig(reserveId, spokeH.latestDynamicConfigKey(reserveId)).maxLiquidationBonus
+        == a.dynamicConfig.maxLiquidationBonus;
 }
 
 // ---------------------------------------------------------------------------

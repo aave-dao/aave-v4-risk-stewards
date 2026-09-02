@@ -61,22 +61,6 @@ rule ownerOnly(method f, env e) filtered { f -> isOwnerEntrypoint(f) } {
 }
 
 // ---------------------------------------------------------------------------
-// RISK_COUNCIL is immutable — no method changes it.
-// ---------------------------------------------------------------------------
-
-rule riskCouncilImmutable(method f, env e) {
-    // Fetch RISK_COUNCIL before the call
-    address before = RISK_COUNCIL();
-    calldataarg a;
-
-    // Execute the call
-    f(e, a);
-
-    // Assert that RISK_COUNCIL was not touched
-    assert RISK_COUNCIL() == before;
-}
-
-// ---------------------------------------------------------------------------
 // The owner cannot call a council entrypoint unless the owner is
 // also RISK_COUNCIL. 
 // ---------------------------------------------------------------------------

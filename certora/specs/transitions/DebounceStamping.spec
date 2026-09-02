@@ -7,7 +7,7 @@
  *            elapsed since the field's own previous stamp.
  *
  * Each rule tests element 0 of the batch and reads the rest through the quantified
- * key-isolation requires below, so the properties hold for batches, not just singletons.
+ * key-isolation requires below, so the properties hold for batches.
  */
 
 methods {
@@ -97,7 +97,7 @@ definition dynAddKeyIs(IAaveV4ConfigEngine.DynamicReserveConfigAddition u, addre
 rule hubAssetIrDebounceStamping(env e, address otherHub, address otherAsset) {
     // Create a valid AssetConfigUpdate batch where index 0 is the element under test
     IAaveV4ConfigEngine.AssetConfigUpdate[] updates;
-    require otherHub != updates[0].hub || otherAsset != updates[0].underlying;
+    require otherHub != updates[0].hub || otherAsset != updates[0].underlying,"otherHub and otherAsset must be different from the tested key";
 
     // Require siblings to name neither the tested key nor the other key
     require forall uint256 j. (j != 0 && j < updates.length)
@@ -140,7 +140,7 @@ rule hubSpokeCapsDebounceStamping(env e, address otherHub, address otherSpoke, a
     // Create a valid SpokeConfigUpdate batch; index 0 is the element under test
     IAaveV4ConfigEngine.SpokeConfigUpdate[] updates;
     require otherHub != updates[0].hub || otherSpoke != updates[0].spoke
-        || otherAsset != updates[0].underlying;
+        || otherAsset != updates[0].underlying,"otherHub, otherSpoke and otherAsset must be different from the tested key";
 
     // Require siblings to name neither the tested key nor the other key
     require forall uint256 j. (j != 0 && j < updates.length)
@@ -177,7 +177,7 @@ rule reserveDebounceStamping(env e, address otherSpoke, address otherHub, addres
     // Create a valid ReserveConfigUpdate batch; index 0 is the element under test
     IAaveV4ConfigEngine.ReserveConfigUpdate[] updates;
     require otherSpoke != updates[0].spoke || otherHub != updates[0].hub
-        || otherAsset != updates[0].underlying;
+        || otherAsset != updates[0].underlying,"otherSpoke, otherHub and otherAsset must be different from the tested key";
 
     // Require siblings to name neither the tested key nor the other key
     require forall uint256 j. (j != 0 && j < updates.length)
@@ -212,11 +212,9 @@ rule dynamicUpdateDebounceStamping(env e, address otherSpoke, address otherHub, 
     // Create a valid DynamicReserveConfigUpdate batch; index 0 is the element under test
     IAaveV4ConfigEngine.DynamicReserveConfigUpdate[] updates;
     require otherSpoke != updates[0].spoke || otherHub != updates[0].hub
-        || otherAsset != updates[0].underlying;
+        || otherAsset != updates[0].underlying,"otherSpoke, otherHub and otherAsset must be different from the tested key";
 
-    // Require siblings to name neither the tested key nor the other key. The debounce key
-    // ignores dynamicConfigKey, so two entries on different config keys of the same
-    // reserve still collide here and must be excluded.
+    // Require siblings to name neither the tested key nor the other key.
     require forall uint256 j. (j != 0 && j < updates.length)
         => !dynKeyIs(updates[j], updates[0].spoke, updates[0].hub, updates[0].underlying);
     require forall uint256 j. j < updates.length
@@ -251,9 +249,9 @@ rule dynamicUpdateDebounceStamping(env e, address otherSpoke, address otherHub, 
 rule liquidationDebounceStamping(env e, address otherSpoke) {
     // Create a valid LiquidationConfigUpdate batch; index 0 is the element under test
     IAaveV4ConfigEngine.LiquidationConfigUpdate[] updates;
-    require otherSpoke != updates[0].spoke;
+    require otherSpoke != updates[0].spoke,"otherSpoke must be different from the tested key";
 
-    // Require siblings to name neither spoke — this debounce is keyed on spoke alone
+    // Require siblings to name neither spoke
     require forall uint256 j. (j != 0 && j < updates.length) => updates[j].spoke != updates[0].spoke;
     require forall uint256 j. j < updates.length => updates[j].spoke != otherSpoke;
 
@@ -282,14 +280,12 @@ rule liquidationDebounceStamping(env e, address otherSpoke) {
         && otherAfter.liquidationBonusFactor == otherBefore.liquidationBonusFactor;
 }
 
-// Dynamic additions intentionally consume both shared debounce windows. Only the
-// `other` clause is needed: an addition stamps unconditionally, so a sibling at the
-// same key stamps to the same timestamp and cannot break the assert.
+// Dynamic additions intentionally consume both shared debounce windows.
 rule dynamicAdditionStampsBoth(env e, address otherSpoke, address otherHub, address otherAsset) {
     // Create a valid DynamicReserveConfigAddition batch; index 0 is the element under test
     IAaveV4ConfigEngine.DynamicReserveConfigAddition[] additions;
     require otherSpoke != additions[0].spoke || otherHub != additions[0].hub
-        || otherAsset != additions[0].underlying;
+        || otherAsset != additions[0].underlying,"otherSpoke, otherHub and otherAsset must be different from the tested key";
 
     // Require siblings to name the other key
     require forall uint256 j. j < additions.length
@@ -318,9 +314,7 @@ rule dynamicAdditionStampsBoth(env e, address otherSpoke, address otherHub, addr
 // ENFORCEMENT — the read side of every governed (field, entrypoint) pair.
 // ---------------------------------------------------------------------------
 
-// Four fields, each with its width-matched sentinel. `_validateIRFieldUint16/32` skips on
-// the narrow sentinel; the widened value can never equal the uint256 KEEP_CURRENT, so the
-// narrow sentinel is the only skip path.
+// Four fields, each with its width-matched sentinel.
 rule hubAssetIrDebounceEnforced(env e) {
     // Create a valid AssetConfigUpdate batch; index 0 is the element under test
     IAaveV4ConfigEngine.AssetConfigUpdate[] updates;
@@ -332,7 +326,7 @@ rule hubAssetIrDebounceEnforced(env e) {
     // Execute the update
     updateHubAssetIRs(e, updates);
 
-    // Assert that a successful non-sentinel write respected minDelay
+    // Assert that a successful non-sentinel write respected minDelay 
     assert updates[0].irData.optimalUsageRatio != KEEP_CURRENT_UINT16()
         => to_mathint(e.block.timestamp) - to_mathint(before.optimalUsageRatio)
              >= to_mathint(rate.optimalUsageRatio.minDelay);
@@ -402,7 +396,7 @@ rule dynamicUpdateDebounceEnforced(env e) {
 }
 
 // Unconditional: an addition always writes both fields, so `_validateParamUpdate` never
-// takes its KEEP_CURRENT early-return on this path.
+// takes its KEEP_CURRENT early-return on this path. 
 rule dynamicAdditionDebounceEnforced(env e) {
     // Create a valid DynamicReserveConfigAddition batch; index 0 is the element under test
     IAaveV4ConfigEngine.DynamicReserveConfigAddition[] additions;
@@ -444,10 +438,10 @@ rule liquidationDebounceEnforced(env e) {
 }
 
 // ---------------------------------------------------------------------------
-// Oracle paths — one shared stamp per oracle across all three families.
+// Oracle paths 
 // ---------------------------------------------------------------------------
 
-// LST: the gate is on maxYearlyRatioGrowthPercent (uint16), so it is never skipped.
+// LST enforcement checks
 rule lstOracleDebounceEnforced(env e) {
     // Create a valid PriceCapLstUpdate batch; index 0 is the element under test
     IRiskSteward.PriceCapLstUpdate[] updates;
@@ -463,9 +457,7 @@ rule lstOracleDebounceEnforced(env e) {
     assert to_mathint(e.block.timestamp) - to_mathint(before) >= minDelay;
 }
 
-// Stable / Pendle: the new value is a uint256, so KEEP_CURRENT reaches the early-return
-// in `_validateParamUpdate` and skips the gate. The guard mirrors that skip;
-// RevertConditions.spec proves no such write can actually land.
+// Stable enforcement checks
 rule stableOracleDebounceEnforced(env e) {
     // Create a valid PriceCapStableUpdate batch; index 0 is the element under test
     IRiskSteward.PriceCapStableUpdate[] updates;
@@ -482,6 +474,7 @@ rule stableOracleDebounceEnforced(env e) {
         => to_mathint(e.block.timestamp) - to_mathint(before) >= minDelay;
 }
 
+// Pendle enforcement checks
 rule pendleOracleDebounceEnforced(env e) {
     // Create a valid DiscountRatePendleUpdate batch; index 0 is the element under test
     IRiskSteward.DiscountRatePendleUpdate[] updates;
