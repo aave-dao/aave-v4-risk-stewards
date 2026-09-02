@@ -17,10 +17,12 @@
  *
  * SOUNDNESS
  * ---------
- * DISPATCHER(true) is optimistic: it assumes the callee is one of the scene
- * contracts. Every importing rule pins the receivers (`require u.hub == hubH`,
- * `u.hubConfigurator == hubConfig`, ...), so that assumption is exactly the scenario
- * under proof rather than a weakening.
+ * DISPATCHER(true) is optimistic: it assumes the callee is one of the scene contracts.
+ * Where a rule pins the receiver (`require getConfig().hub.configurator == hubConfig`)
+ * that assumption is exactly the scenario under proof. Where the receiver is left
+ * symbolic the Prover case-splits over the scene implementations, so the branch hitting
+ * the snapshotted contract is still explored and a real violation is still found — the
+ * pin buys branches, not soundness.
  *
  * `default HAVOC_ALL` is deliberate and must NOT be relaxed to NONDET: a write path
  * we failed to enumerate has to fail loudly instead of quietly doing nothing. This

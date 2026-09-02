@@ -75,13 +75,16 @@ rule configIntactExceptSetConfig(method f, env e)
 rule restrictionMapIntactExceptSetter(method f, env e, address a)
     filtered { f -> f.selector != sig:setAddressRestricted(address,bool).selector }
 {
+    // Fetch the restricted status before the update
     bool before = isAddressRestricted(a);
+
+    // Execute the call
     calldataarg args;
     f(e, args);
+
+    // Assert that the restricted status was not touched
     assert isAddressRestricted(a) == before;
 }
-
-// setConfig rejects any config with wrong per-field polarity.
 
 definition polarityOk(IRiskSteward.Config c) returns bool =
     !c.hub.rate.optimalUsageRatio.isChangeRelative &&
@@ -101,11 +104,12 @@ definition polarityOk(IRiskSteward.Config c) returns bool =
      c.oracle.priceCapLst.isChangeRelative &&
      c.oracle.priceCapStable.isChangeRelative &&
     !c.oracle.discountRatePendle.isChangeRelative;
-// R4 — G1: setConfig rejects any config with wrong per-field polarity.
-// With R1 (storage == arg) and R2 (sole writer), this gives G1 for every
-// reachable non-genesis state. Genesis is all-zero, so the six relative-mode
-// fields are false there — that is G1's genesis disjunct, not a violation.
+
+
+// setConfig rejects any config with wrong per-field polarity.
 rule setConfigEnforcesPolarity(env e, IRiskSteward.Config cfg) {
     setConfig@withrevert(e, cfg);
+
+    // Assert that the config has wrong per-field polarity
     assert !polarityOk(cfg) => lastReverted;
 }

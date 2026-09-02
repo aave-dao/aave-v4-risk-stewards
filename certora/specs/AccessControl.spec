@@ -225,7 +225,13 @@ rule restrictedPendleDiscountRatesReverts(env e, IRiskSteward.DiscountRatePendle
 
 rule setAddressRestrictedTouchesOnlyItsKey(env e, address a, bool v, address other) {
     require other != a;
+    
+    // Fetch the restricted status before the update
     bool before = isAddressRestricted(other);
+
+    // Execute the update
     setAddressRestricted(e, a, v);
+
+    // Assert that the restricted status was not touched for the other address
     assert isAddressRestricted(a) == v && isAddressRestricted(other) == before;
 }

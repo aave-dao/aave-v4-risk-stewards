@@ -11,8 +11,7 @@ methods {
 
     // `_validateLstPriceCaps` compares snapshotRatio against the adapter's live ratio.
     // Left unresolved that read is a fresh NONDET per call site, so the comparison is
-    // unobservable from the spec. Binding it to a ghost keyed by adapter address makes
-    // it readable and also makes a view function return one value per adapter per tx.
+    // unobservable from the spec.
     function _.getRatio() external => ratioOf(calledContract) expect int256;
 }
 
@@ -298,9 +297,7 @@ rule pendleZeroReverts(env e, IRiskSteward.DiscountRatePendleUpdate[] updates) {
 // Oracle-path gates with no other coverage
 // ===========================================================================
 
-// The snapshot must be backward-looking (RiskSteward.sol:572). A negative or
-// over-uint104 ratio reverts in the `toUint256`/`toUint104` casts, which satisfies
-// the implication too, so the ghost needs no range constraint.
+// Snapshot ratio must be backward-looking.
 rule lstSnapshotMustBeBackwardLooking(env e, IRiskSteward.PriceCapLstUpdate[] updates) {
 
     // Execute the update
@@ -308,18 +305,12 @@ rule lstSnapshotMustBeBackwardLooking(env e, IRiskSteward.PriceCapLstUpdate[] up
 
     // Assert that a forward-looking snapshot causes a revert
     assert (exists uint256 i. i < updates.length
-        && to_mathint(updates[i].priceCapUpdateParams.snapshotRatio)
-             > to_mathint(adapterRatio[updates[i].oracle]))
+        && to_mathint(updates[i].priceCapUpdateParams.snapshotRatio) > to_mathint(adapterRatio[updates[i].oracle]))
         => lastReverted;
 }
 
-// Finding F1, closed. KEEP_CURRENT is a skip sentinel everywhere else, and
-// `_validateParamUpdate` early-returns on it (RiskSteward.sol:681) — so on the stable
-// and Pendle paths it bypasses both the debounce and the range gate. These two rules
-// establish that no such write can land anyway: the value is wider than the int256 /
-// uint64 the executor casts to, so SafeCast reverts. F1's remaining half — that the
-// revert carries no stated reason — is a one-line code fix (`require(v != KEEP_CURRENT)`),
-// not a prover target, because CVL cannot observe revert reasons.
+// priceCap must not be KEEP_CURRENT
+// KEEP_CURRENT does not fit in int256 (max = 2^255 - 1). SafeCast reverts.
 rule stableRejectsKeepCurrent(env e, IRiskSteward.PriceCapStableUpdate[] updates) {
 
     // Execute the update
@@ -330,6 +321,8 @@ rule stableRejectsKeepCurrent(env e, IRiskSteward.PriceCapStableUpdate[] updates
         => lastReverted;
 }
 
+// discountRate must not be KEEP_CURRENT
+// KEEP_CURRENT does not fit in int256 (max = 2^255 - 1). SafeCast reverts.
 rule pendleRejectsKeepCurrent(env e, IRiskSteward.DiscountRatePendleUpdate[] updates) {
 
     // Execute the update
