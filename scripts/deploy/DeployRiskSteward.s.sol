@@ -5,6 +5,7 @@ import 'solidity-utils/contracts/utils/ScriptUtils.sol';
 
 import {GovernanceV3Ethereum} from 'aave-address-book/GovernanceV3Ethereum.sol';
 import {GovernanceV3Avalanche} from 'aave-address-book/GovernanceV3Avalanche.sol';
+import {MiscArc} from 'aave-address-book/MiscArc.sol';
 
 import {RiskSteward} from 'src/RiskSteward.sol';
 
@@ -36,6 +37,20 @@ contract DeployAvalanche is AvalancheScript {
   function run() external {
     vm.startBroadcast();
     DeployRiskStewards._deployRiskSteward(RISK_COUNCIL, GovernanceV3Avalanche.EXECUTOR_LVL_1);
+    vm.stopBroadcast();
+  }
+}
+
+// make deploy-ledger contract=scripts/deploy/DeployRiskSteward.s.sol:DeployArc chain=arc
+contract DeployArc is ArcScript {
+  // Arc has no governance deployment, so the V4 Security Council executor owns the steward.
+  address internal constant OWNER = MiscArc.V4_SECURITY_COUNCIL_EXECUTOR;
+
+  address internal constant RISK_COUNCIL = 0xa3b6DA2C0853357dfd5bd0ae1A4f07dDB52682d1;
+
+  function run() external {
+    vm.startBroadcast();
+    DeployRiskStewards._deployRiskSteward(RISK_COUNCIL, OWNER);
     vm.stopBroadcast();
   }
 }
