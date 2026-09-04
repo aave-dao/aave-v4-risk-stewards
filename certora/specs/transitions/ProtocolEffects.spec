@@ -4,19 +4,13 @@
  * Property: a successful update writes the submitted value, and the move from
  * the pre-tx protocol value is at most the configured maxPercentChange.
  *
- * The magnitude rules take the observed cell as a free parameter rather than
- * deriving it from an update struct, so they bound *every* cell of the mapping
- * across an arbitrary batch, not just the one the batch names.
- *
- * Batching: conf `loop_iter` is 1 and the entrypoints reject empty batches, so
- * the prover sees exactly one element. This generalises because `_validateX` is
- * `view` and runs over the whole batch before `_executeX` writes anything: every
- * element is range-checked against the same pre-tx value, and last-write-wins
- * leaves the final value inside that bound. Interleaving validation and
- * execution per element would break this and the rules would not notice.
- */
+*/
 
 import "../common/PercentMath.spec";
+
+// Write-path resolution for the full scene: the authority bypass, the DISPATCHER
+// summaries, the DISPATCH list, and the KEEP_CURRENT sentinels.
+import "../common/SceneDispatch.spec";
 
 using HubHarness as hubH;
 using SpokeHarness as spokeH;
@@ -44,48 +38,6 @@ methods {
     function spokeH.getLiquidationConfig() external returns (ISpoke.LiquidationConfig) envfree;
     function spokeH.latestDynamicConfigKey(uint256 reserveId) external returns (uint32) envfree;
 
-    // Neutralize access control on the whole write path (see header).
-    function AuthorityUtils.canCallWithDelay(address authority, address caller, address target, bytes4 selector) internal returns (bool, uint32) 
-        => alwaysAllowed();
-
-    // DISPATCHER(true): the engine copies the update array to memory, so callees are symbolic.
-    // DISPATCHER case-splits over the scene contracts that implement the sighash.
-    function _.getAssetId(address) external => DISPATCHER(true);
-    function _.getSpokeConfig(uint256, address) external => DISPATCHER(true);
-    function _.getReserveId(address, uint256) external => DISPATCHER(true);
-    function _.getReserveConfig(uint256) external => DISPATCHER(true);
-    function _.getDynamicReserveConfig(uint256, uint32) external => DISPATCHER(true);
-    function _.getReserve(uint256) external => DISPATCHER(true);
-    function _.getLiquidationConfig() external => DISPATCHER(true);
-    function _.getAssetConfig(uint256) external => DISPATCHER(true);
-    function _.getInterestRateData(uint256) external => DISPATCHER(true);
-
-    function _.updateSpokeCaps(address hub, uint256 assetId, address spoke, uint256 addCap, uint256 drawCap) external => DISPATCHER(true);
-    function _.updateSpokeAddCap(address, uint256, address, uint256) external => DISPATCHER(true);
-    function _.updateSpokeDrawCap(address, uint256, address, uint256) external => DISPATCHER(true);
-    function _.updateCollateralRisk(address, uint256, uint256) external => DISPATCHER(true);
-    function _.updateDynamicReserveConfig(address, uint256, uint32, ISpoke.DynamicReserveConfig) external => DISPATCHER(true);
-    function _.addDynamicReserveConfig(address, uint256, ISpoke.DynamicReserveConfig) external => DISPATCHER(true);
-    function _.updateLiquidationTargetHealthFactor(address, uint256) external => DISPATCHER(true);
-    function _.updateHealthFactorForMaxBonus(address, uint256) external => DISPATCHER(true);
-    function _.updateLiquidationBonusFactor(address, uint256) external => DISPATCHER(true);
-    function _.updateLiquidationConfig(address, ISpoke.LiquidationConfig) external => DISPATCHER(true);
-    function _.updateInterestRateData(address, uint256, bytes) external => DISPATCHER(true);
-
-    // configurator -> Hub / Spoke storage
-    function _.updateSpokeConfig(uint256, address, IHub.SpokeConfig) external => DISPATCHER(true);
-    function _.updateReserveConfig(uint256, ISpoke.ReserveConfig) external => DISPATCHER(true);
-    function _.updateDynamicReserveConfig(uint256, uint32, ISpoke.DynamicReserveConfig) external => DISPATCHER(true);
-    function _.addDynamicReserveConfig(uint256, ISpoke.DynamicReserveConfig) external => DISPATCHER(true);
-    function _.updateLiquidationConfig(ISpoke.LiquidationConfig) external => DISPATCHER(true);
-
-    // Two hops share this signature — HubConfigurator -> Hub, then Hub -> strategy
-    function _.setInterestRateData(uint256, bytes) external => DISPATCHER(true);
-
-    // The IR curve is nonlinear in five uint256 inputs. No rule here asserts on its
-    // return value so NONDET is ok.
-    function _.calculateInterestRate(uint256, uint256, uint256, uint256, uint256) external => NONDET;
-
     // `percentMulDown` is inline assembly: a 256-bit `mul`, a `div`, and an overflow
     // guard. It is the only nonlinear step in `_updateWithinAllowedRange` (the rest is
     // a subtraction and a comparison) and the dominant SMT cost on this path, so it is
@@ -93,42 +45,11 @@ methods {
     // Solidity. Equivalence proven in PercentMulDownEquivalence.spec.
     function PercentageMath.percentMulDown(uint256 value, uint256 percentage) internal returns (uint256)
         => percentMulDownCVL(value, percentage);
-
-    // Explicit DISPATCH list.
-    unresolved external in _._ => DISPATCH [
-        HubConfiguratorHarness.updateSpokeCaps(address, uint256, address, uint256, uint256),
-        HubConfiguratorHarness.updateSpokeAddCap(address, uint256, address, uint256),
-        HubConfiguratorHarness.updateSpokeDrawCap(address, uint256, address, uint256),
-        HubHarness.updateSpokeConfig(uint256, address, IHub.SpokeConfig),
-        SpokeConfiguratorHarness.updateCollateralRisk(address, uint256, uint256),
-        SpokeConfiguratorHarness.updateDynamicReserveConfig(address, uint256, uint32, ISpoke.DynamicReserveConfig),
-        SpokeConfiguratorHarness.addDynamicReserveConfig(address, uint256, ISpoke.DynamicReserveConfig),
-        SpokeConfiguratorHarness.updateLiquidationTargetHealthFactor(address, uint256),
-        SpokeConfiguratorHarness.updateHealthFactorForMaxBonus(address, uint256),
-        SpokeConfiguratorHarness.updateLiquidationBonusFactor(address, uint256),
-        SpokeConfiguratorHarness.updateLiquidationConfig(address, ISpoke.LiquidationConfig),
-        SpokeHarness.updateReserveConfig(uint256, ISpoke.ReserveConfig),
-        SpokeHarness.updateDynamicReserveConfig(uint256, uint32, ISpoke.DynamicReserveConfig),
-        SpokeHarness.addDynamicReserveConfig(uint256, ISpoke.DynamicReserveConfig),
-        SpokeHarness.updateLiquidationConfig(ISpoke.LiquidationConfig),
-        HubConfiguratorHarness.updateInterestRateData(address, uint256, bytes),
-        HubHarness.setInterestRateData(uint256, bytes),
-        AssetInterestRateStrategyHarness.setInterestRateData(uint256, bytes)
-    ] default HAVOC_ALL;
 }
-
-// KEEP_CURRENT = type(uint256).max - 652 = 2^256 - 653.
-definition KEEP_CURRENT() returns uint256 = 0xfffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffd73;
 
 // The irData fields carry their own narrower sentinels (EngineFlags.sol:15-24).
-definition KEEP_CURRENT_ADDRESS() returns address = 0xffffffffffffffffffffffffffffffffffffffff;
 definition KEEP_CURRENT_UINT16() returns uint16 = 65474;      // type(uint16).max - 61
 definition KEEP_CURRENT_UINT32() returns uint32 = 4294967272;  // type(uint32).max - 23
-
-// Return (allowed, delay=0) so Hub/Spoke authority checks never revert here.
-function alwaysAllowed() returns (bool, uint32) {
-    return (true, 0);
-}
 
 // The bound `_updateWithinAllowedRange` enforces, in mathint so callers need no casts.
 function allowedDiff(bool isRelative, mathint maxPercentChange, mathint from) returns mathint {
@@ -140,7 +61,7 @@ function absDiff(mathint a, mathint b) returns mathint {
 }
 
 // ---------------------------------------------------------------------------
-// updateHubSpokeCaps : addCap / drawCap  (relative mode)
+// updateHubSpokeCaps 
 // ---------------------------------------------------------------------------
 
 // Make sure add cap moves within the configured bound
@@ -188,7 +109,7 @@ rule capsDrawCapMagnitude(env e, uint256 assetId, address spoke) {
 }
 
 // ---------------------------------------------------------------------------
-// updateReserveConfigs : collateralRisk
+// updateReserveConfigs
 // ---------------------------------------------------------------------------
 
 // Make sure collateral risk moves within the configured bound
@@ -211,7 +132,7 @@ rule reserveCollateralRiskMagnitude(env e, uint256 reserveId) {
 }
 
 // ---------------------------------------------------------------------------
-// updateDynamicReserveConfigs : collateralFactor / maxLiquidationBonus
+// updateDynamicReserveConfigs 
 // ---------------------------------------------------------------------------
 
 // Make sure collateral factor moves within the configured bound
@@ -254,10 +175,7 @@ rule dynUpdateMaxLiquidationBonusMagnitude(env e, uint256 reserveId, uint32 key)
 }
 
 // ---------------------------------------------------------------------------
-// addDynamicReserveConfigs : collateralFactor / maxLiquidationBonus
-//
-// Anchored to the latest existing key, not to the appended slot — see header.
-// No sentinel exists for additions, so every successful addition is in scope.
+// addDynamicReserveConfigs 
 // ---------------------------------------------------------------------------
 
 // Make sure collateral factor moves within the configured bound
@@ -299,10 +217,6 @@ rule dynAddMaxLiquidationBonusMagnitude(env e, uint256 reserveId) {
     assert absDiff(post, from) <= allowedDiff(isRelative, maxPercentChange, from);
 }
 
-// ---------------------------------------------------------------------------
-// addDynamicReserveConfigs
-// ---------------------------------------------------------------------------
-
 // Make sure liquidation fee does not move
 rule dynAddLiquidationFeeFrozen(env e) {
 
@@ -339,7 +253,7 @@ rule dynAddRequiresExistingConfig(env e) {
 }
 
 // ---------------------------------------------------------------------------
-// updateSpokeLiquidationConfigs : three fields
+// updateSpokeLiquidationConfigs 
 // ---------------------------------------------------------------------------
 
 // Make sure target health factor moves within the configured bound
@@ -422,7 +336,7 @@ rule liqBonusFactorMagnitude(env e, IAaveV4ConfigEngine.LiquidationConfigUpdate 
 }
 
 // ---------------------------------------------------------------------------
-// updateHubAssetIRs : the four interest-rate data fields
+// updateHubAssetIRs 
 // ---------------------------------------------------------------------------
 
 // Make sure optimal usage ratio moves within the configured bound
@@ -507,7 +421,7 @@ rule assetIRRateGrowthAfterOptimalMagnitude(env e, uint256 assetId) {
 // ===========================================================================
 
 // ---------------------------------------------------------------------------
-// updateHubSpokeCaps : addCap / drawCap
+// updateHubSpokeCaps 
 // ---------------------------------------------------------------------------
 
 // Make sure add cap is written to the Hub
@@ -555,7 +469,7 @@ rule spokeCapsDrawCapFidelity(env e, IAaveV4ConfigEngine.SpokeConfigUpdate u) {
 }
 
 // ---------------------------------------------------------------------------
-// updateReserveConfigs : collateralRisk
+// updateReserveConfigs 
 // ---------------------------------------------------------------------------
 
 // Make sure collateral risk is written to the Spoke
@@ -576,13 +490,14 @@ rule reserveCollateralRiskFidelity(env e, IAaveV4ConfigEngine.ReserveConfigUpdat
 
     uint256 assetId = hubH.getAssetId(u.underlying);
     uint256 reserveId = spokeH.getReserveId(u.hub, assetId);
+
     // Assert that a non-sentinel collateralRisk was written to the Spoke
     assert u.collateralRisk != KEEP_CURRENT() 
         => to_mathint(spokeH.getReserveConfig(reserveId).collateralRisk) == to_mathint(u.collateralRisk);
 }
 
 // ---------------------------------------------------------------------------
-// updateDynamicReserveConfigs : collateralFactor / maxLiquidationBonus
+// updateDynamicReserveConfigs 
 // ---------------------------------------------------------------------------
 
 // Make sure collateral factor is written to the Spoke
@@ -633,11 +548,7 @@ rule dynUpdateMaxLiquidationBonusFidelity(env e, IAaveV4ConfigEngine.DynamicRese
 }
 
 // ---------------------------------------------------------------------------
-// addDynamicReserveConfigs : collateralFactor / maxLiquidationBonus
-//
-// Read back at the appended key, which is `latestDynamicConfigKey` after the call.
-// Additions have no KEEP_CURRENT sentinel, so every successful addition is in scope
-// and the assertion needs no guard.
+// addDynamicReserveConfigs 
 // ---------------------------------------------------------------------------
 
 // Constrain a singleton DynamicReserveConfigAddition batch to the input.
@@ -691,7 +602,7 @@ rule dynAddMaxLiquidationBonusFidelity(env e, IAaveV4ConfigEngine.DynamicReserve
 }
 
 // ---------------------------------------------------------------------------
-// updateSpokeLiquidationConfigs : three fields
+// updateSpokeLiquidationConfigs
 // ---------------------------------------------------------------------------
 
 // Make sure target health factor is written to the Spoke
@@ -767,7 +678,7 @@ rule liqBonusFactorFidelity(env e, IAaveV4ConfigEngine.LiquidationConfigUpdate u
 }
 
 // ---------------------------------------------------------------------------
-// updateHubAssetIRs : the four interest-rate data fields
+// updateHubAssetIRs 
 // ---------------------------------------------------------------------------
 
 // Constrain a singleton AssetConfigUpdate batch to the input.

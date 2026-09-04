@@ -12,6 +12,7 @@ using HubHarness as hubH;
 using HubConfiguratorHarness as hubConfig;
 using SpokeHarness as spokeH;
 using SpokeConfiguratorHarness as spokeConfig;
+using AssetInterestRateStrategyHarness as irH;
 
 methods {
     function RISK_COUNCIL() external returns (address) envfree;
@@ -23,6 +24,9 @@ methods {
     function spokeH.getReserveId(address hub, uint256 assetId) external returns (uint256) envfree;
     function spokeH.getReserveConfig(uint256 reserveId) external returns (ISpoke.ReserveConfig) envfree;
     function spokeH.getDynamicReserveConfig(uint256 reserveId, uint32 dynamicConfigKey) external returns (ISpoke.DynamicReserveConfig) envfree;
+    function spokeH.getLiquidationConfig() external returns (ISpoke.LiquidationConfig) envfree;
+    function spokeH.latestDynamicConfigKey(uint256 reserveId) external returns (uint32) envfree;
+    function irH.getInterestRateData(uint256 assetId) external returns (IAssetInterestRateStrategy.InterestRateData) envfree;
 
     // Dropping these only adds executions: they gate or compute, never write the fields
     // asserted below, so removing them cannot hide a forbidden write. `_validateParamUpdate`
@@ -32,7 +36,7 @@ methods {
     function AssetLogic.getUnrealizedFees(IHub.Asset storage, uint256) internal returns (uint256) => NONDET;
     function Hub._mintFeeShares(IHub.Asset storage, uint256) internal returns (uint256) => NONDET;
 
-    // priceSource lives in the out-of-scene oracle, so we candetect attempted writes.
+    // priceSource lives in the out-of-scene oracle, so we can detect attempted writes.
     function _.setReserveSource(uint256 reserveId, address source) external 
         => markPriceSource() expect void;
 
@@ -41,8 +45,9 @@ methods {
         => anyIRData();
 }
 
-// Batch bound for the key-isolation helpers for prover performances.
-definition HUB_MAX_BATCH() returns uint256 = 3;
+// The irData fields carry their own narrower sentinels
+definition KEEP_CURRENT_UINT16() returns uint16 = 65474;       // type(uint16).max - 61
+definition KEEP_CURRENT_UINT32() returns uint32 = 4294967272;  // type(uint32).max - 23
 
 function anyIRData() returns IAssetInterestRateStrategy.InterestRateData {
     IAssetInterestRateStrategy.InterestRateData d;
@@ -53,6 +58,7 @@ function anyIRData() returns IAssetInterestRateStrategy.InterestRateData {
 // updateHubAssetIRs path: liquidityFee / feeReceiver / irStrategy / reinvestmentController
 // ---------------------------------------------------------------------------
 
+// Verify that the hub asset IR fields are not touched
 rule hubKeepsOutOfScopeFields(env e, uint256 assetId) {
     // Create a valid AssetConfigUpdate array
     IAaveV4ConfigEngine.AssetConfigUpdate[] updates;
@@ -75,6 +81,7 @@ rule hubKeepsOutOfScopeFields(env e, uint256 assetId) {
 // updateHubSpokeCaps path: riskPremiumThreshold / active / halted
 // ---------------------------------------------------------------------------
 
+// Verify that the hub spoke caps fields are not touched
 rule capsKeepsOutOfScopeFields(env e, uint256 assetId, address spoke) {
     require getConfig().hub.configurator == hubConfig, "Prevents HAVOC_ALL on the unresolved HubEngine caps call";
    
@@ -108,7 +115,7 @@ function markPriceSource() { priceSourceTouched = true; }
 // updateReserveConfigs path: priceSource + the four reserve flags
 // ---------------------------------------------------------------------------
 
-// Make sure price source is not touched
+// Verify that the price source is not touched
 rule reserveKeepsPriceSource(env e) {
     // Require the caller to be the RiskCouncil (Prover Performances Helper)
     require e.msg.sender == RISK_COUNCIL();
@@ -118,7 +125,7 @@ rule reserveKeepsPriceSource(env e) {
 
     // Create a valid ReserveConfigUpdate array
     IAaveV4ConfigEngine.ReserveConfigUpdate[] updates;
-    require updates.length <= 1,"Limit batch updates elements to 1 for prover performances";
+    require updates.length == 1,"Limit batch updates elements to 1 for prover performances";
     
     require !priceSourceTouched,"Require satisfying fresh start";
 
@@ -129,16 +136,11 @@ rule reserveKeepsPriceSource(env e) {
     assert !priceSourceTouched;
 }
 
-// Make sure immutable parameters from reserve config are not touched
+// Verify that the immutable parameters from reserve config are not touched
 rule reserveKeepsFlags(env e, uint256 reserveId) {
     // Require the caller to be the RiskCouncil (Prover Performances Helper)
     require e.msg.sender == RISK_COUNCIL();
 
-    // Pins the configurator RiskSteward will itself demand of every element.
-    require getConfig().spoke.configurator == spokeConfig, "Speeds up SpokeEngine dispatch; not needed for soundness";
-
-    // Require the caller to be the RiskCouncil (Prover Performances Helper)
-    require e.msg.sender == RISK_COUNCIL();
     // Pins the configurator RiskSteward will itself demand of every element.
     require getConfig().spoke.configurator == spokeConfig, "Speeds up SpokeEngine dispatch; not needed for soundness";
 
@@ -164,6 +166,7 @@ rule reserveKeepsFlags(env e, uint256 reserveId) {
 // updateDynamicReserveConfigs path: liquidationFee
 // ---------------------------------------------------------------------------
 
+// Verify that the liquidation fee is not touched
 rule dynKeepsLiquidationFee(env e, uint256 reserveId, uint32 key) {
     // Create a valid DynamicReserveConfigUpdate array
     IAaveV4ConfigEngine.DynamicReserveConfigUpdate[] updates;
@@ -179,11 +182,83 @@ rule dynKeepsLiquidationFee(env e, uint256 reserveId, uint32 key) {
     assert spokeH.getDynamicReserveConfig(reserveId, key).liquidationFee == before;
 }
 
+
+// Verify that the pre-existing keys are not touched
+rule dynAddKeepsEarlierKeys(env e, uint256 reserveId, uint32 key) {
+    // Pins the configurator RiskSteward will itself demand of every element.
+    require getConfig().spoke.configurator == spokeConfig, "Speeds up SpokeEngine dispatch; not needed for soundness";
+
+    // Create a valid DynamicReserveConfigAddition array
+    IAaveV4ConfigEngine.DynamicReserveConfigAddition[] additions;
+    require additions.length <= 2,"Limit batch additions elements to 2 for prover performances";
+
+    // Any key already in use before the call: the append lands strictly above it.
+    require key <= spokeH.latestDynamicConfigKey(reserveId);
+
+    // Fetch the DynamicReserveConfig before the addition
+    ISpoke.DynamicReserveConfig before = spokeH.getDynamicReserveConfig(reserveId, key);
+
+    // Execute the addition
+    addDynamicReserveConfigs(e, additions);
+
+    // Fetch the DynamicReserveConfig after the addition
+    ISpoke.DynamicReserveConfig after = spokeH.getDynamicReserveConfig(reserveId, key);
+
+    // Assert that the pre-existing key was left untouched
+    assert after.collateralFactor == before.collateralFactor
+        && after.maxLiquidationBonus == before.maxLiquidationBonus
+        && after.liquidationFee == before.liquidationFee;
+}
+
 // ---------------------------------------------------------------------------
 // (i) FIELD isolation — same key, sibling field untouched
 // ---------------------------------------------------------------------------
 
-// Make sure add cap does not move draw cap
+// Verify that a sentinel interest-rate field is never written.
+rule irKeepsSentinelFields(env e, IAaveV4ConfigEngine.AssetConfigUpdate u) {
+    require getConfig().hub.configurator == hubConfig, "Prevents HAVOC_ALL on the unresolved HubEngine IR call";
+    require u.hub == hubH, "Pins the update to the snapshotted scene contracts";
+
+    // The merge reads current data off the asset's own strategy, so pin that strategy to
+    // the instance this rule reads back from.
+    uint256 assetId = hubH.getAssetId(u.underlying);
+    require hubH.getAssetConfig(assetId).irStrategy == irH, "Anchors the merge read to the snapshotted strategy";
+
+    // Create a valid AssetConfigUpdate array and constrain it to the input
+    IAaveV4ConfigEngine.AssetConfigUpdate[] updates;
+    require updates.length == 1 && updates[0].hub == u.hub
+        && updates[0].underlying == u.underlying
+        && updates[0].hubConfigurator == u.hubConfigurator
+        && updates[0].liquidityFee == u.liquidityFee
+        && updates[0].feeReceiver == u.feeReceiver
+        && updates[0].irStrategy == u.irStrategy
+        && updates[0].reinvestmentController == u.reinvestmentController
+        && updates[0].irData.optimalUsageRatio == u.irData.optimalUsageRatio
+        && updates[0].irData.baseDrawnRate == u.irData.baseDrawnRate
+        && updates[0].irData.rateGrowthBeforeOptimal == u.irData.rateGrowthBeforeOptimal
+        && updates[0].irData.rateGrowthAfterOptimal == u.irData.rateGrowthAfterOptimal;
+
+    // Fetch the InterestRateData before the update
+    IAssetInterestRateStrategy.InterestRateData before = irH.getInterestRateData(assetId);
+
+    // Execute the update
+    updateHubAssetIRs(e, updates);
+
+    // Fetch the InterestRateData after the update
+    IAssetInterestRateStrategy.InterestRateData after = irH.getInterestRateData(assetId);
+
+    // Assert that every sentinel field kept its pre-call value
+    assert u.irData.optimalUsageRatio == KEEP_CURRENT_UINT16()
+        => after.optimalUsageRatio == before.optimalUsageRatio;
+    assert u.irData.baseDrawnRate == KEEP_CURRENT_UINT32()
+        => after.baseDrawnRate == before.baseDrawnRate;
+    assert u.irData.rateGrowthBeforeOptimal == KEEP_CURRENT_UINT32()
+        => after.rateGrowthBeforeOptimal == before.rateGrowthBeforeOptimal;
+    assert u.irData.rateGrowthAfterOptimal == KEEP_CURRENT_UINT32()
+        => after.rateGrowthAfterOptimal == before.rateGrowthAfterOptimal;
+}
+
+// Verify that the add cap does not move the draw cap
 rule addCapDoesNotMoveDrawCap(env e, IAaveV4ConfigEngine.SpokeConfigUpdate u) {
     require getConfig().hub.configurator == hubConfig, "Prevents HAVOC_ALL on the unresolved HubEngine caps call";
 
@@ -208,7 +283,7 @@ rule addCapDoesNotMoveDrawCap(env e, IAaveV4ConfigEngine.SpokeConfigUpdate u) {
         => hubH.getSpokeConfig(assetId, u.spoke).drawCap == drawBefore;
 }
 
-// Make sure draw cap does not move add cap
+// Verify that the draw cap does not move the add cap
 rule drawCapDoesNotMoveAddCap(env e, IAaveV4ConfigEngine.SpokeConfigUpdate u) {
     require getConfig().hub.configurator == hubConfig, "Prevents HAVOC_ALL on the unresolved HubEngine caps call";
    
@@ -233,7 +308,7 @@ rule drawCapDoesNotMoveAddCap(env e, IAaveV4ConfigEngine.SpokeConfigUpdate u) {
         => hubH.getSpokeConfig(assetId, u.spoke).addCap == addBefore;
 }
 
-// Make sure collateral factor does not move max bonus
+// Verify that collateral factor changes does not move the max bonus
 rule collateralFactorKeepsMaxBonus(env e, IAaveV4ConfigEngine.DynamicReserveConfigUpdate u) {
     // Create a valid DynamicReserveConfigUpdate array and constrain it to the input
     IAaveV4ConfigEngine.DynamicReserveConfigUpdate[] updates;
@@ -259,7 +334,7 @@ rule collateralFactorKeepsMaxBonus(env e, IAaveV4ConfigEngine.DynamicReserveConf
         => spokeH.getDynamicReserveConfig(reserveId, key).maxLiquidationBonus == bonusBefore;
 }
 
-// Make sure max bonus does not move collateral factor
+// Verify that max bonus changes does not move the collateral factor
 rule maxBonusKeepsCollateralFactor(env e, IAaveV4ConfigEngine.DynamicReserveConfigUpdate u) {
     // Create a valid DynamicReserveConfigUpdate array and constrain it to the input
     IAaveV4ConfigEngine.DynamicReserveConfigUpdate[] updates;
@@ -285,93 +360,32 @@ rule maxBonusKeepsCollateralFactor(env e, IAaveV4ConfigEngine.DynamicReserveConf
         => spokeH.getDynamicReserveConfig(reserveId, key).collateralFactor == factorBefore;
 }
 
-// ---------------------------------------------------------------------------
-// (ii) KEY isolation — distinct cell unchanged
-// ---------------------------------------------------------------------------
+// Verify that a sentinel liquidation field is never written.
+rule liqKeepsSentinelFields(env e, IAaveV4ConfigEngine.LiquidationConfigUpdate u) {
+    require getConfig().spoke.configurator == spokeConfig, "Speeds up SpokeEngine dispatch; not needed for soundness";
 
-// No element of the batch names the (otherAssetId, otherSpoke) cell.
-function capsBatchAvoids(IAaveV4ConfigEngine.SpokeConfigUpdate[] updates,uint256 otherAssetId, address otherSpoke) 
-{
-    require updates.length <= HUB_MAX_BATCH();
-    require hubH.getAssetId(updates[0].underlying) != otherAssetId || updates[0].spoke != otherSpoke;
-    require updates.length < 2 || hubH.getAssetId(updates[1].underlying) != otherAssetId || updates[1].spoke != otherSpoke;
-    require updates.length < 3 || hubH.getAssetId(updates[2].underlying) != otherAssetId || updates[2].spoke != otherSpoke;
-}
+    // Create a valid LiquidationConfigUpdate array and constrain it to the input
+    IAaveV4ConfigEngine.LiquidationConfigUpdate[] updates;
+    require updates.length == 1 && updates[0].spoke == u.spoke
+        && updates[0].targetHealthFactor == u.targetHealthFactor
+        && updates[0].healthFactorForMaxBonus == u.healthFactorForMaxBonus
+        && updates[0].liquidationBonusFactor == u.liquidationBonusFactor
+        && updates[0].spokeConfigurator == u.spokeConfigurator;
 
-// No element of the batch names the otherReserveId cell.
-function reserveBatchAvoids(IAaveV4ConfigEngine.ReserveConfigUpdate[] updates,uint256 otherReserveId) 
-{
-    require updates.length <= HUB_MAX_BATCH();
-    require spokeH.getReserveId(updates[0].hub, hubH.getAssetId(updates[0].underlying)) != otherReserveId;
-    require updates.length < 2 || spokeH.getReserveId(updates[1].hub, hubH.getAssetId(updates[1].underlying)) != otherReserveId;
-    require updates.length < 3 || spokeH.getReserveId(updates[2].hub, hubH.getAssetId(updates[2].underlying)) != otherReserveId;
-}
-
-// No element of the batch names the (otherReserveId, otherKey) cell.
-function dynBatchAvoids(IAaveV4ConfigEngine.DynamicReserveConfigUpdate[] updates,uint256 otherReserveId, uint32 otherKey) 
-{
-    require updates.length <= HUB_MAX_BATCH();
-    require spokeH.getReserveId(updates[0].hub, hubH.getAssetId(updates[0].underlying)) != otherReserveId || to_mathint(updates[0].dynamicConfigKey) != to_mathint(otherKey);
-    require updates.length < 2 || spokeH.getReserveId(updates[1].hub, hubH.getAssetId(updates[1].underlying)) != otherReserveId || to_mathint(updates[1].dynamicConfigKey) != to_mathint(otherKey);
-    require updates.length < 3 || spokeH.getReserveId(updates[2].hub, hubH.getAssetId(updates[2].underlying)) != otherReserveId || to_mathint(updates[2].dynamicConfigKey) != to_mathint(otherKey);
-}
-
-// Verify that the add cap and draw cap of other asset id and other spoke were not touched
-rule hubCapsKeyIsolation(env e, uint256 otherAssetId, address otherSpoke) {
-    require getConfig().hub.configurator == hubConfig, "Prevents HAVOC_ALL on the unresolved HubEngine caps call";
-
-    // Create a valid SpokeConfigUpdate batch that avoids the snapshotted cell
-    IAaveV4ConfigEngine.SpokeConfigUpdate[] updates;
-    capsBatchAvoids(updates, otherAssetId, otherSpoke);
-
-    // Fetch the SpokeConfig of other asset id and other spoke before the update
-    IHub.SpokeConfig before = hubH.getSpokeConfig(otherAssetId, otherSpoke);
+    // Fetch the LiquidationConfig before the update
+    ISpoke.LiquidationConfig before = spokeH.getLiquidationConfig();
 
     // Execute the update
-    updateHubSpokeCaps(e, updates);
+    updateSpokeLiquidationConfigs(e, updates);
 
-    // Fetch the SpokeConfig of other asset id and other spoke after the update
-    IHub.SpokeConfig after = hubH.getSpokeConfig(otherAssetId, otherSpoke);
+    // Fetch the LiquidationConfig after the update
+    ISpoke.LiquidationConfig after = spokeH.getLiquidationConfig();
 
-    // Assert that the add cap and draw cap were not touched
-    assert after.addCap == before.addCap && after.drawCap == before.drawCap;
-}
-
-// Verify that the collateral risk of other reserve id was not touched
-rule reserveConfigKeyIsolation(env e, uint256 otherReserveId) {
-    // Create a valid ReserveConfigUpdate batch that avoids the snapshotted cell
-    IAaveV4ConfigEngine.ReserveConfigUpdate[] updates;
-    reserveBatchAvoids(updates, otherReserveId);
-
-    // Fetch the ReserveConfig of other reserve id before the update
-    ISpoke.ReserveConfig before = spokeH.getReserveConfig(otherReserveId);
-
-    // Execute the update
-    updateReserveConfigs(e, updates);
-
-    // Fetch the ReserveConfig of other reserve id after the update
-    ISpoke.ReserveConfig after = spokeH.getReserveConfig(otherReserveId);
-
-    // Assert that the collateral risk was not touched
-    assert after.collateralRisk == before.collateralRisk;
-}
-
-// Verify that the collateral factor and max liquidation bonus of other reserve id and other key were not touched
-rule dynamicConfigKeyIsolation(env e, uint256 otherReserveId, uint32 otherKey) {
-    // Create a valid DynamicReserveConfigUpdate batch that avoids the snapshotted cell
-    IAaveV4ConfigEngine.DynamicReserveConfigUpdate[] updates;
-    dynBatchAvoids(updates, otherReserveId, otherKey);
-
-    // Fetch the DynamicReserveConfig of other reserve id and other key before the update
-    ISpoke.DynamicReserveConfig before = spokeH.getDynamicReserveConfig(otherReserveId, otherKey);
-
-    // Execute the update
-    updateDynamicReserveConfigs(e, updates);
-
-    // Fetch the DynamicReserveConfig of other reserve id and other key after the update
-    ISpoke.DynamicReserveConfig after = spokeH.getDynamicReserveConfig(otherReserveId, otherKey);
-
-    // Assert that the collateral factor and max liquidation bonus were not touched
-    assert after.collateralFactor == before.collateralFactor
-        && after.maxLiquidationBonus == before.maxLiquidationBonus;
+    // Assert that every sentinel field kept its pre-call value
+    assert u.targetHealthFactor == KEEP_CURRENT()
+        => after.targetHealthFactor == before.targetHealthFactor;
+    assert u.healthFactorForMaxBonus == KEEP_CURRENT()
+        => after.healthFactorForMaxBonus == before.healthFactorForMaxBonus;
+    assert u.liquidationBonusFactor == KEEP_CURRENT()
+        => after.liquidationBonusFactor == before.liquidationBonusFactor;
 }

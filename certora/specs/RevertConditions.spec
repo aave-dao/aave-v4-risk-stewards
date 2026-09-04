@@ -2,7 +2,7 @@
  * RiskSteward — Revert Conditions.
  *
  * Property: a council call reverts if it names an out-of-scope field, a mismatched
- * configurator, a zero write, or an empty batch.
+ * configurator, a zero write.
  */
 
 methods {
@@ -13,14 +13,27 @@ methods {
     // Left unresolved that read is a fresh NONDET per call site, so the comparison is
     // unobservable from the spec.
     function _.getRatio() external => ratioOf(calledContract) expect int256;
+
+    // `_executeLstPriceCaps` re-reads the adapter after installing the new cap params and
+    // rejects the update if the cap is already binding. 
+    function _.isCapped() external => cappedOf(calledContract) expect bool;
 }
 
 // Persistent: unresolved adapter writes on this path havoc, and the rule reads the
 // ratio after the call.
 persistent ghost mapping(address => int256) adapterRatio;
 
+// Get the ratio of the adapter
 function ratioOf(address adapter) returns int256 {
     return adapterRatio[adapter];
+}
+
+// Cap flag is read after `setCapParameters`.
+persistent ghost mapping(address => bool) adapterCapped;
+
+// Get the capped flag of the adapter
+function cappedOf(address adapter) returns bool {
+    return adapterCapped[adapter];
 }
 
 // EngineFlags.KEEP_CURRENT = type(uint256).max - 652.
@@ -44,7 +57,7 @@ function pinnedSpokeConfigurator() returns address {
 }
 
 // ---------------------------------------------------------------------------
-// updateHubAssetIRs — fee / strategy / reinvestment fields are out of scope
+// updateHubAssetIRs 
 // ---------------------------------------------------------------------------
 
 definition irElementInScope(IAaveV4ConfigEngine.AssetConfigUpdate u) returns bool =
@@ -53,6 +66,7 @@ definition irElementInScope(IAaveV4ConfigEngine.AssetConfigUpdate u) returns boo
     u.irStrategy == KEEP_CURRENT_ADDRESS() &&
     u.reinvestmentController == KEEP_CURRENT_ADDRESS();
 
+// Verify that the updateHubAssetIRs function reverts if an element is not in scope
 rule hubIrSuccessImpliesInScope(env e, IAaveV4ConfigEngine.AssetConfigUpdate[] updates) {
 
     // Execute the update
@@ -66,6 +80,7 @@ rule hubIrSuccessImpliesInScope(env e, IAaveV4ConfigEngine.AssetConfigUpdate[] u
 // Hub-side: updateHubAssetIRs
 // ---------------------------------------------------------------------------
 
+// Verify that the updateHubAssetIRs function reverts if the hubConfigurator does not match the pinned configurator
 rule hubIrSuccessImpliesAllMatched(env e, IAaveV4ConfigEngine.AssetConfigUpdate[] updates) {
     // Fetch the pinned hub configurator
     address pinned = pinnedHubConfigurator();
@@ -78,7 +93,7 @@ rule hubIrSuccessImpliesAllMatched(env e, IAaveV4ConfigEngine.AssetConfigUpdate[
 }
 
 // ---------------------------------------------------------------------------
-// updateHubSpokeCaps — risk premium threshold / active / halted out of scope
+// updateHubSpokeCaps 
 // ---------------------------------------------------------------------------
 
 definition capsElementInScope(IAaveV4ConfigEngine.SpokeConfigUpdate u) returns bool =
@@ -86,6 +101,7 @@ definition capsElementInScope(IAaveV4ConfigEngine.SpokeConfigUpdate u) returns b
     u.active == KEEP_CURRENT() &&
     u.halted == KEEP_CURRENT();
 
+// Verify that the updateHubSpokeCaps function reverts if an element is not in scope
 rule hubCapsSuccessImpliesInScope(env e, IAaveV4ConfigEngine.SpokeConfigUpdate[] updates) {
 
     // Execute the update
@@ -99,6 +115,7 @@ rule hubCapsSuccessImpliesInScope(env e, IAaveV4ConfigEngine.SpokeConfigUpdate[]
 // Hub-side: updateHubSpokeCaps
 // ---------------------------------------------------------------------------
 
+// Verify that the updateHubSpokeCaps function reverts if the hubConfigurator does not match the pinned configurator
 rule hubCapsSuccessImpliesAllMatched(env e, IAaveV4ConfigEngine.SpokeConfigUpdate[] updates) {
     // Fetch the pinned hub configurator
     address pinned = pinnedHubConfigurator();
@@ -111,7 +128,7 @@ rule hubCapsSuccessImpliesAllMatched(env e, IAaveV4ConfigEngine.SpokeConfigUpdat
 }
 
 // ---------------------------------------------------------------------------
-// updateReserveConfigs — price source and the four reserve flags out of scope
+// updateReserveConfigs 
 // ---------------------------------------------------------------------------
 
 definition reserveElementInScope(IAaveV4ConfigEngine.ReserveConfigUpdate u) returns bool =
@@ -121,6 +138,7 @@ definition reserveElementInScope(IAaveV4ConfigEngine.ReserveConfigUpdate u) retu
     u.borrowable == KEEP_CURRENT() &&
     u.receiveSharesEnabled == KEEP_CURRENT();
 
+// Verify that the updateReserveConfigs function reverts if an element is not in scope
 rule reserveSuccessImpliesInScope(env e, IAaveV4ConfigEngine.ReserveConfigUpdate[] updates) {
 
     // Execute the update
@@ -131,9 +149,10 @@ rule reserveSuccessImpliesInScope(env e, IAaveV4ConfigEngine.ReserveConfigUpdate
 }
 
 // ---------------------------------------------------------------------------
-// updateDynamicReserveConfigs — liquidationFee out of scope
+// updateDynamicReserveConfigs 
 // ---------------------------------------------------------------------------
 
+// Verify that the updateDynamicReserveConfigs function reverts if the liquidationFee is not KEEP_CURRENT
 rule dynUpdateSuccessImpliesFeeKept(env e,IAaveV4ConfigEngine.DynamicReserveConfigUpdate[] updates) 
 {
 
@@ -148,6 +167,7 @@ rule dynUpdateSuccessImpliesFeeKept(env e,IAaveV4ConfigEngine.DynamicReserveConf
 // Spoke-side: updateDynamicReserveConfigs
 // ---------------------------------------------------------------------------
 
+// Verify that the updateDynamicReserveConfigs function reverts if the spokeConfigurator does not match the pinned configurator
 rule dynUpdateSuccessImpliesAllMatched(env e, IAaveV4ConfigEngine.DynamicReserveConfigUpdate[] updates) {
     // Fetch the pinned spoke configurator
     address pinned = pinnedSpokeConfigurator();
@@ -164,6 +184,7 @@ rule dynUpdateSuccessImpliesAllMatched(env e, IAaveV4ConfigEngine.DynamicReserve
 // Spoke-side: updateReserveConfigs
 // ---------------------------------------------------------------------------
 
+// Verify that the updateReserveConfigs function reverts if the spokeConfigurator does not match the pinned configurator
 rule reserveSuccessImpliesAllMatched(env e, IAaveV4ConfigEngine.ReserveConfigUpdate[] updates) {
     // Fetch the pinned spoke configurator
     address pinned = pinnedSpokeConfigurator();
@@ -179,6 +200,7 @@ rule reserveSuccessImpliesAllMatched(env e, IAaveV4ConfigEngine.ReserveConfigUpd
 // Spoke-side: addDynamicReserveConfigs
 // ---------------------------------------------------------------------------
 
+// Verify that the addDynamicReserveConfigs function reverts if the spokeConfigurator does not match the pinned configurator
 rule dynAddSuccessImpliesAllMatched(env e, IAaveV4ConfigEngine.DynamicReserveConfigAddition[] additions) {
     // Fetch the pinned spoke configurator
     address pinned = pinnedSpokeConfigurator();
@@ -194,6 +216,7 @@ rule dynAddSuccessImpliesAllMatched(env e, IAaveV4ConfigEngine.DynamicReserveCon
 // Spoke-side: updateSpokeLiquidationConfigs
 // ---------------------------------------------------------------------------
 
+// Verify that the updateSpokeLiquidationConfigs function reverts if the spokeConfigurator does not match the pinned configurator
 rule liqSuccessImpliesAllMatched(env e, IAaveV4ConfigEngine.LiquidationConfigUpdate[] updates) {
     // Fetch the pinned spoke configurator
     address pinned = pinnedSpokeConfigurator();
@@ -217,6 +240,7 @@ definition dynUpdateZeroViolation(IAaveV4ConfigEngine.DynamicReserveConfigUpdate
     (u.collateralFactor != KEEP_CURRENT() && u.collateralFactor == 0) ||
     (u.maxLiquidationBonus != KEEP_CURRENT() && u.maxLiquidationBonus == 0);
 
+// Verify that the updateDynamicReserveConfigs function reverts if a zero write to a governed field causes a revert
 rule dynUpdateZeroReverts(env e, IAaveV4ConfigEngine.DynamicReserveConfigUpdate[] updates) {
 
     // Execute the update
@@ -226,11 +250,11 @@ rule dynUpdateZeroReverts(env e, IAaveV4ConfigEngine.DynamicReserveConfigUpdate[
     assert (exists uint256 i. i < updates.length && dynUpdateZeroViolation(updates[i])) => lastReverted;
 }
 
-// addDynamicReserveConfigs. No sentinel: an addition always writes both fields, 
-// so zero is unconditionally invalid.
+// addDynamicReserveConfigs
 definition dynAddZeroViolation(IAaveV4ConfigEngine.DynamicReserveConfigAddition a) returns bool =
     a.dynamicConfig.collateralFactor == 0 || a.dynamicConfig.maxLiquidationBonus == 0;
 
+// Verify that the addDynamicReserveConfigs function reverts if a zero write to a governed field causes a revert
 rule dynAddZeroReverts(env e, IAaveV4ConfigEngine.DynamicReserveConfigAddition[] additions) {
 
     // Execute the update
@@ -240,12 +264,13 @@ rule dynAddZeroReverts(env e, IAaveV4ConfigEngine.DynamicReserveConfigAddition[]
     assert (exists uint256 i. i < additions.length && dynAddZeroViolation(additions[i])) => lastReverted;
 }
 
-// updateSpokeLiquidationConfigs, sentinel-guarded.
+// updateSpokeLiquidationConfigs
 definition liqZeroViolation(IAaveV4ConfigEngine.LiquidationConfigUpdate u) returns bool =
     (u.targetHealthFactor != KEEP_CURRENT() && u.targetHealthFactor == 0) ||
     (u.healthFactorForMaxBonus != KEEP_CURRENT() && u.healthFactorForMaxBonus == 0) ||
     (u.liquidationBonusFactor != KEEP_CURRENT() && u.liquidationBonusFactor == 0);
 
+// Verify that the updateSpokeLiquidationConfigs function reverts if a zero write to a governed field causes a revert
 rule liqZeroReverts(env e, IAaveV4ConfigEngine.LiquidationConfigUpdate[] updates) {
 
     // Execute the update
@@ -255,13 +280,13 @@ rule liqZeroReverts(env e, IAaveV4ConfigEngine.LiquidationConfigUpdate[] updates
     assert (exists uint256 i. i < updates.length && liqZeroViolation(updates[i])) => lastReverted;
 }
 
-// updateLstPriceCaps. All three snapshot params are
-// required; a zero snapshotTimestamp would make the growth window meaningless.
+// updateLstPriceCaps. 
 definition lstZeroViolation(IRiskSteward.PriceCapLstUpdate u) returns bool =
     u.priceCapUpdateParams.snapshotRatio == 0 ||
     u.priceCapUpdateParams.snapshotTimestamp == 0 ||
     u.priceCapUpdateParams.maxYearlyRatioGrowthPercent == 0;
 
+// Verify that the updateLstPriceCaps function reverts if a zero write to a governed field causes a revert
 rule lstZeroReverts(env e, IRiskSteward.PriceCapLstUpdate[] updates) {
 
     // Execute the update
@@ -271,7 +296,7 @@ rule lstZeroReverts(env e, IRiskSteward.PriceCapLstUpdate[] updates) {
     assert (exists uint256 i. i < updates.length && lstZeroViolation(updates[i])) => lastReverted;
 }
 
-// updateStablePriceCaps 
+// Verify that the updateStablePriceCaps function reverts if a zero write to a governed field causes a revert
 rule stableZeroReverts(env e, IRiskSteward.PriceCapStableUpdate[] updates) {
 
     // Execute the update
@@ -281,7 +306,7 @@ rule stableZeroReverts(env e, IRiskSteward.PriceCapStableUpdate[] updates) {
     assert (exists uint256 i. i < updates.length && updates[i].priceCap == 0) => lastReverted;
 }
 
-// updatePendleDiscountRates
+// Verify that the updatePendleDiscountRates function reverts if a zero write to a governed field causes a revert
 rule pendleZeroReverts(env e, IRiskSteward.DiscountRatePendleUpdate[] updates) {
 
     // Execute the update
@@ -295,7 +320,7 @@ rule pendleZeroReverts(env e, IRiskSteward.DiscountRatePendleUpdate[] updates) {
 // Oracle-path gates with no other coverage
 // ===========================================================================
 
-// Snapshot ratio must be backward-looking.
+// Verify that the updateLstPriceCaps function reverts if the snapshot ratio is forward-looking
 rule lstSnapshotMustBeBackwardLooking(env e, IRiskSteward.PriceCapLstUpdate[] updates) {
 
     // Execute the update
@@ -307,8 +332,17 @@ rule lstSnapshotMustBeBackwardLooking(env e, IRiskSteward.PriceCapLstUpdate[] up
         => lastReverted;
 }
 
-// priceCap must not be KEEP_CURRENT
-// KEEP_CURRENT does not fit in int256 (max = 2^255 - 1). SafeCast reverts.
+// Verify that the updateLstPriceCaps function reverts if the adapter is left in a capped state
+rule lstCappedResultReverts(env e, IRiskSteward.PriceCapLstUpdate[] updates) {
+
+    // Execute the update
+    updateLstPriceCaps@withrevert(e, updates);
+
+    // Assert that an adapter left in a capped state causes a revert
+    assert (exists uint256 i. i < updates.length && adapterCapped[updates[i].oracle]) => lastReverted;
+}
+
+// Verify that the updateStablePriceCaps function reverts if the priceCap is KEEP_CURRENT
 rule stableRejectsKeepCurrent(env e, IRiskSteward.PriceCapStableUpdate[] updates) {
 
     // Execute the update
@@ -319,8 +353,7 @@ rule stableRejectsKeepCurrent(env e, IRiskSteward.PriceCapStableUpdate[] updates
         => lastReverted;
 }
 
-// discountRate must not be KEEP_CURRENT
-// KEEP_CURRENT does not fit in int256 (max = 2^255 - 1). SafeCast reverts.
+// Verify that the updatePendleDiscountRates function reverts if the discountRate is KEEP_CURRENT
 rule pendleRejectsKeepCurrent(env e, IRiskSteward.DiscountRatePendleUpdate[] updates) {
 
     // Execute the update

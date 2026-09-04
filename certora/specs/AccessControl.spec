@@ -2,7 +2,7 @@
  * RiskSteward — Access Control.
  *
  * Property: only RISK_COUNCIL can call update entrypoints, only the owner can
- * change config, RISK_COUNCIL never moves, and no call can name a restricted address.
+ * change config, and no call can name a restricted address.
  */
 
 methods {
@@ -62,7 +62,7 @@ rule ownerOnly(method f, env e) filtered { f -> isOwnerEntrypoint(f) } {
 
 // ---------------------------------------------------------------------------
 // The owner cannot call a council entrypoint unless the owner is
-// also RISK_COUNCIL. 
+// also RISK_COUNCIL.
 // ---------------------------------------------------------------------------
 
 rule ownerCannotCallCouncilEntrypoints(method f, env e) filtered { f -> isCouncilEntrypoint(f) }
@@ -81,6 +81,7 @@ rule ownerCannotCallCouncilEntrypoints(method f, env e) filtered { f -> isCounci
 // Restricted-address gate — target-side authorization
 // ---------------------------------------------------------------------------
 
+// Verify that restricted addresses cause a revert for the updateHubAssetIRs entrypoint.
 rule restrictedHubAssetIRsReverts(env e, IAaveV4ConfigEngine.AssetConfigUpdate[] updates, uint256 i) {
     require i < updates.length,"Make sure i is in bounds";
 
@@ -94,6 +95,7 @@ rule restrictedHubAssetIRsReverts(env e, IAaveV4ConfigEngine.AssetConfigUpdate[]
     assert restricted => lastReverted;
 }
 
+// Verify that restricted addresses cause a revert for the updateHubSpokeCaps entrypoint.
 rule restrictedHubSpokeCapsReverts(env e, IAaveV4ConfigEngine.SpokeConfigUpdate[] updates, uint256 i) {
     require i < updates.length,"Make sure i is in bounds";
 
@@ -109,6 +111,7 @@ rule restrictedHubSpokeCapsReverts(env e, IAaveV4ConfigEngine.SpokeConfigUpdate[
     assert restricted => lastReverted;
 }
 
+// Verify that restricted addresses cause a revert for the updateReserveConfigs entrypoint.
 rule restrictedReserveConfigsReverts(env e, IAaveV4ConfigEngine.ReserveConfigUpdate[] updates, uint256 i) {
     require i < updates.length,"Make sure i is in bounds";
 
@@ -124,6 +127,7 @@ rule restrictedReserveConfigsReverts(env e, IAaveV4ConfigEngine.ReserveConfigUpd
     assert restricted => lastReverted;
 }
 
+// Verify that restricted addresses cause a revert for the updateDynamicReserveConfigs entrypoint.
 rule restrictedDynamicReserveConfigsReverts(env e, IAaveV4ConfigEngine.DynamicReserveConfigUpdate[] updates, uint256 i) {
     require i < updates.length,"Make sure i is in bounds";
 
@@ -139,6 +143,7 @@ rule restrictedDynamicReserveConfigsReverts(env e, IAaveV4ConfigEngine.DynamicRe
     assert restricted => lastReverted;
 }
 
+// Verify that restricted addresses cause a revert for the addDynamicReserveConfigs entrypoint.
 rule restrictedAddDynamicReserveConfigsReverts(env e, IAaveV4ConfigEngine.DynamicReserveConfigAddition[] additions, uint256 i) {
     require i < additions.length,"Make sure i is in bounds";
 
@@ -154,7 +159,7 @@ rule restrictedAddDynamicReserveConfigsReverts(env e, IAaveV4ConfigEngine.Dynami
     assert restricted => lastReverted;
 }
 
-// Liquidation config is spoke-global, so the spoke is the only address named.
+// Verify that restricted addresses cause a revert for the updateSpokeLiquidationConfigs entrypoint.
 rule restrictedSpokeLiquidationConfigsReverts(env e, IAaveV4ConfigEngine.LiquidationConfigUpdate[] updates, uint256 i) {
     require i < updates.length,"Make sure i is in bounds";
 
@@ -168,6 +173,7 @@ rule restrictedSpokeLiquidationConfigsReverts(env e, IAaveV4ConfigEngine.Liquida
     assert restricted => lastReverted;
 }
 
+// Verify that restricted addresses cause a revert for the updateLstPriceCaps entrypoint.
 rule restrictedLstPriceCapsReverts(env e, IRiskSteward.PriceCapLstUpdate[] updates, uint256 i) {
     require i < updates.length,"Make sure i is in bounds";
 
@@ -181,6 +187,7 @@ rule restrictedLstPriceCapsReverts(env e, IRiskSteward.PriceCapLstUpdate[] updat
     assert restricted => lastReverted;
 }
 
+// Verify that restricted addresses cause a revert for the updateStablePriceCaps entrypoint.
 rule restrictedStablePriceCapsReverts(env e, IRiskSteward.PriceCapStableUpdate[] updates, uint256 i) {
     require i < updates.length,"Make sure i is in bounds";
 
@@ -194,6 +201,7 @@ rule restrictedStablePriceCapsReverts(env e, IRiskSteward.PriceCapStableUpdate[]
     assert restricted => lastReverted;
 }
 
+// Verify that restricted addresses cause a revert for the updatePendleDiscountRates entrypoint.
 rule restrictedPendleDiscountRatesReverts(env e, IRiskSteward.DiscountRatePendleUpdate[] updates, uint256 i) {
     require i < updates.length,"Make sure i is in bounds";
 
@@ -207,6 +215,7 @@ rule restrictedPendleDiscountRatesReverts(env e, IRiskSteward.DiscountRatePendle
     assert restricted => lastReverted;
 }
 
+// Verify that setAddressRestricted touches only its key address.
 rule setAddressRestrictedTouchesOnlyItsKey(env e, address a, bool v, address other) {
     require other != a;
     

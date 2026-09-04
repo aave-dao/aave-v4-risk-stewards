@@ -94,14 +94,14 @@ definition dynAddKeyIs(IAaveV4ConfigEngine.DynamicReserveConfigAddition u, addre
 // Hub asset IR: key (hub, asset), four width-matched sentinel fields.
 // ---------------------------------------------------------------------------
 
+// Verify that the hub asset IR fields stamp to tx time, KEEP_CURRENT preserves the stamp
 rule hubAssetIrDebounceStamping(env e, address otherHub, address otherAsset) {
     // Create a valid AssetConfigUpdate batch where index 0 is the element under test
     IAaveV4ConfigEngine.AssetConfigUpdate[] updates;
     require otherHub != updates[0].hub || otherAsset != updates[0].underlying,"otherHub and otherAsset must be different from the tested key";
 
     // Require siblings to name neither the tested key nor the other key
-    require forall uint256 j. (j != 0 && j < updates.length)
-        => !irKeyIs(updates[j], updates[0].hub, updates[0].underlying);
+    require forall uint256 j. (j != 0 && j < updates.length) => !irKeyIs(updates[j], updates[0].hub, updates[0].underlying);
     require forall uint256 j. j < updates.length => !irKeyIs(updates[j], otherHub, otherAsset);
 
     // Fetch the HubAssetDebounce of the tested key and of the other key before the update
@@ -136,6 +136,7 @@ rule hubAssetIrDebounceStamping(env e, address otherHub, address otherAsset) {
 // Hub-spoke caps: key (hub, spoke, asset), addCap and drawCap.
 // ---------------------------------------------------------------------------
 
+// Verify that the hub spoke caps fields stamp to tx time, KEEP_CURRENT preserves the stamp
 rule hubSpokeCapsDebounceStamping(env e, address otherHub, address otherSpoke, address otherAsset) {
     // Create a valid SpokeConfigUpdate batch; index 0 is the element under test
     IAaveV4ConfigEngine.SpokeConfigUpdate[] updates;
@@ -173,6 +174,7 @@ rule hubSpokeCapsDebounceStamping(env e, address otherHub, address otherSpoke, a
 // Reserve config: key (spoke, hub, asset), collateralRisk.
 // ---------------------------------------------------------------------------
 
+// Verify that the reserve config fields stamp to tx time, KEEP_CURRENT preserves the stamp
 rule reserveDebounceStamping(env e, address otherSpoke, address otherHub, address otherAsset) {
     // Create a valid ReserveConfigUpdate batch; index 0 is the element under test
     IAaveV4ConfigEngine.ReserveConfigUpdate[] updates;
@@ -208,6 +210,7 @@ rule reserveDebounceStamping(env e, address otherSpoke, address otherHub, addres
 // Dynamic update: shared key (spoke, hub, asset), two governed fields.
 // ---------------------------------------------------------------------------
 
+// Verify that the dynamic update fields stamp to tx time, KEEP_CURRENT preserves the stamp
 rule dynamicUpdateDebounceStamping(env e, address otherSpoke, address otherHub, address otherAsset) {
     // Create a valid DynamicReserveConfigUpdate batch; index 0 is the element under test
     IAaveV4ConfigEngine.DynamicReserveConfigUpdate[] updates;
@@ -246,6 +249,7 @@ rule dynamicUpdateDebounceStamping(env e, address otherSpoke, address otherHub, 
 // Spoke-global liquidation config: key spoke, three governed fields.
 // ---------------------------------------------------------------------------
 
+// Verify that the spoke liquidation config fields stamp to tx time, KEEP_CURRENT preserves the stamp
 rule liquidationDebounceStamping(env e, address otherSpoke) {
     // Create a valid LiquidationConfigUpdate batch; index 0 is the element under test
     IAaveV4ConfigEngine.LiquidationConfigUpdate[] updates;
@@ -287,7 +291,7 @@ rule dynamicAdditionStampsBoth(env e, address otherSpoke, address otherHub, addr
     require otherSpoke != additions[0].spoke || otherHub != additions[0].hub
         || otherAsset != additions[0].underlying,"otherSpoke, otherHub and otherAsset must be different from the tested key";
 
-    // Require siblings to name the other key
+    // Require siblings to not name the other key
     require forall uint256 j. j < additions.length
         => !dynAddKeyIs(additions[j], otherSpoke, otherHub, otherAsset);
 
@@ -306,7 +310,7 @@ rule dynamicAdditionStampsBoth(env e, address otherSpoke, address otherHub, addr
     assert to_mathint(after.collateralFactor) == to_mathint(e.block.timestamp)
         && to_mathint(after.maxLiquidationBonus) == to_mathint(e.block.timestamp);
 
-    // Verify other (spoke,hub,asset) pairs debounces are not updated
+    // Verify other (spoke,hub,asset) pairs debounces are not updated 
     assert otherAfter.collateralFactor == otherBefore.collateralFactor && otherAfter.maxLiquidationBonus == otherBefore.maxLiquidationBonus;
 }
 
@@ -314,7 +318,7 @@ rule dynamicAdditionStampsBoth(env e, address otherSpoke, address otherHub, addr
 // Debounce check enforcement 
 // ---------------------------------------------------------------------------
 
-// Four fields, each with its width-matched sentinel.
+// Verify that the hub asset IR fields respected minDelay
 rule hubAssetIrDebounceEnforced(env e) {
     // Create a valid AssetConfigUpdate batch; index 0 is the element under test
     IAaveV4ConfigEngine.AssetConfigUpdate[] updates;
@@ -341,6 +345,7 @@ rule hubAssetIrDebounceEnforced(env e) {
              >= to_mathint(rate.rateGrowthAfterOptimal.minDelay);
 }
 
+// Verify that the hub spoke caps fields respected minDelay
 rule hubSpokeCapsDebounceEnforced(env e) {
     // Create a valid SpokeConfigUpdate batch; index 0 is the element under test
     IAaveV4ConfigEngine.SpokeConfigUpdate[] updates;
@@ -359,6 +364,7 @@ rule hubSpokeCapsDebounceEnforced(env e) {
         => to_mathint(e.block.timestamp) - to_mathint(before.drawCap) >= to_mathint(cap.drawCap.minDelay);
 }
 
+// Verify that the reserve config fields respected minDelay
 rule reserveDebounceEnforced(env e) {
     // Create a valid ReserveConfigUpdate batch; index 0 is the element under test
     IAaveV4ConfigEngine.ReserveConfigUpdate[] updates;
@@ -371,10 +377,11 @@ rule reserveDebounceEnforced(env e) {
     updateReserveConfigs(e, updates);
 
     // Assert that a successful non-sentinel write respected minDelay
-    assert updates[0].collateralRisk != KEEP_CURRENT() => to_mathint(e.block.timestamp) - to_mathint(before.collateralRisk) >= minDelay;
+    assert updates[0].collateralRisk != KEEP_CURRENT() 
+        => to_mathint(e.block.timestamp) - to_mathint(before.collateralRisk) >= minDelay;
 }
 
-// Bounded by `_config.spoke.dynamicUpdate`; the add path uses a separate bound, below.
+// Verify that the dynamic update fields respected minDelay
 rule dynamicUpdateDebounceEnforced(env e) {
     // Create a valid DynamicReserveConfigUpdate batch; index 0 is the element under test
     IAaveV4ConfigEngine.DynamicReserveConfigUpdate[] updates;
@@ -395,8 +402,7 @@ rule dynamicUpdateDebounceEnforced(env e) {
              >= to_mathint(bounds.maxLiquidationBonus.minDelay);
 }
 
-// Unconditional: an addition always writes both fields, so `_validateParamUpdate` never
-// takes its KEEP_CURRENT early-return on this path. 
+// Verify that the dynamic addition fields respected minDelay
 rule dynamicAdditionDebounceEnforced(env e) {
     // Create a valid DynamicReserveConfigAddition batch; index 0 is the element under test
     IAaveV4ConfigEngine.DynamicReserveConfigAddition[] additions;
@@ -413,7 +419,7 @@ rule dynamicAdditionDebounceEnforced(env e) {
     assert to_mathint(e.block.timestamp) - to_mathint(before.maxLiquidationBonus) >= to_mathint(bounds.maxLiquidationBonus.minDelay);
 }
 
-// The rule that would catch a council moving targetHealthFactor every block.
+// Verify that the spoke liquidation config fields respected minDelay
 rule liquidationDebounceEnforced(env e) {
     // Create a valid LiquidationConfigUpdate batch; index 0 is the element under test
     IAaveV4ConfigEngine.LiquidationConfigUpdate[] updates;
@@ -441,7 +447,7 @@ rule liquidationDebounceEnforced(env e) {
 // Oracle paths 
 // ---------------------------------------------------------------------------
 
-// LST enforcement checks
+// Verify that the LST oracle fields respected minDelay
 rule lstOracleDebounceEnforced(env e) {
     // Create a valid PriceCapLstUpdate batch; index 0 is the element under test
     IRiskSteward.PriceCapLstUpdate[] updates;
@@ -457,7 +463,7 @@ rule lstOracleDebounceEnforced(env e) {
     assert to_mathint(e.block.timestamp) - to_mathint(before) >= minDelay;
 }
 
-// Stable enforcement checks
+// Verify that the stable oracle fields respected minDelay
 rule stableOracleDebounceEnforced(env e) {
     // Create a valid PriceCapStableUpdate batch; index 0 is the element under test
     IRiskSteward.PriceCapStableUpdate[] updates;
@@ -469,12 +475,11 @@ rule stableOracleDebounceEnforced(env e) {
     // Execute the update
     updateStablePriceCaps(e, updates);
 
-    // Assert that a successful non-sentinel write respected minDelay
-    assert updates[0].priceCap != KEEP_CURRENT()
-        => to_mathint(e.block.timestamp) - to_mathint(before) >= minDelay;
+    // Assert that a successful write respected minDelay.
+    assert to_mathint(e.block.timestamp) - to_mathint(before) >= minDelay;
 }
 
-// Pendle enforcement checks
+// Verify that the pendle oracle fields respected minDelay
 rule pendleOracleDebounceEnforced(env e) {
     // Create a valid DiscountRatePendleUpdate batch; index 0 is the element under test
     IRiskSteward.DiscountRatePendleUpdate[] updates;
@@ -486,11 +491,11 @@ rule pendleOracleDebounceEnforced(env e) {
     // Execute the update
     updatePendleDiscountRates(e, updates);
 
-    // Assert that a successful non-sentinel write respected minDelay
-    assert updates[0].discountRate != KEEP_CURRENT() => to_mathint(e.block.timestamp) - to_mathint(before) >= minDelay;
+    // Assert that a successful write respected minDelay. 
+    assert to_mathint(e.block.timestamp) - to_mathint(before) >= minDelay;
 }
 
-// No method outside the nine update entrypoints can move a debounce stamp. 
+// Verify that no debounce stamp moved except for the updaters
 rule debouncesIntactExceptUpdaters(method f, env e,address hub, address spoke, address asset, address oracle)
     filtered { 
         f -> f.selector != sig:updateHubAssetIRs(IAaveV4ConfigEngine.AssetConfigUpdate[]).selector &&
