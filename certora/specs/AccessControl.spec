@@ -45,8 +45,7 @@ rule councilOnly(method f, env e) filtered { f -> isCouncilEntrypoint(f) } {
 }
 
 // ---------------------------------------------------------------------------
-// The owner cannot call a council entrypoint unless the owner is
-// also RISK_COUNCIL.
+// The owner half: any sender != owner reverts on the owner-gated entrypoints.
 // ---------------------------------------------------------------------------
 
 rule ownerOnly(method f, env e) filtered { f -> isOwnerEntrypoint(f) } {

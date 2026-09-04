@@ -8,7 +8,7 @@ import {AssetInterestRateStrategy} from 'aave-v4/hub/AssetInterestRateStrategy.s
 /*
  * Scene contracts for hubImmutability.spec.
  *
- * These are pass-through wrappers, NOT simplifications: every function body on
+ * These are pass-through wrappers, not simplifications: every function body on
  * the write path is the real aave-v4 code. They exist only to fix import
  * resolution. The aave-v4 sources import each other as 'src/...', which this
  * repo resolves with a context-scoped remapping that solc only applies to
