@@ -1,0 +1,103 @@
+name: Certora
+
+# solc 0.8.28 and Java 21 are pinned once here. Certora CLI is 8.19.1.
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  discover:
+    name: Discover configs
+    runs-on: ubuntu-latest
+    outputs:
+      list: ${{ steps.find.outputs.list }}
+    steps:
+      - uses: actions/checkout@v4
+
+      # Fork PRs get no secrets. Fail once here, before starting the matrix.
+      - name: Check CERTORAKEY
+        env:
+          CERTORAKEY: ${{ secrets.CERTORAKEY }}
+        run: |
+          if [ -z "$CERTORAKEY" ]; then
+            echo "::error::CERTORAKEY is not set. Fork PRs do not receive secrets."
+            exit 1
+          fi
+
+      - id: find
+        name: Build verification matrix
+        shell: bash
+        run: |
+          mapfile -t confs < <(find certora/confs -type f -name '*.conf' -print | sort)
+
+          if (( ${#confs[@]} == 0 )); then
+            echo "::error::No Certora configs found under certora/confs."
+            exit 1
+          fi
+
+          # Catch stale spec paths left behind by config/spec/folder renames.
+          for conf in "${confs[@]}"; do
+            spec=$(sed -nE 's|^[[:space:]]*"verify"[[:space:]]*:[[:space:]]*"[^"]+:([^"]+)".*$|\1|p' "$conf")
+
+            if [ -z "$spec" ]; then
+              echo "::error file=$conf::Missing or unreadable verify target."
+              exit 1
+            fi
+
+            if [ ! -f "$spec" ]; then
+              echo "::error file=$conf::Verify target does not exist: $spec"
+              exit 1
+            fi
+          done
+
+          printf 'list=%s\n' "$(printf '%s\n' "${confs[@]}" | jq -Rnc '[inputs] | map({conf:.})')" >> "$GITHUB_OUTPUT"
+
+  verify:
+    name: Verify ${{ matrix.conf }}
+    needs: discover
+    runs-on: ubuntu-latest
+    # Leave room for a conf's 7200s global timeout plus setup/build time.
+    timeout-minutes: 150
+    strategy:
+      fail-fast: false
+      max-parallel: 16
+      matrix:
+        include: ${{ fromJson(needs.discover.outputs.list) }}
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Install python
+        uses: actions/setup-python@v5
+        with: { python-version: "3.11" }
+
+      # Java >= 19 is mandatory: configs using split_rules run the local
+      # Typechecker jar to enumerate rules, and that path raises if java is too old.
+      - name: Install java
+        uses: actions/setup-java@v4
+        with: { java-version: "21", java-package: jre, distribution: temurin }
+
+      - name: Install certora cli
+        run: pip install certora-cli==8.19.1
+
+      # Every conf asks for the compiler by the exact name solc8.28.
+      - name: Install solc
+        run: |
+          wget -q https://github.com/ethereum/solidity/releases/download/v0.8.28/solc-static-linux
+          chmod +x solc-static-linux
+          sudo mv solc-static-linux /usr/local/bin/solc8.28
+
+      # --wait_for_results all is what makes certoraRun exit non-zero on a violated rule.
+      - name: Verify ${{ matrix.conf }}
+        run: certoraRun ${{ matrix.conf }} --wait_for_results all
+        env:
+          CERTORAKEY: ${{ secrets.CERTORAKEY }}
