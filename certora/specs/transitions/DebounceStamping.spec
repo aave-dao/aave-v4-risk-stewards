@@ -5,9 +5,12 @@
  *            and leaves KEEP_CURRENT siblings and every other key untouched.
  * Enforcement: stamp timestamp is respected => a successful write means minDelay had
  *            elapsed since the field's own previous stamp.
+ * Preservation: each mapping can only be changed by its designated updaters;
+ *            unrelated updaters preserve every timestamp at an arbitrary key.
  *
- * Each rule tests element 0 of the batch and reads the rest through the quantified
- * key-isolation requires below, so the properties hold for batches.
+ * Stamping and enforcement rules inspect element 0, with key-isolation requires
+ * where needed. Preservation rules quantify over methods and arbitrary keys.
+ * Batch exploration is bounded by the configuration's loop unrolling.
  */
 
 methods {
@@ -493,6 +496,105 @@ rule pendleOracleDebounceEnforced(env e) {
 
     // Assert that a successful write respected minDelay. 
     assert to_mathint(e.block.timestamp) - to_mathint(before) >= minDelay;
+}
+
+// ---------------------------------------------------------------------------
+// Mapping preservation — include every method except this mapping's writers.
+// The keys are arbitrary and need not differ from any submitted update's keys.
+// ---------------------------------------------------------------------------
+
+rule hubAssetDebounceIntactExceptWriters(method f, env e, address hub, address asset)
+    filtered {
+        f -> f.selector != sig:updateHubAssetIRs(IAaveV4ConfigEngine.AssetConfigUpdate[]).selector
+    }
+{
+    IRiskSteward.HubAssetDebounce before = getHubAssetDebounce(hub, asset);
+
+    calldataarg args;
+    f(e, args);
+
+    IRiskSteward.HubAssetDebounce after = getHubAssetDebounce(hub, asset);
+    assert after.optimalUsageRatio == before.optimalUsageRatio
+        && after.baseDrawnRate == before.baseDrawnRate
+        && after.rateGrowthBeforeOptimal == before.rateGrowthBeforeOptimal
+        && after.rateGrowthAfterOptimal == before.rateGrowthAfterOptimal;
+}
+
+rule hubSpokeAssetDebounceIntactExceptWriters(method f, env e, address hub, address spoke, address asset)
+    filtered {
+        f -> f.selector != sig:updateHubSpokeCaps(IAaveV4ConfigEngine.SpokeConfigUpdate[]).selector
+    }
+{
+    IRiskSteward.HubSpokeAssetDebounce before = getHubSpokeAssetDebounce(hub, spoke, asset);
+
+    calldataarg args;
+    f(e, args);
+
+    IRiskSteward.HubSpokeAssetDebounce after = getHubSpokeAssetDebounce(hub, spoke, asset);
+    assert after.addCap == before.addCap && after.drawCap == before.drawCap;
+}
+
+rule spokeReserveDebounceIntactExceptWriters(method f, env e, address spoke, address hub, address asset)
+    filtered {
+        f -> f.selector != sig:updateReserveConfigs(IAaveV4ConfigEngine.ReserveConfigUpdate[]).selector
+    }
+{
+    IRiskSteward.SpokeReserveDebounce before = getSpokeReserveDebounce(spoke, hub, asset);
+
+    calldataarg args;
+    f(e, args);
+
+    IRiskSteward.SpokeReserveDebounce after = getSpokeReserveDebounce(spoke, hub, asset);
+    assert after.collateralRisk == before.collateralRisk;
+}
+
+// Dynamic updates and additions intentionally share the same cooldown mapping.
+rule spokeDynamicDebounceIntactExceptWriters(method f, env e, address spoke, address hub, address asset)
+    filtered {
+        f -> f.selector != sig:updateDynamicReserveConfigs(IAaveV4ConfigEngine.DynamicReserveConfigUpdate[]).selector
+            && f.selector != sig:addDynamicReserveConfigs(IAaveV4ConfigEngine.DynamicReserveConfigAddition[]).selector
+    }
+{
+    IRiskSteward.SpokeDynamicDebounce before = getSpokeDynamicDebounce(spoke, hub, asset);
+
+    calldataarg args;
+    f(e, args);
+
+    IRiskSteward.SpokeDynamicDebounce after = getSpokeDynamicDebounce(spoke, hub, asset);
+    assert after.collateralFactor == before.collateralFactor
+        && after.maxLiquidationBonus == before.maxLiquidationBonus;
+}
+
+rule spokeLiquidationDebounceIntactExceptWriters(method f, env e, address spoke)
+    filtered {
+        f -> f.selector != sig:updateSpokeLiquidationConfigs(IAaveV4ConfigEngine.LiquidationConfigUpdate[]).selector
+    }
+{
+    IRiskSteward.SpokeLiquidationDebounce before = getSpokeLiquidationDebounce(spoke);
+
+    calldataarg args;
+    f(e, args);
+
+    IRiskSteward.SpokeLiquidationDebounce after = getSpokeLiquidationDebounce(spoke);
+    assert after.targetHealthFactor == before.targetHealthFactor
+        && after.healthFactorForMaxBonus == before.healthFactorForMaxBonus
+        && after.liquidationBonusFactor == before.liquidationBonusFactor;
+}
+
+// All three oracle families write the shared oracle cooldown mapping.
+rule oracleDebounceIntactExceptWriters(method f, env e, address oracle)
+    filtered {
+        f -> f.selector != sig:updateLstPriceCaps(IRiskSteward.PriceCapLstUpdate[]).selector
+            && f.selector != sig:updateStablePriceCaps(IRiskSteward.PriceCapStableUpdate[]).selector
+            && f.selector != sig:updatePendleDiscountRates(IRiskSteward.DiscountRatePendleUpdate[]).selector
+    }
+{
+    uint40 before = getOracleDebounce(oracle);
+
+    calldataarg args;
+    f(e, args);
+
+    assert getOracleDebounce(oracle) == before;
 }
 
 // Verify that no debounce stamp moved except for the updaters

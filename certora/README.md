@@ -6,7 +6,7 @@ parameters without a governance vote.
 
 The rules check who may call the steward, the debounce windows it keeps, the
 values it writes into the Aave V4 Hub and Spoke, and the fields it must never
-touch. 103 rules across eight configurations.
+touch. 109 rules across eight configurations.
 
 ## How the proofs are set up
 
@@ -92,6 +92,7 @@ Config: [`confs/DebounceStamping.conf`](./confs/DebounceStamping.conf). Spec: [`
 | `dynamicAdditionStampsBoth`     | An addition consumes both shared dynamic debounce windows.                       |
 | `*DebounceEnforced`             | A successful non-sentinel write means the configured `minDelay` had elapsed since that field's own previous stamp. Nine rules, covering the six protocol paths and the three oracle families. |
 | `debouncesIntactExceptUpdaters` | No non-updater method moves any of the six debounce mappings.                    |
+| `*DebounceIntactExceptWriters` | Each mapping is preserved by every method outside its designated writer set, including unrelated council updaters. Six rules; dynamic update/addition share one mapping, and the three oracle families share another. |
 
 ## Immutability
 
