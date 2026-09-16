@@ -1,6 +1,7 @@
 # Compiler files
 cache/
 out/
+.certora_internal/
 
 # Commonly ignored directories
 .logs/
