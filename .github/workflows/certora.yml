@@ -1,0 +1,52 @@
+name: Certora
+
+on:
+  pull_request:
+    branches:
+      - "**"
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  id-token: write
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      statuses: write
+      pull-requests: write
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - uses: Certora/certora-run-action@1bb1d5e60f00bb35a93424bfcae2c3c8785537f7
+        with:
+          cli-version: 8.19.1
+          configurations: |-
+            certora/confs/AccessControl.conf
+            certora/confs/configIntegrity.conf
+            certora/confs/DebounceStamping.conf
+            certora/confs/Immutability.conf
+            certora/confs/OracleProperties.conf
+            certora/confs/PercentMulDownEquivalence.conf
+            certora/confs/ProtocolEffects.conf
+            certora/confs/RevertConditions.conf
+          solc-versions: 0.8.28
+          comment-fail-only: false
+          solc-remove-version-prefix: "0."
+          job-name: "Certora Prover Run"
+          certora-key: ${{ secrets.CERTORAKEY }}
+          install-java: true
+          auto-rerun-timeouts: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
