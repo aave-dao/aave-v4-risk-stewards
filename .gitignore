@@ -6,8 +6,8 @@ out/
 .logs/
 .ignore/
 
-# Ignores broadcast logs
-/broadcast/
+# Ignores development broadcast logs
+broadcast/
 
 # Dotenv file
 .env
@@ -16,6 +16,8 @@ out/
 
 node_modules/
 lcov*
+
+pnpm-workspace.yaml
 
 report/
 

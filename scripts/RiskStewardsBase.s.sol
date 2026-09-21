@@ -192,7 +192,7 @@ abstract contract RiskStewardsBase is ProtocolV4TestBase {
 
     string[] memory inputs = new string[](7);
     inputs[0] = 'npx';
-    inputs[1] = '@aave-dao/aave-helpers-js@^1.2.1';
+    inputs[1] = '@aave-dao/aave-helpers-js@^1.6.0';
     inputs[2] = 'diff-v4-snapshots';
     inputs[3] = beforePath;
     inputs[4] = afterPath;
