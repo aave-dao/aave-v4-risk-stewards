@@ -47,3 +47,39 @@ jobs:
         uses: aave-dao/github-workflows/.github/actions/comment-artifact@main
         with:
           nameSuffix: "default"
+
+  test-base:
+    name: Foundry build n test (base-anvil)
+    runs-on: ubuntu-latest
+    env:
+      BASE_FOUNDRY_VERSION: v1.1.0
+      BASE_FOUNDRY_SHA256: b87ce712be86a3a41791a8efced71f0cb8d7b3aa735ce274dc75a7a63550a9fc
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - uses: aave-dao/action-rpc-env@main
+        with:
+          ALCHEMY_API_KEY: ${{ secrets.ALCHEMY_API_KEY }}
+          QUICKNODE_TOKEN: ${{ secrets.QUICKNODE_TOKEN }}
+          QUICKNODE_ENDPOINT_NAME: ${{ secrets.QUICKNODE_ENDPOINT_NAME }}
+
+      # The Base V4 equities are B20 tokens: node-native, account code the single byte 0xef.
+      # Upstream forge (the job above) cannot execute them, so every asset symbol in a Base diff
+      # report comes out `<unknown>` and the test that writes one self-skips there. Bump the
+      # version and checksum together.
+      - name: Install base-anvil
+        run: |
+          set -euo pipefail
+          f=foundry_${BASE_FOUNDRY_VERSION}_linux_amd64.tar.gz
+          curl -sSfLO "https://github.com/base/base-anvil/releases/download/$BASE_FOUNDRY_VERSION/$f"
+          echo "$BASE_FOUNDRY_SHA256  $f" | sha256sum -c -
+          mkdir -p "$HOME/.base-foundry" && tar -xzf "$f" -C "$HOME/.base-foundry"
+          echo "$HOME/.base-foundry" >> "$GITHUB_PATH"
+          "$HOME/.base-foundry/forge" --version
+
+      - name: Run Base tests
+        run: forge test --match-path 'tests/generators/BaseExample.t.sol' -vv
+        env:
+          FOUNDRY_BASE: "true"

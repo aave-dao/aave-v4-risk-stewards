@@ -5,6 +5,7 @@ import 'solidity-utils/contracts/utils/ScriptUtils.sol';
 
 import {GovernanceV3Ethereum} from 'aave-address-book/GovernanceV3Ethereum.sol';
 import {GovernanceV3Avalanche} from 'aave-address-book/GovernanceV3Avalanche.sol';
+import {GovernanceV3Base} from 'aave-address-book/GovernanceV3Base.sol';
 
 import {RiskSteward} from 'src/RiskSteward.sol';
 
@@ -36,6 +37,17 @@ contract DeployAvalanche is AvalancheScript {
   function run() external {
     vm.startBroadcast();
     DeployRiskStewards._deployRiskSteward(RISK_COUNCIL, GovernanceV3Avalanche.EXECUTOR_LVL_1);
+    vm.stopBroadcast();
+  }
+}
+
+// make deploy-ledger contract=scripts/deploy/DeployRiskSteward.s.sol:DeployBase chain=base
+contract DeployBase is BaseScript {
+  address internal constant RISK_COUNCIL = 0xfbeB4AcB31340bA4de9C87B11dfBf7e2bc8C0bF1;
+
+  function run() external {
+    vm.startBroadcast();
+    DeployRiskStewards._deployRiskSteward(RISK_COUNCIL, GovernanceV3Base.EXECUTOR_LVL_1);
     vm.stopBroadcast();
   }
 }
