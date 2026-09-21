@@ -41,7 +41,7 @@ git-diff :
 
 # Deploy
 deploy-ledger :; FOUNDRY_PROFILE=${chain} forge script ${contract} --rpc-url ${chain} $(if ${dry},--sender 0x25F2226B597E8F9514B3F68F00f494cF4f286491 -vvvv, --ledger --mnemonic-indexes ${MNEMONIC_INDEX} --sender ${LEDGER_SENDER} --verify --verifier etherscan -vvvv --slow --broadcast)
-deploy-pk :; FOUNDRY_PROFILE=${chain} forge script ${contract} --rpc-url ${chain} $(if ${dry},--sender 0x25F2226B597E8F9514B3F68F00f494cF4f286491 -vvvv, --private-key ${PRIVATE_KEY} --verify --verifier etherscan -vvvv --slow --broadcast --verifier etherscan)
+deploy-pk :; FOUNDRY_PROFILE=${chain} forge script ${contract} --rpc-url ${chain} $(if ${dry},--sender 0x25F2226B597E8F9514B3F68F00f494cF4f286491 -vvvv, --private-key ${PRIVATE_KEY} --verify --verifier etherscan -vvvv --slow --broadcast)
 deploy-account :; FOUNDRY_PROFILE=${chain} forge script ${contract} --rpc-url ${chain} $(if ${dry},--sender 0x25F2226B597E8F9514B3F68F00f494cF4f286491 -vvvv, --account ${account} --verify --verifier etherscan -vvvv --slow --broadcast)
 
 # make run-script network=mainnet contract=scripts/examples/EthereumExample.sol:EthereumExample broadcast=false generate_diff=true skip_timelock=true

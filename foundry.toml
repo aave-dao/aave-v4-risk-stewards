@@ -27,6 +27,7 @@ seed = "0x640"
 mainnet = "${RPC_MAINNET}"
 avalanche = "${RPC_AVALANCHE}"
 base = "${RPC_BASE}"
+arc = "${RPC_ARC}"
 
 [etherscan]
 mainnet = { key = "${ETHERSCAN_API_KEY}", chainId = 1 }
