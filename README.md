@@ -108,6 +108,15 @@ pnpm prepare
 forge test
 ```
 
+The Base equities are [B20](https://github.com/base/base-anvil) tokens: node-native, with account
+code set to the single byte `0xef`. Upstream forge cannot execute them, so every asset symbol in a
+Base diff report comes out `<unknown>` and `BaseExample.t.sol` skips the test that writes one. Run
+it with base-anvil's forge instead:
+
+```sh
+FOUNDRY_BASE=true /path/to/base-foundry/forge test --match-path tests/generators/BaseExample.t.sol
+```
+
 <br>
 
 ## Coverage
@@ -136,7 +145,7 @@ CLI to generate Aave v4 RiskSteward payloads
 Options:
   -V, --version              output the version number
   -f, --force                force creation (might overwrite existing files)
-  -c, --chains <chains...>   (choices: "AaveV4Ethereum")
+  -c, --chains <chains...>   (choices: "AaveV4Ethereum", "AaveV4Avalanche", "AaveV4Base")
   -t, --title <string>       payload title
   -a, --author <string>      author
   -d, --discussion <string>  forum link
