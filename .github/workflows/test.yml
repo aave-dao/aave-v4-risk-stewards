@@ -29,7 +29,11 @@ jobs:
           QUICKNODE_TOKEN: ${{ secrets.QUICKNODE_TOKEN }}
           QUICKNODE_ENDPOINT_NAME: ${{ secrets.QUICKNODE_ENDPOINT_NAME }}
 
+      # Pinned: 1.8.0/1.8.1 cannot fork at all (foundry-rs/foundry#16413) and 1.8.3 is untested
+      # here beyond that. Matches the pin in aave-proposals-v3.
       - uses: aave-dao/github-workflows/.github/actions/foundry-setup@main
+        with:
+          FOUNDRY_VERSION: "v1.7.1"
 
       - uses: aave-dao/github-workflows/.github/actions/setup-node@main
 

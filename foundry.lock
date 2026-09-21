@@ -1,6 +1,6 @@
 {
   "lib/aave-helpers": {
-    "rev": "678f14629a2fffd0dcbba8cf594486ab9d2ea729"
+    "rev": "5f4f1ac5c869643a415f14ce3f3fca28ac3ddee0"
   },
   "lib/aave-price-feeds": {
     "rev": "ff9f24a7c7d0cc67b70b5319f20abdb0a5c2f2df"
