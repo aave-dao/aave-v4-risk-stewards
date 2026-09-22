@@ -19,10 +19,7 @@ import {RiskStewardsBase} from '../RiskStewardsBase.s.sol';
 /// generic `RiskStewardsBase`. Named `…BaseChain` because `RiskStewardsBase` is the
 /// chain-agnostic base it extends.
 abstract contract RiskStewardsBaseChain is RiskStewardsBase {
-  // TODO: replace with the deployed Base RiskSteward address once v4 ships.
-  address internal constant BASE_RISK_STEWARD = address(0);
-
-  constructor() RiskStewardsBase(BASE_RISK_STEWARD) {}
+  constructor() RiskStewardsBase(AaveV4Base.RISK_STEWARD) {}
 
   function _getHubs() internal pure override returns (IHub[] memory) {
     return AaveV4BaseGetters.getAllHubs();

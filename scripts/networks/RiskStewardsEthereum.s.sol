@@ -18,10 +18,7 @@ import {RiskStewardsBase} from '../RiskStewardsBase.s.sol';
 /// address plus the full hub/spoke/tokenization-spoke arrays from the address book into the
 /// generic `RiskStewardsBase`.
 abstract contract RiskStewardsEthereum is RiskStewardsBase {
-  // TODO: replace with the deployed Ethereum RiskSteward address once v4 ships.
-  address internal constant ETHEREUM_RISK_STEWARD = address(0);
-
-  constructor() RiskStewardsBase(ETHEREUM_RISK_STEWARD) {}
+  constructor() RiskStewardsBase(AaveV4Ethereum.RISK_STEWARD) {}
 
   function _getHubs() internal pure override returns (IHub[] memory) {
     return AaveV4EthereumGetters.getAllHubs();

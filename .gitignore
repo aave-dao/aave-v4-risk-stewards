@@ -17,8 +17,6 @@ broadcast/
 node_modules/
 lcov*
 
-pnpm-workspace.yaml
-
 report/
 
 todos
