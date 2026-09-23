@@ -56,12 +56,12 @@ contract DeployConfiguredRiskStewardBase is BaseScript {
           cap: IRiskSteward.HubCapConfig({
             addCap: IRiskSteward.RiskParamConfig({
               minDelay: 12 hours,
-              maxPercentChange: 200_00,
+              maxPercentChange: 100_00,
               isChangeRelative: true
             }),
             drawCap: IRiskSteward.RiskParamConfig({
               minDelay: 12 hours,
-              maxPercentChange: 200_00,
+              maxPercentChange: 100_00,
               isChangeRelative: true
             })
           })
