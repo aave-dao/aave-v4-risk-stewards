@@ -11,7 +11,7 @@ import {IRiskSteward} from 'src/interfaces/IRiskSteward.sol';
 
 /// @title DeployConfiguredRiskStewardBase
 /// @author Aave Labs
-/// @notice Deploys the Base `RiskSteward` owned by the deployer, sets LlamaRisk's recommended config
+/// @notice Deploys the Base `RiskSteward` owned by the deployer, sets the default config
 /// for the Base Equities Hub, then starts the ownership transfer to the Executor. `Ownable2Step`
 /// leaves the Executor as pending owner until it calls `acceptOwnership` through governance.
 // make deploy-ledger contract=scripts/deploy/DeployConfiguredRiskStewardBase.s.sol:DeployConfiguredRiskStewardBase chain=base
@@ -21,12 +21,12 @@ contract DeployConfiguredRiskStewardBase is BaseScript {
 
     vm.startBroadcast();
     RiskSteward riskSteward = new RiskSteward(AaveV4Base.RISK_COUNCIL, deployer);
-    riskSteward.setConfig(_llamaRiskConfig());
+    riskSteward.setConfig(_defaultConfig());
     riskSteward.transferOwnership(GovernanceV3Base.EXECUTOR_LVL_1);
     vm.stopBroadcast();
   }
 
-  function _llamaRiskConfig() internal pure returns (IRiskSteward.Config memory) {
+  function _defaultConfig() internal pure returns (IRiskSteward.Config memory) {
     return
       IRiskSteward.Config({
         hub: IRiskSteward.HubConfig({
