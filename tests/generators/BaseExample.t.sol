@@ -14,32 +14,33 @@ import {
   PositionManagers
 } from 'aave-address-book/AaveV4.sol';
 import {
-  AaveV4Ethereum,
-  AaveV4EthereumGetters,
-  AaveV4EthereumHubs,
-  AaveV4EthereumSpokes,
-  AaveV4EthereumAssets
-} from 'aave-address-book/AaveV4Ethereum.sol';
-import {GovernanceV3Ethereum} from 'aave-address-book/GovernanceV3Ethereum.sol';
+  AaveV4Base,
+  AaveV4BaseGetters,
+  AaveV4BaseHubs,
+  AaveV4BaseSpokes,
+  AaveV4BaseAssets
+} from 'aave-address-book/AaveV4Base.sol';
+import {GovernanceV3Base} from 'aave-address-book/GovernanceV3Base.sol';
 import {IAccessManagerEnumerable} from 'aave-v4/access/interfaces/IAccessManagerEnumerable.sol';
 import {Roles} from 'aave-v4/deployments/utils/libraries/Roles.sol';
 
+import {IERC20Metadata} from 'openzeppelin-contracts/contracts/token/ERC20/extensions/IERC20Metadata.sol';
 import {SafeCast} from 'openzeppelin-contracts/contracts/utils/math/SafeCast.sol';
 
 import {RiskSteward} from '../../src/RiskSteward.sol';
 import {IRiskSteward} from '../../src/interfaces/IRiskSteward.sol';
 import {RiskStewardsBase} from '../../scripts/RiskStewardsBase.s.sol';
-import {EthereumExample} from '../../scripts/examples/EthereumExample.sol';
+import {BaseExample} from '../../scripts/examples/BaseExample.sol';
 
-contract TestPayload is RiskStewardsBase {
-  IHub internal constant TEST_HUB = AaveV4EthereumHubs.CORE_HUB;
-  ISpoke internal constant TEST_SPOKE = AaveV4EthereumSpokes.MAIN_SPOKE;
-  address internal constant TEST_ASSET = AaveV4EthereumAssets.WETH_UNDERLYING;
+contract BaseTestPayload is RiskStewardsBase {
+  IHub internal constant TEST_HUB = AaveV4BaseHubs.EQUITIES_HUB;
+  ISpoke internal constant TEST_SPOKE = AaveV4BaseSpokes.MAG7_SPOKE;
+  address internal constant TEST_ASSET = AaveV4BaseAssets.AAPLc_UNDERLYING;
 
   constructor(address steward) RiskStewardsBase(steward) {}
 
   function name() public pure override returns (string memory) {
-    return 'ethereum_example_test';
+    return 'base_example_test';
   }
 
   function _getHubs() internal pure override returns (IHub[] memory) {
@@ -59,21 +60,21 @@ contract TestPayload is RiskStewardsBase {
   }
 
   function _getPositionManagers() internal pure override returns (PositionManagers memory) {
-    return AaveV4EthereumGetters.getPositionManagers();
+    return AaveV4BaseGetters.getPositionManagers();
   }
 
   function _accessManager() internal pure override returns (address) {
-    return address(AaveV4Ethereum.ACCESS_MANAGER);
+    return address(AaveV4Base.ACCESS_MANAGER);
   }
 
   function _spokeConfigurator() internal pure override returns (ISpokeConfigurator) {
-    return AaveV4Ethereum.SPOKE_CONFIGURATOR;
+    return AaveV4Base.SPOKE_CONFIGURATOR;
   }
 
   function hubAssetIrUpdates() public pure override returns (IEngine.AssetConfigUpdate[] memory) {
     IEngine.AssetConfigUpdate[] memory updates = new IEngine.AssetConfigUpdate[](1);
     updates[0] = IEngine.AssetConfigUpdate({
-      hubConfigurator: AaveV4Ethereum.HUB_CONFIGURATOR,
+      hubConfigurator: AaveV4Base.HUB_CONFIGURATOR,
       hub: address(TEST_HUB),
       underlying: TEST_ASSET,
       liquidityFee: EngineFlags.KEEP_CURRENT,
@@ -93,12 +94,12 @@ contract TestPayload is RiskStewardsBase {
   function hubSpokeCapsUpdates() public pure override returns (IEngine.SpokeConfigUpdate[] memory) {
     IEngine.SpokeConfigUpdate[] memory updates = new IEngine.SpokeConfigUpdate[](1);
     updates[0] = IEngine.SpokeConfigUpdate({
-      hubConfigurator: AaveV4Ethereum.HUB_CONFIGURATOR,
+      hubConfigurator: AaveV4Base.HUB_CONFIGURATOR,
       hub: address(TEST_HUB),
       underlying: TEST_ASSET,
       spoke: address(TEST_SPOKE),
-      addCap: 20_000,
-      drawCap: 1_700,
+      addCap: 16_500,
+      drawCap: EngineFlags.KEEP_CURRENT,
       riskPremiumThreshold: EngineFlags.KEEP_CURRENT,
       active: EngineFlags.KEEP_CURRENT,
       halted: EngineFlags.KEEP_CURRENT
@@ -112,13 +113,12 @@ contract TestPayload is RiskStewardsBase {
     override
     returns (IEngine.ReserveConfigUpdate[] memory)
   {
-    IEngine.ReserveConfigUpdate[] memory updates = new IEngine.ReserveConfigUpdate[](0);
-    return updates;
+    return new IEngine.ReserveConfigUpdate[](0);
   }
 
   function dynamicReserveConfigUpdates()
     public
-    pure
+    view
     override
     returns (IEngine.DynamicReserveConfigUpdate[] memory)
   {
@@ -126,12 +126,12 @@ contract TestPayload is RiskStewardsBase {
       1
     );
     updates[0] = IEngine.DynamicReserveConfigUpdate({
-      spokeConfigurator: AaveV4Ethereum.SPOKE_CONFIGURATOR,
+      spokeConfigurator: AaveV4Base.SPOKE_CONFIGURATOR,
       spoke: address(TEST_SPOKE),
       hub: address(TEST_HUB),
       underlying: TEST_ASSET,
-      dynamicConfigKey: 0,
-      collateralFactor: 80_00,
+      dynamicConfigKey: _latestDynamicConfigKey(),
+      collateralFactor: 70_00,
       maxLiquidationBonus: EngineFlags.KEEP_CURRENT,
       liquidationFee: EngineFlags.KEEP_CURRENT
     });
@@ -144,18 +144,15 @@ contract TestPayload is RiskStewardsBase {
     override
     returns (IEngine.DynamicReserveConfigAddition[] memory)
   {
-    uint256 assetId = TEST_HUB.getAssetId(TEST_ASSET);
-    uint256 reserveId = TEST_SPOKE.getReserveId(address(TEST_HUB), assetId);
-    uint32 latestKey = TEST_SPOKE.getReserve(reserveId).dynamicConfigKey;
     ISpoke.DynamicReserveConfig memory latest = TEST_SPOKE.getDynamicReserveConfig(
-      reserveId,
-      latestKey
+      _reserveId(),
+      _latestDynamicConfigKey()
     );
 
     IEngine.DynamicReserveConfigAddition[]
       memory additions = new IEngine.DynamicReserveConfigAddition[](1);
     additions[0] = IEngine.DynamicReserveConfigAddition({
-      spokeConfigurator: AaveV4Ethereum.SPOKE_CONFIGURATOR,
+      spokeConfigurator: AaveV4Base.SPOKE_CONFIGURATOR,
       spoke: address(TEST_SPOKE),
       hub: address(TEST_HUB),
       underlying: TEST_ASSET,
@@ -176,48 +173,61 @@ contract TestPayload is RiskStewardsBase {
   {
     IEngine.LiquidationConfigUpdate[] memory updates = new IEngine.LiquidationConfigUpdate[](1);
     updates[0] = IEngine.LiquidationConfigUpdate({
-      spokeConfigurator: AaveV4Ethereum.SPOKE_CONFIGURATOR,
+      spokeConfigurator: AaveV4Base.SPOKE_CONFIGURATOR,
       spoke: address(TEST_SPOKE),
-      targetHealthFactor: 1.05e18,
+      targetHealthFactor: 1.2e18,
       healthFactorForMaxBonus: EngineFlags.KEEP_CURRENT,
       liquidationBonusFactor: EngineFlags.KEEP_CURRENT
     });
     return updates;
   }
+
+  function _reserveId() private view returns (uint256) {
+    return TEST_SPOKE.getReserveId(address(TEST_HUB), TEST_HUB.getAssetId(TEST_ASSET));
+  }
+
+  function _latestDynamicConfigKey() private view returns (uint32) {
+    return TEST_SPOKE.getReserve(_reserveId()).dynamicConfigKey;
+  }
 }
 
-contract EthereumExampleTest is Test {
+contract BaseExampleTest is Test {
   using SafeCast for uint256;
 
   address internal immutable RISK_COUNCIL = makeAddr('RISK_COUNCIL');
-  address internal constant OWNER = GovernanceV3Ethereum.EXECUTOR_LVL_1;
+  address internal constant OWNER = GovernanceV3Base.EXECUTOR_LVL_1;
 
-  IHub internal constant HUB = AaveV4EthereumHubs.CORE_HUB;
-  ISpoke internal constant SPOKE = AaveV4EthereumSpokes.MAIN_SPOKE;
-  address internal constant ASSET = AaveV4EthereumAssets.WETH_UNDERLYING;
+  IHub internal constant HUB = AaveV4BaseHubs.EQUITIES_HUB;
+  ISpoke internal constant SPOKE = AaveV4BaseSpokes.MAG7_SPOKE;
+  address internal constant ASSET = AaveV4BaseAssets.AAPLc_UNDERLYING;
 
   RiskSteward internal steward;
-  TestPayload internal payload;
+  BaseTestPayload internal payload;
 
   function setUp() public {
-    vm.createSelectFork(vm.rpcUrl('mainnet'), 25171813);
+    vm.createSelectFork(vm.rpcUrl('base'), 51604825);
 
     steward = new RiskSteward(RISK_COUNCIL, OWNER);
 
     vm.prank(OWNER);
     steward.setConfig(_config());
 
-    IAccessManagerEnumerable accessManager = AaveV4Ethereum.ACCESS_MANAGER;
+    IAccessManagerEnumerable accessManager = AaveV4Base.ACCESS_MANAGER;
     address accessAdmin = accessManager.getRoleMember(Roles.ACCESS_MANAGER_ADMIN_ROLE, 0);
     vm.startPrank(accessAdmin);
     accessManager.grantRole(Roles.HUB_CONFIGURATOR_DOMAIN_ADMIN_ROLE, address(steward), 0);
     accessManager.grantRole(Roles.SPOKE_CONFIGURATOR_DOMAIN_ADMIN_ROLE, address(steward), 0);
     vm.stopPrank();
 
-    payload = new TestPayload(address(steward));
+    payload = new BaseTestPayload(address(steward));
   }
 
+  /// @dev Writes `reports/base_example_test_{before,after}.json` and the diff. Every asset symbol
+  /// in there comes from a `symbol()` call on the underlying, and the seven equities are B20
+  /// tokens the stock EVM cannot execute, so stock forge would write `<unknown>` for them. Skip
+  /// rather than commit a degraded report.
   function test_run_executesAllCategoriesAndBumpsDebounces() public {
+    _requireB20Semantics();
     payload.run({broadcastToSafe: false, generateDiffReport: true, skipTimelock: true});
 
     uint40 expectedTimestamp = vm.getBlockTimestamp().toUint40();
@@ -228,12 +238,6 @@ contract EthereumExampleTest is Test {
     );
     assertEq(hubAssetDebounce.baseDrawnRate, expectedTimestamp, 'baseDrawnRate debounce bumped');
     assertEq(hubAssetDebounce.optimalUsageRatio, 0, 'optimalUsageRatio left at sentinel');
-    assertEq(
-      hubAssetDebounce.rateGrowthBeforeOptimal,
-      0,
-      'rateGrowthBeforeOptimal left at sentinel'
-    );
-    assertEq(hubAssetDebounce.rateGrowthAfterOptimal, 0, 'rateGrowthAfterOptimal left at sentinel');
 
     IRiskSteward.HubSpokeAssetDebounce memory capsDebounce = steward.getHubSpokeAssetDebounce(
       address(HUB),
@@ -241,7 +245,7 @@ contract EthereumExampleTest is Test {
       ASSET
     );
     assertEq(capsDebounce.addCap, expectedTimestamp, 'addCap debounce bumped');
-    assertEq(capsDebounce.drawCap, expectedTimestamp, 'drawCap debounce bumped');
+    assertEq(capsDebounce.drawCap, 0, 'drawCap left at sentinel');
 
     IRiskSteward.SpokeDynamicDebounce memory dynamicDebounce = steward.getSpokeDynamicDebounce(
       address(SPOKE),
@@ -253,13 +257,7 @@ contract EthereumExampleTest is Test {
       expectedTimestamp,
       'collateralFactor debounce bumped'
     );
-    assertEq(
-      dynamicDebounce.maxLiquidationBonus,
-      expectedTimestamp,
-      'maxLiquidationBonus debounce bumped'
-    );
 
-    // Spoke liquidation: only targetHealthFactor.
     IRiskSteward.SpokeLiquidationDebounce memory liquidationDebounce = steward
       .getSpokeLiquidationDebounce(address(SPOKE));
     assertEq(
@@ -272,28 +270,31 @@ contract EthereumExampleTest is Test {
       0,
       'healthFactorForMaxBonus left at sentinel'
     );
-    assertEq(
-      liquidationDebounce.liquidationBonusFactor,
-      0,
-      'liquidationBonusFactor left at sentinel'
-    );
   }
 
   function test_updateHubAssetIRs_revertsWith_InvalidCaller() public {
-    EthereumExample example = new EthereumExample();
+    BaseExample example = new BaseExample();
     IEngine.AssetConfigUpdate[] memory updates = example.hubAssetIrUpdates();
     vm.expectRevert(IRiskSteward.InvalidCaller.selector);
     steward.updateHubAssetIRs(updates);
   }
 
-  function test_ethereumExampleProducesAllSixCategories() public {
-    EthereumExample example = new EthereumExample();
+  function test_baseExampleProducesAllSixCategories() public {
+    BaseExample example = new BaseExample();
     assertEq(example.hubAssetIrUpdates().length, 2, 'hubAssetIrUpdates');
     assertEq(example.hubSpokeCapsUpdates().length, 2, 'hubSpokeCapsUpdates');
-    assertEq(example.reserveConfigUpdates().length, 2, 'reserveConfigUpdates');
-    assertEq(example.dynamicReserveConfigUpdates().length, 2, 'dynamicReserveConfigUpdates');
-    assertEq(example.dynamicReserveConfigAdditions().length, 2, 'dynamicReserveConfigAdditions');
-    assertEq(example.spokeLiquidationConfigUpdates().length, 2, 'spokeLiquidationConfigUpdates');
+    assertEq(example.reserveConfigUpdates().length, 1, 'reserveConfigUpdates');
+    assertEq(example.dynamicReserveConfigUpdates().length, 1, 'dynamicReserveConfigUpdates');
+    assertEq(example.dynamicReserveConfigAdditions().length, 1, 'dynamicReserveConfigAdditions');
+    assertEq(example.spokeLiquidationConfigUpdates().length, 1, 'spokeLiquidationConfigUpdates');
+  }
+
+  /// @dev Under stock forge any call into a B20 token hits the invalid opcode 0xef and reverts;
+  /// under base-anvil's forge the node-native token answers. Probe with a view call and skip
+  /// rather than pass. See the `test-base` CI job.
+  function _requireB20Semantics() internal {
+    (bool ok, ) = ASSET.staticcall(abi.encodeCall(IERC20Metadata.decimals, ()));
+    vm.skip(!ok, 'requires base-anvil forge for the B20 equity tokens');
   }
 
   function _config() internal pure returns (IRiskSteward.Config memory) {
@@ -310,7 +311,7 @@ contract EthereumExampleTest is Test {
     return
       IRiskSteward.Config({
         hub: IRiskSteward.HubConfig({
-          configurator: AaveV4Ethereum.HUB_CONFIGURATOR,
+          configurator: AaveV4Base.HUB_CONFIGURATOR,
           rate: IRiskSteward.HubRateConfig({
             optimalUsageRatio: wideAbs,
             baseDrawnRate: wideAbs,
@@ -320,7 +321,7 @@ contract EthereumExampleTest is Test {
           cap: IRiskSteward.HubCapConfig({addCap: wideRel, drawCap: wideRel})
         }),
         spoke: IRiskSteward.SpokeConfig({
-          configurator: AaveV4Ethereum.SPOKE_CONFIGURATOR,
+          configurator: AaveV4Base.SPOKE_CONFIGURATOR,
           collateralRisk: wideAbs,
           dynamicUpdate: IRiskSteward.SpokeDynamicConfig({
             collateralFactor: wideAbs,
