@@ -191,6 +191,10 @@ contract BaseTestPayload is RiskStewardsBase {
   }
 }
 
+/// @dev Runs on forge's Base EVM (nightly), which executes the B20 equity precompiles. The fork
+/// block is on the Beryl upgrade; switch to base:cobalt if the fork moves past 1790791200.
+/// forge-config: default.networks.network = "base"
+/// forge-config: default.hardfork = "base:beryl"
 contract BaseExampleTest is Test {
   using SafeCast for uint256;
 
@@ -224,8 +228,8 @@ contract BaseExampleTest is Test {
 
   /// @dev Writes `reports/base_example_test_{before,after}.json` and the diff. Every asset symbol
   /// in there comes from a `symbol()` call on the underlying, and the seven equities are B20
-  /// tokens the stock EVM cannot execute, so stock forge would write `<unknown>` for them. Skip
-  /// rather than commit a degraded report.
+  /// tokens only the Base EVM can execute, so any other forge would write `<unknown>` for them.
+  /// Skip rather than commit a degraded report.
   function test_run_executesAllCategoriesAndBumpsDebounces() public {
     _requireB20Semantics();
     payload.run({broadcastToSafe: false, generateDiffReport: true, skipTimelock: true});
@@ -289,12 +293,11 @@ contract BaseExampleTest is Test {
     assertEq(example.spokeLiquidationConfigUpdates().length, 1, 'spokeLiquidationConfigUpdates');
   }
 
-  /// @dev Under stock forge any call into a B20 token hits the invalid opcode 0xef and reverts;
-  /// under base-anvil's forge the node-native token answers. Probe with a view call and skip
-  /// rather than pass. See the `test-base` CI job.
+  /// @dev Without the Base EVM any call into a B20 token hits the invalid opcode 0xef and reverts.
+  /// Probe with a view call and skip rather than pass.
   function _requireB20Semantics() internal {
     (bool ok, ) = ASSET.staticcall(abi.encodeCall(IERC20Metadata.decimals, ()));
-    vm.skip(!ok, 'requires base-anvil forge for the B20 equity tokens');
+    vm.skip(!ok, 'requires forge with the Base EVM for the B20 equity tokens');
   }
 
   function _config() internal pure returns (IRiskSteward.Config memory) {

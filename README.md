@@ -108,14 +108,10 @@ pnpm prepare
 forge test
 ```
 
-The Base equities are [B20](https://github.com/base/base-anvil) tokens: node-native, with account
-code set to the single byte `0xef`. Upstream forge cannot execute them, so every asset symbol in a
-Base diff report comes out `<unknown>` and `BaseExample.t.sol` skips the test that writes one. Run
-it with base-anvil's forge instead:
-
-```sh
-FOUNDRY_BASE=true /path/to/base-foundry/forge test --match-path tests/generators/BaseExample.t.sol
-```
+Tests need nightly forge (`foundryup -i nightly`). The Base equities are B20 tokens: node-native,
+with account code set to the single byte `0xef`, which only forge's Base EVM can execute.
+`BaseExample.t.sol` opts into it through inline config, and skips the test that writes a diff report
+on any forge without it. Scripts on Base need `FOUNDRY_NETWORK=base` for the same reason.
 
 <br>
 

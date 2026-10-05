@@ -19,9 +19,9 @@ import {RiskStewardsBaseChain} from '../networks/RiskStewardsBaseChain.s.sol';
 /// @author Aave Labs
 /// @notice Reference payload showing how to author updates for each of the six RiskSteward
 /// entrypoints on the Base equities market.
-/// @dev The seven B20 equities are node-native tokens the stock EVM cannot execute, so a diff
-/// report generated here only carries real asset symbols under base-anvil's forge. See the
-/// `test-base` CI job.
+/// @dev The seven B20 equities are node-native tokens only the Base EVM can execute, so a diff
+/// report generated here only carries real asset symbols with `FOUNDRY_NETWORK=base` on nightly
+/// forge.
 contract BaseExample is RiskStewardsBaseChain {
   function name() public pure override returns (string memory) {
     return 'base_example';

@@ -175,9 +175,10 @@ abstract contract RiskStewardsBase is ProtocolV4TestBase {
   }
 
   /// @dev Rewinds the free memory pointer afterwards so the second snapshot reuses the first
-  /// one's memory rather than expanding past it. Memory gas is quadratic in the high-water mark
-  /// and a mainnet-sized snapshot allocates megabytes, so two of them in one frame exhaust the
-  /// gas limit. Safe because nothing the snapshot allocates is read once the report is written.
+  /// one's memory rather than expanding past it. A mainnet-sized snapshot allocates megabytes,
+  /// and once the frame grows past ~5MB the writer hits a MemoryOOG that no `gas_limit` or
+  /// `memory_limit` avoids. Safe because nothing the snapshot allocates is read once the report
+  /// is written.
   function _snapshotAndRelease(string memory reportName) internal {
     uint256 freeMemoryPointer;
     assembly {

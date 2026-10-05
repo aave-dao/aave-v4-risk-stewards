@@ -2,42 +2,43 @@
 
 ### AAPLc ([0xb200000000000000000000C2e324d24d7eEcd1fb](https://basescan.org/address/0xb200000000000000000000C2e324d24d7eEcd1fb)) on Spoke [0x17905Db0e4A3514467539956c084180616AE7B8D](https://basescan.org/address/0x17905Db0e4A3514467539956c084180616AE7B8D) [reserveId: 0]
 
-| description      | value before | value after |
-| ---------------- | ------------ | ----------- |
-| dynamicConfigKey | 0            | 1           |
+| description | value before | value after |
+| --- | --- | --- |
+| dynamicConfigKey | 0 | 1 |
 
 **dynamicConfigs**
 
-| key   | field               | before         | after          |
-| ----- | ------------------- | -------------- | -------------- |
-| key 0 | collateralFactor    | 78.00 % [7800] | 70.00 % [7000] |
-| key 1 | collateralFactor    | _missing_      | 78.00 % [7800] |
-| key 1 | maxLiquidationBonus | _missing_      | 5.50 % [10550] |
-| key 1 | liquidationFee      | _missing_      | 10.00 % [1000] |
+| key | field | before | after |
+| --- | --- | --- | --- |
+| key 0 | collateralFactor | 78.00 % [7800] | 70.00 % [7000] |
+| key 1 | collateralFactor | *missing* | 78.00 % [7800] |
+| key 1 | maxLiquidationBonus | *missing* | 5.50 % [10550] |
+| key 1 | liquidationFee | *missing* | 10.00 % [1000] |
+
 
 ## Hub Asset Changes
 
 ### AAPLc (assetId: 0) on Hub [0xa4d5947Eb727A052bae69C593FfC84247EC9864E](https://basescan.org/address/0xa4d5947Eb727A052bae69C593FfC84247EC9864E)
 
-| description   | value before | value after  |
-| ------------- | ------------ | ------------ |
-| baseDrawnRate | 0.00 % [0]   | 1.00 % [100] |
-| maxDrawnRate  | 0.00 % [0]   | 1.00 % [100] |
+| description | value before | value after |
+| --- | --- | --- |
+| baseDrawnRate | 0.00 % [0] | 1.00 % [100] |
+| maxDrawnRate | 0.00 % [0] | 1.00 % [100] |
 
 ## Hub Spoke Config Changes
 
 ### AAPLc (assetId: 0) on Hub [0xa4d5947Eb727A052bae69C593FfC84247EC9864E](https://basescan.org/address/0xa4d5947Eb727A052bae69C593FfC84247EC9864E) / Spoke [0x17905Db0e4A3514467539956c084180616AE7B8D](https://basescan.org/address/0x17905Db0e4A3514467539956c084180616AE7B8D)
 
-| description | value before         | value after           |
-| ----------- | -------------------- | --------------------- |
-| addCap      | 15,000 (1.5e4) AAPLc | 16,500 (1.65e4) AAPLc |
+| description | value before | value after |
+| --- | --- | --- |
+| addCap | 15,000 (1.5e4) AAPLc | 16,500 (1.65e4) AAPLc |
 
 ## Spoke Liquidation Config Changes
 
 ### Spoke [0x17905Db0e4A3514467539956c084180616AE7B8D](https://basescan.org/address/0x17905Db0e4A3514467539956c084180616AE7B8D)
 
-| description        | value before               | value after               |
-| ------------------ | -------------------------- | ------------------------- |
+| description | value before | value after |
+| --- | --- | --- |
 | targetHealthFactor | 1.24 [1240000000000000000] | 1.2 [1200000000000000000] |
 
 ## Raw diff
