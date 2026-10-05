@@ -1,8 +1,9 @@
 import * as addressBook from '@aave-dao/aave-address-book';
-import {mainnet} from 'viem/chains';
+import {Chain} from 'viem';
+import {avalanche, base, mainnet} from 'viem/chains';
 import {ChainIdentifier, Options} from './types';
 
-export const AVAILABLE_CHAINS = ['Ethereum'] as const;
+export const AVAILABLE_CHAINS = ['Ethereum', 'Avalanche', 'Base'] as const;
 
 export function getChainSuffix(chain: ChainIdentifier) {
   return chain.replace('AaveV4', '');
@@ -15,6 +16,13 @@ export function getChainName(chain: ChainIdentifier) {
 export function getChainAlias(chain: ChainIdentifier) {
   const suffix = getChainSuffix(chain);
   return suffix === 'Ethereum' ? 'mainnet' : suffix.toLowerCase();
+}
+
+/// The per-chain payload base a generated payload extends. Base is spelled `RiskStewardsBaseChain`
+/// because `RiskStewardsBase` is already the chain-agnostic base every network base extends.
+export function getNetworkBaseName(chain: ChainIdentifier) {
+  const suffix = getChainSuffix(chain);
+  return `RiskStewards${suffix === 'Base' ? 'BaseChain' : suffix}`;
 }
 
 /// Address book helpers — the TS address-book nests hubs/spokes/assets under the chain library
@@ -68,8 +76,13 @@ export function pascalCase(str: string) {
     .replace(/ /g, '');
 }
 
-export const CHAIN_TO_CHAIN_ID: Record<ChainIdentifier, number> = {
-  AaveV4Ethereum: mainnet.id,
+/// Every chain in `CHAINS` must have an entry here — the viem chain carries the default RPC url
+/// the generator reads the block number from. A missing entry makes `http()` throw
+/// `UrlRequiredError` before the first prompt.
+export const CHAIN_TO_VIEM_CHAIN: Record<ChainIdentifier, Chain> = {
+  AaveV4Ethereum: mainnet,
+  AaveV4Avalanche: avalanche,
+  AaveV4Base: base,
 };
 
 export function flagAsRequired(message: string, required?: boolean) {

@@ -108,6 +108,11 @@ pnpm prepare
 forge test
 ```
 
+Tests need nightly forge (`foundryup -i nightly`). The Base equities are B20 tokens: node-native,
+with account code set to the single byte `0xef`, which only forge's Base EVM can execute.
+`BaseExample.t.sol` opts into it through inline config, and skips the test that writes a diff report
+on any forge without it. Scripts on Base need `FOUNDRY_NETWORK=base` for the same reason.
+
 <br>
 
 ## Coverage
@@ -136,7 +141,7 @@ CLI to generate Aave v4 RiskSteward payloads
 Options:
   -V, --version              output the version number
   -f, --force                force creation (might overwrite existing files)
-  -c, --chains <chains...>   (choices: "AaveV4Ethereum")
+  -c, --chains <chains...>   (choices: "AaveV4Ethereum", "AaveV4Avalanche", "AaveV4Base")
   -t, --title <string>       payload title
   -a, --author <string>      author
   -d, --discussion <string>  forum link

@@ -29,7 +29,10 @@ jobs:
           QUICKNODE_TOKEN: ${{ secrets.QUICKNODE_TOKEN }}
           QUICKNODE_ENDPOINT_NAME: ${{ secrets.QUICKNODE_ENDPOINT_NAME }}
 
+      # nightly ships the Base EVM that BaseExample.t.sol needs for the B20 equity tokens
       - uses: aave-dao/github-workflows/.github/actions/foundry-setup@main
+        with:
+          FOUNDRY_VERSION: "nightly"
 
       - uses: aave-dao/github-workflows/.github/actions/setup-node@main
 

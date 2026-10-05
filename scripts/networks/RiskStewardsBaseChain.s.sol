@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-import {AaveV4Ethereum, AaveV4EthereumGetters} from 'aave-address-book/AaveV4Ethereum.sol';
+import {AaveV4Base, AaveV4BaseGetters} from 'aave-address-book/AaveV4Base.sol';
 import {
   ISpoke,
   IHub,
@@ -12,35 +12,36 @@ import {
 
 import {RiskStewardsBase} from '../RiskStewardsBase.s.sol';
 
-/// @title RiskStewardsEthereum
+/// @title RiskStewardsBaseChain
 /// @author Aave Labs
-/// @notice Ethereum-scoped base for concrete RiskSteward payloads. Wires the deployed steward
+/// @notice Base-scoped base for concrete RiskSteward payloads. Wires the deployed steward
 /// address plus the full hub/spoke/tokenization-spoke arrays from the address book into the
-/// generic `RiskStewardsBase`.
-abstract contract RiskStewardsEthereum is RiskStewardsBase {
-  constructor() RiskStewardsBase(AaveV4Ethereum.RISK_STEWARD) {}
+/// generic `RiskStewardsBase`. Named `…BaseChain` because `RiskStewardsBase` is the
+/// chain-agnostic base it extends.
+abstract contract RiskStewardsBaseChain is RiskStewardsBase {
+  constructor() RiskStewardsBase(AaveV4Base.RISK_STEWARD) {}
 
   function _getHubs() internal pure override returns (IHub[] memory) {
-    return AaveV4EthereumGetters.getAllHubs();
+    return AaveV4BaseGetters.getAllHubs();
   }
 
   function _getSpokes() internal pure override returns (ISpoke[] memory) {
-    return AaveV4EthereumGetters.getAllSpokes();
+    return AaveV4BaseGetters.getAllSpokes();
   }
 
   function _getTokenizationSpokes() internal pure override returns (ITokenizationSpoke[] memory) {
-    return AaveV4EthereumGetters.getAllTokenizationSpokes();
+    return AaveV4BaseGetters.getAllTokenizationSpokes();
   }
 
   function _getPositionManagers() internal pure override returns (PositionManagers memory) {
-    return AaveV4EthereumGetters.getPositionManagers();
+    return AaveV4BaseGetters.getPositionManagers();
   }
 
   function _accessManager() internal pure override returns (address) {
-    return address(AaveV4Ethereum.ACCESS_MANAGER);
+    return address(AaveV4Base.ACCESS_MANAGER);
   }
 
   function _spokeConfigurator() internal pure override returns (ISpokeConfigurator) {
-    return AaveV4Ethereum.SPOKE_CONFIGURATOR;
+    return AaveV4Base.SPOKE_CONFIGURATOR;
   }
 }

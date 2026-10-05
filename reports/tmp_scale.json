@@ -1,0 +1,1318 @@
+{
+  "accessManagerRoles": {},
+  "chainId": 31337,
+  "hubAssets": {
+    "0xCca852Bc40e560adC3b1Cc58CA5b55638ce826c9": {
+      "0": {
+        "baseDrawnRate": 0,
+        "decimals": 18,
+        "deficitRay": "0",
+        "feeReceiver": "0x0000000000000000000000000000000000004000",
+        "irStrategy": "0x0000000000000000000000000000000000003000",
+        "liquidityFee": 0,
+        "maxDrawnRate": "0",
+        "optimalUsageRatio": 0,
+        "premiumOffsetRay": "0",
+        "premiumShares": "0",
+        "rateGrowthAfterOptimal": 0,
+        "rateGrowthBeforeOptimal": 0,
+        "reinvestmentController": "0x0000000000000000000000000000000000000000",
+        "swept": "0",
+        "symbol": "WETH",
+        "underlying": "0x0000000000000000000000000000000000002000"
+      },
+      "1": {
+        "baseDrawnRate": 0,
+        "decimals": 18,
+        "deficitRay": "0",
+        "feeReceiver": "0x0000000000000000000000000000000000004001",
+        "irStrategy": "0x0000000000000000000000000000000000003001",
+        "liquidityFee": 0,
+        "maxDrawnRate": "0",
+        "optimalUsageRatio": 0,
+        "premiumOffsetRay": "0",
+        "premiumShares": "0",
+        "rateGrowthAfterOptimal": 0,
+        "rateGrowthBeforeOptimal": 0,
+        "reinvestmentController": "0x0000000000000000000000000000000000000000",
+        "swept": "0",
+        "symbol": "WETH",
+        "underlying": "0x0000000000000000000000000000000000002001"
+      },
+      "10": {
+        "baseDrawnRate": 0,
+        "decimals": 18,
+        "deficitRay": "0",
+        "feeReceiver": "0x000000000000000000000000000000000000400A",
+        "irStrategy": "0x000000000000000000000000000000000000300A",
+        "liquidityFee": 0,
+        "maxDrawnRate": "0",
+        "optimalUsageRatio": 0,
+        "premiumOffsetRay": "0",
+        "premiumShares": "0",
+        "rateGrowthAfterOptimal": 0,
+        "rateGrowthBeforeOptimal": 0,
+        "reinvestmentController": "0x0000000000000000000000000000000000000000",
+        "swept": "0",
+        "symbol": "WETH",
+        "underlying": "0x000000000000000000000000000000000000200A"
+      },
+      "11": {
+        "baseDrawnRate": 0,
+        "decimals": 18,
+        "deficitRay": "0",
+        "feeReceiver": "0x000000000000000000000000000000000000400B",
+        "irStrategy": "0x000000000000000000000000000000000000300b",
+        "liquidityFee": 0,
+        "maxDrawnRate": "0",
+        "optimalUsageRatio": 0,
+        "premiumOffsetRay": "0",
+        "premiumShares": "0",
+        "rateGrowthAfterOptimal": 0,
+        "rateGrowthBeforeOptimal": 0,
+        "reinvestmentController": "0x0000000000000000000000000000000000000000",
+        "swept": "0",
+        "symbol": "WETH",
+        "underlying": "0x000000000000000000000000000000000000200b"
+      },
+      "12": {
+        "baseDrawnRate": 0,
+        "decimals": 18,
+        "deficitRay": "0",
+        "feeReceiver": "0x000000000000000000000000000000000000400C",
+        "irStrategy": "0x000000000000000000000000000000000000300c",
+        "liquidityFee": 0,
+        "maxDrawnRate": "0",
+        "optimalUsageRatio": 0,
+        "premiumOffsetRay": "0",
+        "premiumShares": "0",
+        "rateGrowthAfterOptimal": 0,
+        "rateGrowthBeforeOptimal": 0,
+        "reinvestmentController": "0x0000000000000000000000000000000000000000",
+        "swept": "0",
+        "symbol": "WETH",
+        "underlying": "0x000000000000000000000000000000000000200c"
+      },
+      "13": {
+        "baseDrawnRate": 0,
+        "decimals": 18,
+        "deficitRay": "0",
+        "feeReceiver": "0x000000000000000000000000000000000000400D",
+        "irStrategy": "0x000000000000000000000000000000000000300D",
+        "liquidityFee": 0,
+        "maxDrawnRate": "0",
+        "optimalUsageRatio": 0,
+        "premiumOffsetRay": "0",
+        "premiumShares": "0",
+        "rateGrowthAfterOptimal": 0,
+        "rateGrowthBeforeOptimal": 0,
+        "reinvestmentController": "0x0000000000000000000000000000000000000000",
+        "swept": "0",
+        "symbol": "WETH",
+        "underlying": "0x000000000000000000000000000000000000200d"
+      },
+      "14": {
+        "baseDrawnRate": 0,
+        "decimals": 18,
+        "deficitRay": "0",
+        "feeReceiver": "0x000000000000000000000000000000000000400E",
+        "irStrategy": "0x000000000000000000000000000000000000300e",
+        "liquidityFee": 0,
+        "maxDrawnRate": "0",
+        "optimalUsageRatio": 0,
+        "premiumOffsetRay": "0",
+        "premiumShares": "0",
+        "rateGrowthAfterOptimal": 0,
+        "rateGrowthBeforeOptimal": 0,
+        "reinvestmentController": "0x0000000000000000000000000000000000000000",
+        "swept": "0",
+        "symbol": "WETH",
+        "underlying": "0x000000000000000000000000000000000000200E"
+      },
+      "15": {
+        "baseDrawnRate": 0,
+        "decimals": 18,
+        "deficitRay": "0",
+        "feeReceiver": "0x000000000000000000000000000000000000400F",
+        "irStrategy": "0x000000000000000000000000000000000000300F",
+        "liquidityFee": 0,
+        "maxDrawnRate": "0",
+        "optimalUsageRatio": 0,
+        "premiumOffsetRay": "0",
+        "premiumShares": "0",
+        "rateGrowthAfterOptimal": 0,
+        "rateGrowthBeforeOptimal": 0,
+        "reinvestmentController": "0x0000000000000000000000000000000000000000",
+        "swept": "0",
+        "symbol": "WETH",
+        "underlying": "0x000000000000000000000000000000000000200f"
+      },
+      "16": {
+        "baseDrawnRate": 0,
+        "decimals": 18,
+        "deficitRay": "0",
+        "feeReceiver": "0x0000000000000000000000000000000000004010",
+        "irStrategy": "0x0000000000000000000000000000000000003010",
+        "liquidityFee": 0,
+        "maxDrawnRate": "0",
+        "optimalUsageRatio": 0,
+        "premiumOffsetRay": "0",
+        "premiumShares": "0",
+        "rateGrowthAfterOptimal": 0,
+        "rateGrowthBeforeOptimal": 0,
+        "reinvestmentController": "0x0000000000000000000000000000000000000000",
+        "swept": "0",
+        "symbol": "WETH",
+        "underlying": "0x0000000000000000000000000000000000002010"
+      },
+      "2": {
+        "baseDrawnRate": 0,
+        "decimals": 18,
+        "deficitRay": "0",
+        "feeReceiver": "0x0000000000000000000000000000000000004002",
+        "irStrategy": "0x0000000000000000000000000000000000003002",
+        "liquidityFee": 0,
+        "maxDrawnRate": "0",
+        "optimalUsageRatio": 0,
+        "premiumOffsetRay": "0",
+        "premiumShares": "0",
+        "rateGrowthAfterOptimal": 0,
+        "rateGrowthBeforeOptimal": 0,
+        "reinvestmentController": "0x0000000000000000000000000000000000000000",
+        "swept": "0",
+        "symbol": "WETH",
+        "underlying": "0x0000000000000000000000000000000000002002"
+      },
+      "3": {
+        "baseDrawnRate": 0,
+        "decimals": 18,
+        "deficitRay": "0",
+        "feeReceiver": "0x0000000000000000000000000000000000004003",
+        "irStrategy": "0x0000000000000000000000000000000000003003",
+        "liquidityFee": 0,
+        "maxDrawnRate": "0",
+        "optimalUsageRatio": 0,
+        "premiumOffsetRay": "0",
+        "premiumShares": "0",
+        "rateGrowthAfterOptimal": 0,
+        "rateGrowthBeforeOptimal": 0,
+        "reinvestmentController": "0x0000000000000000000000000000000000000000",
+        "swept": "0",
+        "symbol": "WETH",
+        "underlying": "0x0000000000000000000000000000000000002003"
+      },
+      "4": {
+        "baseDrawnRate": 0,
+        "decimals": 18,
+        "deficitRay": "0",
+        "feeReceiver": "0x0000000000000000000000000000000000004004",
+        "irStrategy": "0x0000000000000000000000000000000000003004",
+        "liquidityFee": 0,
+        "maxDrawnRate": "0",
+        "optimalUsageRatio": 0,
+        "premiumOffsetRay": "0",
+        "premiumShares": "0",
+        "rateGrowthAfterOptimal": 0,
+        "rateGrowthBeforeOptimal": 0,
+        "reinvestmentController": "0x0000000000000000000000000000000000000000",
+        "swept": "0",
+        "symbol": "WETH",
+        "underlying": "0x0000000000000000000000000000000000002004"
+      },
+      "5": {
+        "baseDrawnRate": 0,
+        "decimals": 18,
+        "deficitRay": "0",
+        "feeReceiver": "0x0000000000000000000000000000000000004005",
+        "irStrategy": "0x0000000000000000000000000000000000003005",
+        "liquidityFee": 0,
+        "maxDrawnRate": "0",
+        "optimalUsageRatio": 0,
+        "premiumOffsetRay": "0",
+        "premiumShares": "0",
+        "rateGrowthAfterOptimal": 0,
+        "rateGrowthBeforeOptimal": 0,
+        "reinvestmentController": "0x0000000000000000000000000000000000000000",
+        "swept": "0",
+        "symbol": "WETH",
+        "underlying": "0x0000000000000000000000000000000000002005"
+      },
+      "6": {
+        "baseDrawnRate": 0,
+        "decimals": 18,
+        "deficitRay": "0",
+        "feeReceiver": "0x0000000000000000000000000000000000004006",
+        "irStrategy": "0x0000000000000000000000000000000000003006",
+        "liquidityFee": 0,
+        "maxDrawnRate": "0",
+        "optimalUsageRatio": 0,
+        "premiumOffsetRay": "0",
+        "premiumShares": "0",
+        "rateGrowthAfterOptimal": 0,
+        "rateGrowthBeforeOptimal": 0,
+        "reinvestmentController": "0x0000000000000000000000000000000000000000",
+        "swept": "0",
+        "symbol": "WETH",
+        "underlying": "0x0000000000000000000000000000000000002006"
+      },
+      "7": {
+        "baseDrawnRate": 0,
+        "decimals": 18,
+        "deficitRay": "0",
+        "feeReceiver": "0x0000000000000000000000000000000000004007",
+        "irStrategy": "0x0000000000000000000000000000000000003007",
+        "liquidityFee": 0,
+        "maxDrawnRate": "0",
+        "optimalUsageRatio": 0,
+        "premiumOffsetRay": "0",
+        "premiumShares": "0",
+        "rateGrowthAfterOptimal": 0,
+        "rateGrowthBeforeOptimal": 0,
+        "reinvestmentController": "0x0000000000000000000000000000000000000000",
+        "swept": "0",
+        "symbol": "WETH",
+        "underlying": "0x0000000000000000000000000000000000002007"
+      },
+      "8": {
+        "baseDrawnRate": 0,
+        "decimals": 18,
+        "deficitRay": "0",
+        "feeReceiver": "0x0000000000000000000000000000000000004008",
+        "irStrategy": "0x0000000000000000000000000000000000003008",
+        "liquidityFee": 0,
+        "maxDrawnRate": "0",
+        "optimalUsageRatio": 0,
+        "premiumOffsetRay": "0",
+        "premiumShares": "0",
+        "rateGrowthAfterOptimal": 0,
+        "rateGrowthBeforeOptimal": 0,
+        "reinvestmentController": "0x0000000000000000000000000000000000000000",
+        "swept": "0",
+        "symbol": "WETH",
+        "underlying": "0x0000000000000000000000000000000000002008"
+      },
+      "9": {
+        "baseDrawnRate": 0,
+        "decimals": 18,
+        "deficitRay": "0",
+        "feeReceiver": "0x0000000000000000000000000000000000004009",
+        "irStrategy": "0x0000000000000000000000000000000000003009",
+        "liquidityFee": 0,
+        "maxDrawnRate": "0",
+        "optimalUsageRatio": 0,
+        "premiumOffsetRay": "0",
+        "premiumShares": "0",
+        "rateGrowthAfterOptimal": 0,
+        "rateGrowthBeforeOptimal": 0,
+        "reinvestmentController": "0x0000000000000000000000000000000000000000",
+        "swept": "0",
+        "symbol": "WETH",
+        "underlying": "0x0000000000000000000000000000000000002009"
+      }
+    }
+  },
+  "positionManagers": {},
+  "spokeConfigs": {
+    "0xCca852Bc40e560adC3b1Cc58CA5b55638ce826c9_0_0x0000000000000000000000000000000000001000": {
+      "active": true,
+      "addCap": 20000,
+      "assetSymbol": "WETH",
+      "drawCap": 1700,
+      "halted": false,
+      "riskPremiumThreshold": 0
+    },
+    "0xCca852Bc40e560adC3b1Cc58CA5b55638ce826c9_10_0x000000000000000000000000000000000000100A": {
+      "active": true,
+      "addCap": 20000,
+      "assetSymbol": "WETH",
+      "drawCap": 1700,
+      "halted": false,
+      "riskPremiumThreshold": 0
+    },
+    "0xCca852Bc40e560adC3b1Cc58CA5b55638ce826c9_11_0x000000000000000000000000000000000000100b": {
+      "active": true,
+      "addCap": 20000,
+      "assetSymbol": "WETH",
+      "drawCap": 1700,
+      "halted": false,
+      "riskPremiumThreshold": 0
+    },
+    "0xCca852Bc40e560adC3b1Cc58CA5b55638ce826c9_12_0x000000000000000000000000000000000000100C": {
+      "active": true,
+      "addCap": 20000,
+      "assetSymbol": "WETH",
+      "drawCap": 1700,
+      "halted": false,
+      "riskPremiumThreshold": 0
+    },
+    "0xCca852Bc40e560adC3b1Cc58CA5b55638ce826c9_13_0x000000000000000000000000000000000000100D": {
+      "active": true,
+      "addCap": 20000,
+      "assetSymbol": "WETH",
+      "drawCap": 1700,
+      "halted": false,
+      "riskPremiumThreshold": 0
+    },
+    "0xCca852Bc40e560adC3b1Cc58CA5b55638ce826c9_14_0x000000000000000000000000000000000000100e": {
+      "active": true,
+      "addCap": 20000,
+      "assetSymbol": "WETH",
+      "drawCap": 1700,
+      "halted": false,
+      "riskPremiumThreshold": 0
+    },
+    "0xCca852Bc40e560adC3b1Cc58CA5b55638ce826c9_15_0x000000000000000000000000000000000000100f": {
+      "active": true,
+      "addCap": 20000,
+      "assetSymbol": "WETH",
+      "drawCap": 1700,
+      "halted": false,
+      "riskPremiumThreshold": 0
+    },
+    "0xCca852Bc40e560adC3b1Cc58CA5b55638ce826c9_16_0x0000000000000000000000000000000000001010": {
+      "active": true,
+      "addCap": 20000,
+      "assetSymbol": "WETH",
+      "drawCap": 1700,
+      "halted": false,
+      "riskPremiumThreshold": 0
+    },
+    "0xCca852Bc40e560adC3b1Cc58CA5b55638ce826c9_17_0x0000000000000000000000000000000000001011": {
+      "active": true,
+      "addCap": 20000,
+      "assetSymbol": "WETH",
+      "drawCap": 1700,
+      "halted": false,
+      "riskPremiumThreshold": 0
+    },
+    "0xCca852Bc40e560adC3b1Cc58CA5b55638ce826c9_18_0x0000000000000000000000000000000000001012": {
+      "active": true,
+      "addCap": 20000,
+      "assetSymbol": "WETH",
+      "drawCap": 1700,
+      "halted": false,
+      "riskPremiumThreshold": 0
+    },
+    "0xCca852Bc40e560adC3b1Cc58CA5b55638ce826c9_19_0x0000000000000000000000000000000000001013": {
+      "active": true,
+      "addCap": 20000,
+      "assetSymbol": "WETH",
+      "drawCap": 1700,
+      "halted": false,
+      "riskPremiumThreshold": 0
+    },
+    "0xCca852Bc40e560adC3b1Cc58CA5b55638ce826c9_1_0x0000000000000000000000000000000000001001": {
+      "active": true,
+      "addCap": 20000,
+      "assetSymbol": "WETH",
+      "drawCap": 1700,
+      "halted": false,
+      "riskPremiumThreshold": 0
+    },
+    "0xCca852Bc40e560adC3b1Cc58CA5b55638ce826c9_20_0x0000000000000000000000000000000000001014": {
+      "active": true,
+      "addCap": 20000,
+      "assetSymbol": "WETH",
+      "drawCap": 1700,
+      "halted": false,
+      "riskPremiumThreshold": 0
+    },
+    "0xCca852Bc40e560adC3b1Cc58CA5b55638ce826c9_21_0x0000000000000000000000000000000000001015": {
+      "active": true,
+      "addCap": 20000,
+      "assetSymbol": "WETH",
+      "drawCap": 1700,
+      "halted": false,
+      "riskPremiumThreshold": 0
+    },
+    "0xCca852Bc40e560adC3b1Cc58CA5b55638ce826c9_22_0x0000000000000000000000000000000000001016": {
+      "active": true,
+      "addCap": 20000,
+      "assetSymbol": "WETH",
+      "drawCap": 1700,
+      "halted": false,
+      "riskPremiumThreshold": 0
+    },
+    "0xCca852Bc40e560adC3b1Cc58CA5b55638ce826c9_23_0x0000000000000000000000000000000000001017": {
+      "active": true,
+      "addCap": 20000,
+      "assetSymbol": "WETH",
+      "drawCap": 1700,
+      "halted": false,
+      "riskPremiumThreshold": 0
+    },
+    "0xCca852Bc40e560adC3b1Cc58CA5b55638ce826c9_24_0x0000000000000000000000000000000000001018": {
+      "active": true,
+      "addCap": 20000,
+      "assetSymbol": "WETH",
+      "drawCap": 1700,
+      "halted": false,
+      "riskPremiumThreshold": 0
+    },
+    "0xCca852Bc40e560adC3b1Cc58CA5b55638ce826c9_25_0x0000000000000000000000000000000000001019": {
+      "active": true,
+      "addCap": 20000,
+      "assetSymbol": "WETH",
+      "drawCap": 1700,
+      "halted": false,
+      "riskPremiumThreshold": 0
+    },
+    "0xCca852Bc40e560adC3b1Cc58CA5b55638ce826c9_26_0x000000000000000000000000000000000000101A": {
+      "active": true,
+      "addCap": 20000,
+      "assetSymbol": "WETH",
+      "drawCap": 1700,
+      "halted": false,
+      "riskPremiumThreshold": 0
+    },
+    "0xCca852Bc40e560adC3b1Cc58CA5b55638ce826c9_27_0x000000000000000000000000000000000000101B": {
+      "active": true,
+      "addCap": 20000,
+      "assetSymbol": "WETH",
+      "drawCap": 1700,
+      "halted": false,
+      "riskPremiumThreshold": 0
+    },
+    "0xCca852Bc40e560adC3b1Cc58CA5b55638ce826c9_28_0x000000000000000000000000000000000000101C": {
+      "active": true,
+      "addCap": 20000,
+      "assetSymbol": "WETH",
+      "drawCap": 1700,
+      "halted": false,
+      "riskPremiumThreshold": 0
+    },
+    "0xCca852Bc40e560adC3b1Cc58CA5b55638ce826c9_29_0x000000000000000000000000000000000000101D": {
+      "active": true,
+      "addCap": 20000,
+      "assetSymbol": "WETH",
+      "drawCap": 1700,
+      "halted": false,
+      "riskPremiumThreshold": 0
+    },
+    "0xCca852Bc40e560adC3b1Cc58CA5b55638ce826c9_2_0x0000000000000000000000000000000000001002": {
+      "active": true,
+      "addCap": 20000,
+      "assetSymbol": "WETH",
+      "drawCap": 1700,
+      "halted": false,
+      "riskPremiumThreshold": 0
+    },
+    "0xCca852Bc40e560adC3b1Cc58CA5b55638ce826c9_30_0x000000000000000000000000000000000000101e": {
+      "active": true,
+      "addCap": 20000,
+      "assetSymbol": "WETH",
+      "drawCap": 1700,
+      "halted": false,
+      "riskPremiumThreshold": 0
+    },
+    "0xCca852Bc40e560adC3b1Cc58CA5b55638ce826c9_31_0x000000000000000000000000000000000000101f": {
+      "active": true,
+      "addCap": 20000,
+      "assetSymbol": "WETH",
+      "drawCap": 1700,
+      "halted": false,
+      "riskPremiumThreshold": 0
+    },
+    "0xCca852Bc40e560adC3b1Cc58CA5b55638ce826c9_32_0x0000000000000000000000000000000000001020": {
+      "active": true,
+      "addCap": 20000,
+      "assetSymbol": "WETH",
+      "drawCap": 1700,
+      "halted": false,
+      "riskPremiumThreshold": 0
+    },
+    "0xCca852Bc40e560adC3b1Cc58CA5b55638ce826c9_33_0x0000000000000000000000000000000000001021": {
+      "active": true,
+      "addCap": 20000,
+      "assetSymbol": "WETH",
+      "drawCap": 1700,
+      "halted": false,
+      "riskPremiumThreshold": 0
+    },
+    "0xCca852Bc40e560adC3b1Cc58CA5b55638ce826c9_34_0x0000000000000000000000000000000000001022": {
+      "active": true,
+      "addCap": 20000,
+      "assetSymbol": "WETH",
+      "drawCap": 1700,
+      "halted": false,
+      "riskPremiumThreshold": 0
+    },
+    "0xCca852Bc40e560adC3b1Cc58CA5b55638ce826c9_35_0x0000000000000000000000000000000000001023": {
+      "active": true,
+      "addCap": 20000,
+      "assetSymbol": "WETH",
+      "drawCap": 1700,
+      "halted": false,
+      "riskPremiumThreshold": 0
+    },
+    "0xCca852Bc40e560adC3b1Cc58CA5b55638ce826c9_36_0x0000000000000000000000000000000000001024": {
+      "active": true,
+      "addCap": 20000,
+      "assetSymbol": "WETH",
+      "drawCap": 1700,
+      "halted": false,
+      "riskPremiumThreshold": 0
+    },
+    "0xCca852Bc40e560adC3b1Cc58CA5b55638ce826c9_37_0x0000000000000000000000000000000000001025": {
+      "active": true,
+      "addCap": 20000,
+      "assetSymbol": "WETH",
+      "drawCap": 1700,
+      "halted": false,
+      "riskPremiumThreshold": 0
+    },
+    "0xCca852Bc40e560adC3b1Cc58CA5b55638ce826c9_38_0x0000000000000000000000000000000000001026": {
+      "active": true,
+      "addCap": 20000,
+      "assetSymbol": "WETH",
+      "drawCap": 1700,
+      "halted": false,
+      "riskPremiumThreshold": 0
+    },
+    "0xCca852Bc40e560adC3b1Cc58CA5b55638ce826c9_39_0x0000000000000000000000000000000000001027": {
+      "active": true,
+      "addCap": 20000,
+      "assetSymbol": "WETH",
+      "drawCap": 1700,
+      "halted": false,
+      "riskPremiumThreshold": 0
+    },
+    "0xCca852Bc40e560adC3b1Cc58CA5b55638ce826c9_3_0x0000000000000000000000000000000000001003": {
+      "active": true,
+      "addCap": 20000,
+      "assetSymbol": "WETH",
+      "drawCap": 1700,
+      "halted": false,
+      "riskPremiumThreshold": 0
+    },
+    "0xCca852Bc40e560adC3b1Cc58CA5b55638ce826c9_40_0x0000000000000000000000000000000000001028": {
+      "active": true,
+      "addCap": 20000,
+      "assetSymbol": "WETH",
+      "drawCap": 1700,
+      "halted": false,
+      "riskPremiumThreshold": 0
+    },
+    "0xCca852Bc40e560adC3b1Cc58CA5b55638ce826c9_41_0x0000000000000000000000000000000000001029": {
+      "active": true,
+      "addCap": 20000,
+      "assetSymbol": "WETH",
+      "drawCap": 1700,
+      "halted": false,
+      "riskPremiumThreshold": 0
+    },
+    "0xCca852Bc40e560adC3b1Cc58CA5b55638ce826c9_42_0x000000000000000000000000000000000000102A": {
+      "active": true,
+      "addCap": 20000,
+      "assetSymbol": "WETH",
+      "drawCap": 1700,
+      "halted": false,
+      "riskPremiumThreshold": 0
+    },
+    "0xCca852Bc40e560adC3b1Cc58CA5b55638ce826c9_43_0x000000000000000000000000000000000000102b": {
+      "active": true,
+      "addCap": 20000,
+      "assetSymbol": "WETH",
+      "drawCap": 1700,
+      "halted": false,
+      "riskPremiumThreshold": 0
+    },
+    "0xCca852Bc40e560adC3b1Cc58CA5b55638ce826c9_44_0x000000000000000000000000000000000000102C": {
+      "active": true,
+      "addCap": 20000,
+      "assetSymbol": "WETH",
+      "drawCap": 1700,
+      "halted": false,
+      "riskPremiumThreshold": 0
+    },
+    "0xCca852Bc40e560adC3b1Cc58CA5b55638ce826c9_45_0x000000000000000000000000000000000000102d": {
+      "active": true,
+      "addCap": 20000,
+      "assetSymbol": "WETH",
+      "drawCap": 1700,
+      "halted": false,
+      "riskPremiumThreshold": 0
+    },
+    "0xCca852Bc40e560adC3b1Cc58CA5b55638ce826c9_46_0x000000000000000000000000000000000000102E": {
+      "active": true,
+      "addCap": 20000,
+      "assetSymbol": "WETH",
+      "drawCap": 1700,
+      "halted": false,
+      "riskPremiumThreshold": 0
+    },
+    "0xCca852Bc40e560adC3b1Cc58CA5b55638ce826c9_47_0x000000000000000000000000000000000000102f": {
+      "active": true,
+      "addCap": 20000,
+      "assetSymbol": "WETH",
+      "drawCap": 1700,
+      "halted": false,
+      "riskPremiumThreshold": 0
+    },
+    "0xCca852Bc40e560adC3b1Cc58CA5b55638ce826c9_48_0x0000000000000000000000000000000000001030": {
+      "active": true,
+      "addCap": 20000,
+      "assetSymbol": "WETH",
+      "drawCap": 1700,
+      "halted": false,
+      "riskPremiumThreshold": 0
+    },
+    "0xCca852Bc40e560adC3b1Cc58CA5b55638ce826c9_49_0x0000000000000000000000000000000000001031": {
+      "active": true,
+      "addCap": 20000,
+      "assetSymbol": "WETH",
+      "drawCap": 1700,
+      "halted": false,
+      "riskPremiumThreshold": 0
+    },
+    "0xCca852Bc40e560adC3b1Cc58CA5b55638ce826c9_4_0x0000000000000000000000000000000000001004": {
+      "active": true,
+      "addCap": 20000,
+      "assetSymbol": "WETH",
+      "drawCap": 1700,
+      "halted": false,
+      "riskPremiumThreshold": 0
+    },
+    "0xCca852Bc40e560adC3b1Cc58CA5b55638ce826c9_50_0x0000000000000000000000000000000000001032": {
+      "active": true,
+      "addCap": 20000,
+      "assetSymbol": "WETH",
+      "drawCap": 1700,
+      "halted": false,
+      "riskPremiumThreshold": 0
+    },
+    "0xCca852Bc40e560adC3b1Cc58CA5b55638ce826c9_51_0x0000000000000000000000000000000000001033": {
+      "active": true,
+      "addCap": 20000,
+      "assetSymbol": "WETH",
+      "drawCap": 1700,
+      "halted": false,
+      "riskPremiumThreshold": 0
+    },
+    "0xCca852Bc40e560adC3b1Cc58CA5b55638ce826c9_52_0x0000000000000000000000000000000000001034": {
+      "active": true,
+      "addCap": 20000,
+      "assetSymbol": "WETH",
+      "drawCap": 1700,
+      "halted": false,
+      "riskPremiumThreshold": 0
+    },
+    "0xCca852Bc40e560adC3b1Cc58CA5b55638ce826c9_53_0x0000000000000000000000000000000000001035": {
+      "active": true,
+      "addCap": 20000,
+      "assetSymbol": "WETH",
+      "drawCap": 1700,
+      "halted": false,
+      "riskPremiumThreshold": 0
+    },
+    "0xCca852Bc40e560adC3b1Cc58CA5b55638ce826c9_54_0x0000000000000000000000000000000000001036": {
+      "active": true,
+      "addCap": 20000,
+      "assetSymbol": "WETH",
+      "drawCap": 1700,
+      "halted": false,
+      "riskPremiumThreshold": 0
+    },
+    "0xCca852Bc40e560adC3b1Cc58CA5b55638ce826c9_55_0x0000000000000000000000000000000000001037": {
+      "active": true,
+      "addCap": 20000,
+      "assetSymbol": "WETH",
+      "drawCap": 1700,
+      "halted": false,
+      "riskPremiumThreshold": 0
+    },
+    "0xCca852Bc40e560adC3b1Cc58CA5b55638ce826c9_56_0x0000000000000000000000000000000000001038": {
+      "active": true,
+      "addCap": 20000,
+      "assetSymbol": "WETH",
+      "drawCap": 1700,
+      "halted": false,
+      "riskPremiumThreshold": 0
+    },
+    "0xCca852Bc40e560adC3b1Cc58CA5b55638ce826c9_57_0x0000000000000000000000000000000000001039": {
+      "active": true,
+      "addCap": 20000,
+      "assetSymbol": "WETH",
+      "drawCap": 1700,
+      "halted": false,
+      "riskPremiumThreshold": 0
+    },
+    "0xCca852Bc40e560adC3b1Cc58CA5b55638ce826c9_58_0x000000000000000000000000000000000000103A": {
+      "active": true,
+      "addCap": 20000,
+      "assetSymbol": "WETH",
+      "drawCap": 1700,
+      "halted": false,
+      "riskPremiumThreshold": 0
+    },
+    "0xCca852Bc40e560adC3b1Cc58CA5b55638ce826c9_59_0x000000000000000000000000000000000000103B": {
+      "active": true,
+      "addCap": 20000,
+      "assetSymbol": "WETH",
+      "drawCap": 1700,
+      "halted": false,
+      "riskPremiumThreshold": 0
+    },
+    "0xCca852Bc40e560adC3b1Cc58CA5b55638ce826c9_5_0x0000000000000000000000000000000000001005": {
+      "active": true,
+      "addCap": 20000,
+      "assetSymbol": "WETH",
+      "drawCap": 1700,
+      "halted": false,
+      "riskPremiumThreshold": 0
+    },
+    "0xCca852Bc40e560adC3b1Cc58CA5b55638ce826c9_60_0x000000000000000000000000000000000000103c": {
+      "active": true,
+      "addCap": 20000,
+      "assetSymbol": "WETH",
+      "drawCap": 1700,
+      "halted": false,
+      "riskPremiumThreshold": 0
+    },
+    "0xCca852Bc40e560adC3b1Cc58CA5b55638ce826c9_61_0x000000000000000000000000000000000000103d": {
+      "active": true,
+      "addCap": 20000,
+      "assetSymbol": "WETH",
+      "drawCap": 1700,
+      "halted": false,
+      "riskPremiumThreshold": 0
+    },
+    "0xCca852Bc40e560adC3b1Cc58CA5b55638ce826c9_62_0x000000000000000000000000000000000000103E": {
+      "active": true,
+      "addCap": 20000,
+      "assetSymbol": "WETH",
+      "drawCap": 1700,
+      "halted": false,
+      "riskPremiumThreshold": 0
+    },
+    "0xCca852Bc40e560adC3b1Cc58CA5b55638ce826c9_63_0x000000000000000000000000000000000000103f": {
+      "active": true,
+      "addCap": 20000,
+      "assetSymbol": "WETH",
+      "drawCap": 1700,
+      "halted": false,
+      "riskPremiumThreshold": 0
+    },
+    "0xCca852Bc40e560adC3b1Cc58CA5b55638ce826c9_64_0x0000000000000000000000000000000000001040": {
+      "active": true,
+      "addCap": 20000,
+      "assetSymbol": "WETH",
+      "drawCap": 1700,
+      "halted": false,
+      "riskPremiumThreshold": 0
+    },
+    "0xCca852Bc40e560adC3b1Cc58CA5b55638ce826c9_65_0x0000000000000000000000000000000000001041": {
+      "active": true,
+      "addCap": 20000,
+      "assetSymbol": "WETH",
+      "drawCap": 1700,
+      "halted": false,
+      "riskPremiumThreshold": 0
+    },
+    "0xCca852Bc40e560adC3b1Cc58CA5b55638ce826c9_66_0x0000000000000000000000000000000000001042": {
+      "active": true,
+      "addCap": 20000,
+      "assetSymbol": "WETH",
+      "drawCap": 1700,
+      "halted": false,
+      "riskPremiumThreshold": 0
+    },
+    "0xCca852Bc40e560adC3b1Cc58CA5b55638ce826c9_67_0x0000000000000000000000000000000000001043": {
+      "active": true,
+      "addCap": 20000,
+      "assetSymbol": "WETH",
+      "drawCap": 1700,
+      "halted": false,
+      "riskPremiumThreshold": 0
+    },
+    "0xCca852Bc40e560adC3b1Cc58CA5b55638ce826c9_68_0x0000000000000000000000000000000000001044": {
+      "active": true,
+      "addCap": 20000,
+      "assetSymbol": "WETH",
+      "drawCap": 1700,
+      "halted": false,
+      "riskPremiumThreshold": 0
+    },
+    "0xCca852Bc40e560adC3b1Cc58CA5b55638ce826c9_69_0x0000000000000000000000000000000000001045": {
+      "active": true,
+      "addCap": 20000,
+      "assetSymbol": "WETH",
+      "drawCap": 1700,
+      "halted": false,
+      "riskPremiumThreshold": 0
+    },
+    "0xCca852Bc40e560adC3b1Cc58CA5b55638ce826c9_6_0x0000000000000000000000000000000000001006": {
+      "active": true,
+      "addCap": 20000,
+      "assetSymbol": "WETH",
+      "drawCap": 1700,
+      "halted": false,
+      "riskPremiumThreshold": 0
+    },
+    "0xCca852Bc40e560adC3b1Cc58CA5b55638ce826c9_70_0x0000000000000000000000000000000000001046": {
+      "active": true,
+      "addCap": 20000,
+      "assetSymbol": "WETH",
+      "drawCap": 1700,
+      "halted": false,
+      "riskPremiumThreshold": 0
+    },
+    "0xCca852Bc40e560adC3b1Cc58CA5b55638ce826c9_71_0x0000000000000000000000000000000000001047": {
+      "active": true,
+      "addCap": 20000,
+      "assetSymbol": "WETH",
+      "drawCap": 1700,
+      "halted": false,
+      "riskPremiumThreshold": 0
+    },
+    "0xCca852Bc40e560adC3b1Cc58CA5b55638ce826c9_72_0x0000000000000000000000000000000000001048": {
+      "active": true,
+      "addCap": 20000,
+      "assetSymbol": "WETH",
+      "drawCap": 1700,
+      "halted": false,
+      "riskPremiumThreshold": 0
+    },
+    "0xCca852Bc40e560adC3b1Cc58CA5b55638ce826c9_73_0x0000000000000000000000000000000000001049": {
+      "active": true,
+      "addCap": 20000,
+      "assetSymbol": "WETH",
+      "drawCap": 1700,
+      "halted": false,
+      "riskPremiumThreshold": 0
+    },
+    "0xCca852Bc40e560adC3b1Cc58CA5b55638ce826c9_74_0x000000000000000000000000000000000000104a": {
+      "active": true,
+      "addCap": 20000,
+      "assetSymbol": "WETH",
+      "drawCap": 1700,
+      "halted": false,
+      "riskPremiumThreshold": 0
+    },
+    "0xCca852Bc40e560adC3b1Cc58CA5b55638ce826c9_75_0x000000000000000000000000000000000000104b": {
+      "active": true,
+      "addCap": 20000,
+      "assetSymbol": "WETH",
+      "drawCap": 1700,
+      "halted": false,
+      "riskPremiumThreshold": 0
+    },
+    "0xCca852Bc40e560adC3b1Cc58CA5b55638ce826c9_76_0x000000000000000000000000000000000000104c": {
+      "active": true,
+      "addCap": 20000,
+      "assetSymbol": "WETH",
+      "drawCap": 1700,
+      "halted": false,
+      "riskPremiumThreshold": 0
+    },
+    "0xCca852Bc40e560adC3b1Cc58CA5b55638ce826c9_77_0x000000000000000000000000000000000000104D": {
+      "active": true,
+      "addCap": 20000,
+      "assetSymbol": "WETH",
+      "drawCap": 1700,
+      "halted": false,
+      "riskPremiumThreshold": 0
+    },
+    "0xCca852Bc40e560adC3b1Cc58CA5b55638ce826c9_78_0x000000000000000000000000000000000000104E": {
+      "active": true,
+      "addCap": 20000,
+      "assetSymbol": "WETH",
+      "drawCap": 1700,
+      "halted": false,
+      "riskPremiumThreshold": 0
+    },
+    "0xCca852Bc40e560adC3b1Cc58CA5b55638ce826c9_7_0x0000000000000000000000000000000000001007": {
+      "active": true,
+      "addCap": 20000,
+      "assetSymbol": "WETH",
+      "drawCap": 1700,
+      "halted": false,
+      "riskPremiumThreshold": 0
+    },
+    "0xCca852Bc40e560adC3b1Cc58CA5b55638ce826c9_8_0x0000000000000000000000000000000000001008": {
+      "active": true,
+      "addCap": 20000,
+      "assetSymbol": "WETH",
+      "drawCap": 1700,
+      "halted": false,
+      "riskPremiumThreshold": 0
+    },
+    "0xCca852Bc40e560adC3b1Cc58CA5b55638ce826c9_9_0x0000000000000000000000000000000000001009": {
+      "active": true,
+      "addCap": 20000,
+      "assetSymbol": "WETH",
+      "drawCap": 1700,
+      "halted": false,
+      "riskPremiumThreshold": 0
+    }
+  },
+  "spokeLiquidationConfigs": {},
+  "spokeReserves": {
+    "0x94e7A5dCbE816e498b89aB752661904E2F56c485": {
+      "0": {
+        "assetId": 0,
+        "borrowable": false,
+        "collateralFactor": 0,
+        "collateralRisk": 0,
+        "decimals": 18,
+        "dynamicConfigKey": 0,
+        "dynamicConfigs": {
+          "0": {
+            "collateralFactor": 0,
+            "liquidationFee": 0,
+            "maxLiquidationBonus": 0
+          }
+        },
+        "frozen": false,
+        "hub": "0xCca852Bc40e560adC3b1Cc58CA5b55638ce826c9",
+        "liquidationFee": 0,
+        "maxLiquidationBonus": 0,
+        "oracleAddress": "0x0000000000000000000000000000000000006000",
+        "oraclePrice": "0",
+        "paused": false,
+        "priceSource": "0x0000000000000000000000000000000000007000",
+        "receiveSharesEnabled": false,
+        "symbol": "WETH",
+        "underlying": "0x0000000000000000000000000000000000005000"
+      },
+      "1": {
+        "assetId": 1,
+        "borrowable": false,
+        "collateralFactor": 0,
+        "collateralRisk": 0,
+        "decimals": 18,
+        "dynamicConfigKey": 0,
+        "dynamicConfigs": {
+          "0": {
+            "collateralFactor": 0,
+            "liquidationFee": 0,
+            "maxLiquidationBonus": 0
+          }
+        },
+        "frozen": false,
+        "hub": "0xCca852Bc40e560adC3b1Cc58CA5b55638ce826c9",
+        "liquidationFee": 0,
+        "maxLiquidationBonus": 0,
+        "oracleAddress": "0x0000000000000000000000000000000000006001",
+        "oraclePrice": "0",
+        "paused": false,
+        "priceSource": "0x0000000000000000000000000000000000007001",
+        "receiveSharesEnabled": false,
+        "symbol": "WETH",
+        "underlying": "0x0000000000000000000000000000000000005001"
+      },
+      "10": {
+        "assetId": 10,
+        "borrowable": false,
+        "collateralFactor": 0,
+        "collateralRisk": 0,
+        "decimals": 18,
+        "dynamicConfigKey": 0,
+        "dynamicConfigs": {
+          "0": {
+            "collateralFactor": 0,
+            "liquidationFee": 0,
+            "maxLiquidationBonus": 0
+          }
+        },
+        "frozen": false,
+        "hub": "0xCca852Bc40e560adC3b1Cc58CA5b55638ce826c9",
+        "liquidationFee": 0,
+        "maxLiquidationBonus": 0,
+        "oracleAddress": "0x000000000000000000000000000000000000600A",
+        "oraclePrice": "0",
+        "paused": false,
+        "priceSource": "0x000000000000000000000000000000000000700a",
+        "receiveSharesEnabled": false,
+        "symbol": "WETH",
+        "underlying": "0x000000000000000000000000000000000000500a"
+      },
+      "11": {
+        "assetId": 11,
+        "borrowable": false,
+        "collateralFactor": 0,
+        "collateralRisk": 0,
+        "decimals": 18,
+        "dynamicConfigKey": 0,
+        "dynamicConfigs": {
+          "0": {
+            "collateralFactor": 0,
+            "liquidationFee": 0,
+            "maxLiquidationBonus": 0
+          }
+        },
+        "frozen": false,
+        "hub": "0xCca852Bc40e560adC3b1Cc58CA5b55638ce826c9",
+        "liquidationFee": 0,
+        "maxLiquidationBonus": 0,
+        "oracleAddress": "0x000000000000000000000000000000000000600B",
+        "oraclePrice": "0",
+        "paused": false,
+        "priceSource": "0x000000000000000000000000000000000000700B",
+        "receiveSharesEnabled": false,
+        "symbol": "WETH",
+        "underlying": "0x000000000000000000000000000000000000500B"
+      },
+      "12": {
+        "assetId": 12,
+        "borrowable": false,
+        "collateralFactor": 0,
+        "collateralRisk": 0,
+        "decimals": 18,
+        "dynamicConfigKey": 0,
+        "dynamicConfigs": {
+          "0": {
+            "collateralFactor": 0,
+            "liquidationFee": 0,
+            "maxLiquidationBonus": 0
+          }
+        },
+        "frozen": false,
+        "hub": "0xCca852Bc40e560adC3b1Cc58CA5b55638ce826c9",
+        "liquidationFee": 0,
+        "maxLiquidationBonus": 0,
+        "oracleAddress": "0x000000000000000000000000000000000000600c",
+        "oraclePrice": "0",
+        "paused": false,
+        "priceSource": "0x000000000000000000000000000000000000700c",
+        "receiveSharesEnabled": false,
+        "symbol": "WETH",
+        "underlying": "0x000000000000000000000000000000000000500c"
+      },
+      "13": {
+        "assetId": 13,
+        "borrowable": false,
+        "collateralFactor": 0,
+        "collateralRisk": 0,
+        "decimals": 18,
+        "dynamicConfigKey": 0,
+        "dynamicConfigs": {
+          "0": {
+            "collateralFactor": 0,
+            "liquidationFee": 0,
+            "maxLiquidationBonus": 0
+          }
+        },
+        "frozen": false,
+        "hub": "0xCca852Bc40e560adC3b1Cc58CA5b55638ce826c9",
+        "liquidationFee": 0,
+        "maxLiquidationBonus": 0,
+        "oracleAddress": "0x000000000000000000000000000000000000600d",
+        "oraclePrice": "0",
+        "paused": false,
+        "priceSource": "0x000000000000000000000000000000000000700d",
+        "receiveSharesEnabled": false,
+        "symbol": "WETH",
+        "underlying": "0x000000000000000000000000000000000000500d"
+      },
+      "2": {
+        "assetId": 2,
+        "borrowable": false,
+        "collateralFactor": 0,
+        "collateralRisk": 0,
+        "decimals": 18,
+        "dynamicConfigKey": 0,
+        "dynamicConfigs": {
+          "0": {
+            "collateralFactor": 0,
+            "liquidationFee": 0,
+            "maxLiquidationBonus": 0
+          }
+        },
+        "frozen": false,
+        "hub": "0xCca852Bc40e560adC3b1Cc58CA5b55638ce826c9",
+        "liquidationFee": 0,
+        "maxLiquidationBonus": 0,
+        "oracleAddress": "0x0000000000000000000000000000000000006002",
+        "oraclePrice": "0",
+        "paused": false,
+        "priceSource": "0x0000000000000000000000000000000000007002",
+        "receiveSharesEnabled": false,
+        "symbol": "WETH",
+        "underlying": "0x0000000000000000000000000000000000005002"
+      },
+      "3": {
+        "assetId": 3,
+        "borrowable": false,
+        "collateralFactor": 0,
+        "collateralRisk": 0,
+        "decimals": 18,
+        "dynamicConfigKey": 0,
+        "dynamicConfigs": {
+          "0": {
+            "collateralFactor": 0,
+            "liquidationFee": 0,
+            "maxLiquidationBonus": 0
+          }
+        },
+        "frozen": false,
+        "hub": "0xCca852Bc40e560adC3b1Cc58CA5b55638ce826c9",
+        "liquidationFee": 0,
+        "maxLiquidationBonus": 0,
+        "oracleAddress": "0x0000000000000000000000000000000000006003",
+        "oraclePrice": "0",
+        "paused": false,
+        "priceSource": "0x0000000000000000000000000000000000007003",
+        "receiveSharesEnabled": false,
+        "symbol": "WETH",
+        "underlying": "0x0000000000000000000000000000000000005003"
+      },
+      "4": {
+        "assetId": 4,
+        "borrowable": false,
+        "collateralFactor": 0,
+        "collateralRisk": 0,
+        "decimals": 18,
+        "dynamicConfigKey": 0,
+        "dynamicConfigs": {
+          "0": {
+            "collateralFactor": 0,
+            "liquidationFee": 0,
+            "maxLiquidationBonus": 0
+          }
+        },
+        "frozen": false,
+        "hub": "0xCca852Bc40e560adC3b1Cc58CA5b55638ce826c9",
+        "liquidationFee": 0,
+        "maxLiquidationBonus": 0,
+        "oracleAddress": "0x0000000000000000000000000000000000006004",
+        "oraclePrice": "0",
+        "paused": false,
+        "priceSource": "0x0000000000000000000000000000000000007004",
+        "receiveSharesEnabled": false,
+        "symbol": "WETH",
+        "underlying": "0x0000000000000000000000000000000000005004"
+      },
+      "5": {
+        "assetId": 5,
+        "borrowable": false,
+        "collateralFactor": 0,
+        "collateralRisk": 0,
+        "decimals": 18,
+        "dynamicConfigKey": 0,
+        "dynamicConfigs": {
+          "0": {
+            "collateralFactor": 0,
+            "liquidationFee": 0,
+            "maxLiquidationBonus": 0
+          }
+        },
+        "frozen": false,
+        "hub": "0xCca852Bc40e560adC3b1Cc58CA5b55638ce826c9",
+        "liquidationFee": 0,
+        "maxLiquidationBonus": 0,
+        "oracleAddress": "0x0000000000000000000000000000000000006005",
+        "oraclePrice": "0",
+        "paused": false,
+        "priceSource": "0x0000000000000000000000000000000000007005",
+        "receiveSharesEnabled": false,
+        "symbol": "WETH",
+        "underlying": "0x0000000000000000000000000000000000005005"
+      },
+      "6": {
+        "assetId": 6,
+        "borrowable": false,
+        "collateralFactor": 0,
+        "collateralRisk": 0,
+        "decimals": 18,
+        "dynamicConfigKey": 0,
+        "dynamicConfigs": {
+          "0": {
+            "collateralFactor": 0,
+            "liquidationFee": 0,
+            "maxLiquidationBonus": 0
+          }
+        },
+        "frozen": false,
+        "hub": "0xCca852Bc40e560adC3b1Cc58CA5b55638ce826c9",
+        "liquidationFee": 0,
+        "maxLiquidationBonus": 0,
+        "oracleAddress": "0x0000000000000000000000000000000000006006",
+        "oraclePrice": "0",
+        "paused": false,
+        "priceSource": "0x0000000000000000000000000000000000007006",
+        "receiveSharesEnabled": false,
+        "symbol": "WETH",
+        "underlying": "0x0000000000000000000000000000000000005006"
+      },
+      "7": {
+        "assetId": 7,
+        "borrowable": false,
+        "collateralFactor": 0,
+        "collateralRisk": 0,
+        "decimals": 18,
+        "dynamicConfigKey": 0,
+        "dynamicConfigs": {
+          "0": {
+            "collateralFactor": 0,
+            "liquidationFee": 0,
+            "maxLiquidationBonus": 0
+          }
+        },
+        "frozen": false,
+        "hub": "0xCca852Bc40e560adC3b1Cc58CA5b55638ce826c9",
+        "liquidationFee": 0,
+        "maxLiquidationBonus": 0,
+        "oracleAddress": "0x0000000000000000000000000000000000006007",
+        "oraclePrice": "0",
+        "paused": false,
+        "priceSource": "0x0000000000000000000000000000000000007007",
+        "receiveSharesEnabled": false,
+        "symbol": "WETH",
+        "underlying": "0x0000000000000000000000000000000000005007"
+      },
+      "8": {
+        "assetId": 8,
+        "borrowable": false,
+        "collateralFactor": 0,
+        "collateralRisk": 0,
+        "decimals": 18,
+        "dynamicConfigKey": 0,
+        "dynamicConfigs": {
+          "0": {
+            "collateralFactor": 0,
+            "liquidationFee": 0,
+            "maxLiquidationBonus": 0
+          }
+        },
+        "frozen": false,
+        "hub": "0xCca852Bc40e560adC3b1Cc58CA5b55638ce826c9",
+        "liquidationFee": 0,
+        "maxLiquidationBonus": 0,
+        "oracleAddress": "0x0000000000000000000000000000000000006008",
+        "oraclePrice": "0",
+        "paused": false,
+        "priceSource": "0x0000000000000000000000000000000000007008",
+        "receiveSharesEnabled": false,
+        "symbol": "WETH",
+        "underlying": "0x0000000000000000000000000000000000005008"
+      },
+      "9": {
+        "assetId": 9,
+        "borrowable": false,
+        "collateralFactor": 0,
+        "collateralRisk": 0,
+        "decimals": 18,
+        "dynamicConfigKey": 0,
+        "dynamicConfigs": {
+          "0": {
+            "collateralFactor": 0,
+            "liquidationFee": 0,
+            "maxLiquidationBonus": 0
+          }
+        },
+        "frozen": false,
+        "hub": "0xCca852Bc40e560adC3b1Cc58CA5b55638ce826c9",
+        "liquidationFee": 0,
+        "maxLiquidationBonus": 0,
+        "oracleAddress": "0x0000000000000000000000000000000000006009",
+        "oraclePrice": "0",
+        "paused": false,
+        "priceSource": "0x0000000000000000000000000000000000007009",
+        "receiveSharesEnabled": false,
+        "symbol": "WETH",
+        "underlying": "0x0000000000000000000000000000000000005009"
+      }
+    }
+  }
+}

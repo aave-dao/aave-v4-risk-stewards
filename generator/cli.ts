@@ -3,10 +3,9 @@ import path from 'path';
 import {Command, Option} from 'commander';
 import {input, checkbox} from '@inquirer/prompts';
 import {createPublicClient, http} from 'viem';
-import {mainnet} from 'viem/chains';
 import {getBlockNumber} from 'viem/actions';
 
-import {CHAIN_TO_CHAIN_ID, getDate, pascalCase} from './common';
+import {CHAIN_TO_VIEM_CHAIN, getDate, pascalCase} from './common';
 import {
   CHAINS,
   ChainCache,
@@ -51,11 +50,8 @@ const FEATURE_MODULES_V4 = [
   spokeLiquidationConfigUpdates,
 ];
 
-const CHAIN_BY_ID = {[mainnet.id]: mainnet} as const;
-
 async function generateDeterministicChainCache(chain: ChainIdentifier): Promise<ChainCache> {
-  const viemChain = CHAIN_BY_ID[CHAIN_TO_CHAIN_ID[chain] as keyof typeof CHAIN_BY_ID];
-  const client = createPublicClient({chain: viemChain, transport: http()});
+  const client = createPublicClient({chain: CHAIN_TO_VIEM_CHAIN[chain], transport: http()});
   return {blockNumber: Number(await getBlockNumber(client))};
 }
 

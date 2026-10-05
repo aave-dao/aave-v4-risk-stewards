@@ -1,0 +1,516 @@
+{
+  "accessManagerRoles": {},
+  "chainId": 8453,
+  "hubAssets": {
+    "0xa4d5947Eb727A052bae69C593FfC84247EC9864E": {
+      "0": {
+        "baseDrawnRate": 100,
+        "decimals": 8,
+        "deficitRay": "0",
+        "feeReceiver": "0x5F8d0102F5B51Fae6DE9d2F2561bda63Fb5Db674",
+        "irStrategy": "0x3b0c5FbEff9d32fB6bB706bACc988c88b1871770",
+        "liquidityFee": 0,
+        "maxDrawnRate": "100",
+        "optimalUsageRatio": 100,
+        "premiumOffsetRay": "0",
+        "premiumShares": "0",
+        "rateGrowthAfterOptimal": 0,
+        "rateGrowthBeforeOptimal": 0,
+        "reinvestmentController": "0x0000000000000000000000000000000000000000",
+        "swept": "0",
+        "symbol": "AAPLc",
+        "underlying": "0xb200000000000000000000C2e324d24d7eEcd1fb"
+      },
+      "1": {
+        "baseDrawnRate": 0,
+        "decimals": 8,
+        "deficitRay": "0",
+        "feeReceiver": "0x5F8d0102F5B51Fae6DE9d2F2561bda63Fb5Db674",
+        "irStrategy": "0x3b0c5FbEff9d32fB6bB706bACc988c88b1871770",
+        "liquidityFee": 0,
+        "maxDrawnRate": "0",
+        "optimalUsageRatio": 100,
+        "premiumOffsetRay": "0",
+        "premiumShares": "0",
+        "rateGrowthAfterOptimal": 0,
+        "rateGrowthBeforeOptimal": 0,
+        "reinvestmentController": "0x0000000000000000000000000000000000000000",
+        "swept": "0",
+        "symbol": "AMZNc",
+        "underlying": "0xb200000000000000000000d9192b6B456483C2E8"
+      },
+      "2": {
+        "baseDrawnRate": 0,
+        "decimals": 8,
+        "deficitRay": "0",
+        "feeReceiver": "0x5F8d0102F5B51Fae6DE9d2F2561bda63Fb5Db674",
+        "irStrategy": "0x3b0c5FbEff9d32fB6bB706bACc988c88b1871770",
+        "liquidityFee": 0,
+        "maxDrawnRate": "0",
+        "optimalUsageRatio": 100,
+        "premiumOffsetRay": "0",
+        "premiumShares": "0",
+        "rateGrowthAfterOptimal": 0,
+        "rateGrowthBeforeOptimal": 0,
+        "reinvestmentController": "0x0000000000000000000000000000000000000000",
+        "swept": "0",
+        "symbol": "GOOGLc",
+        "underlying": "0xb2000000000000000000002D0BA3164cc74f58B7"
+      },
+      "3": {
+        "baseDrawnRate": 0,
+        "decimals": 8,
+        "deficitRay": "0",
+        "feeReceiver": "0x5F8d0102F5B51Fae6DE9d2F2561bda63Fb5Db674",
+        "irStrategy": "0x3b0c5FbEff9d32fB6bB706bACc988c88b1871770",
+        "liquidityFee": 0,
+        "maxDrawnRate": "0",
+        "optimalUsageRatio": 100,
+        "premiumOffsetRay": "0",
+        "premiumShares": "0",
+        "rateGrowthAfterOptimal": 0,
+        "rateGrowthBeforeOptimal": 0,
+        "reinvestmentController": "0x0000000000000000000000000000000000000000",
+        "swept": "0",
+        "symbol": "METAc",
+        "underlying": "0xb2000000000000000000008bC8786B856E61707C"
+      },
+      "4": {
+        "baseDrawnRate": 0,
+        "decimals": 8,
+        "deficitRay": "0",
+        "feeReceiver": "0x5F8d0102F5B51Fae6DE9d2F2561bda63Fb5Db674",
+        "irStrategy": "0x3b0c5FbEff9d32fB6bB706bACc988c88b1871770",
+        "liquidityFee": 0,
+        "maxDrawnRate": "0",
+        "optimalUsageRatio": 100,
+        "premiumOffsetRay": "0",
+        "premiumShares": "0",
+        "rateGrowthAfterOptimal": 0,
+        "rateGrowthBeforeOptimal": 0,
+        "reinvestmentController": "0x0000000000000000000000000000000000000000",
+        "swept": "0",
+        "symbol": "MSFTc",
+        "underlying": "0xB200000000000000000000Ab99cFa739E253872B"
+      },
+      "5": {
+        "baseDrawnRate": 0,
+        "decimals": 8,
+        "deficitRay": "0",
+        "feeReceiver": "0x5F8d0102F5B51Fae6DE9d2F2561bda63Fb5Db674",
+        "irStrategy": "0x3b0c5FbEff9d32fB6bB706bACc988c88b1871770",
+        "liquidityFee": 0,
+        "maxDrawnRate": "0",
+        "optimalUsageRatio": 100,
+        "premiumOffsetRay": "0",
+        "premiumShares": "0",
+        "rateGrowthAfterOptimal": 0,
+        "rateGrowthBeforeOptimal": 0,
+        "reinvestmentController": "0x0000000000000000000000000000000000000000",
+        "swept": "0",
+        "symbol": "NVDAc",
+        "underlying": "0xb20000000000000000000078ee7ce2fE4908108C"
+      },
+      "6": {
+        "baseDrawnRate": 0,
+        "decimals": 8,
+        "deficitRay": "0",
+        "feeReceiver": "0x5F8d0102F5B51Fae6DE9d2F2561bda63Fb5Db674",
+        "irStrategy": "0x3b0c5FbEff9d32fB6bB706bACc988c88b1871770",
+        "liquidityFee": 0,
+        "maxDrawnRate": "0",
+        "optimalUsageRatio": 100,
+        "premiumOffsetRay": "0",
+        "premiumShares": "0",
+        "rateGrowthAfterOptimal": 0,
+        "rateGrowthBeforeOptimal": 0,
+        "reinvestmentController": "0x0000000000000000000000000000000000000000",
+        "swept": "0",
+        "symbol": "TSLAc",
+        "underlying": "0xb2000000000000000000001e800a7f5189430cD0"
+      },
+      "7": {
+        "baseDrawnRate": 0,
+        "decimals": 6,
+        "deficitRay": "0",
+        "feeReceiver": "0x5F8d0102F5B51Fae6DE9d2F2561bda63Fb5Db674",
+        "irStrategy": "0x3b0c5FbEff9d32fB6bB706bACc988c88b1871770",
+        "liquidityFee": 1000,
+        "maxDrawnRate": "2400",
+        "optimalUsageRatio": 9000,
+        "premiumOffsetRay": "0",
+        "premiumShares": "0",
+        "rateGrowthAfterOptimal": 2000,
+        "rateGrowthBeforeOptimal": 400,
+        "reinvestmentController": "0x0000000000000000000000000000000000000000",
+        "swept": "0",
+        "symbol": "USDC",
+        "underlying": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913"
+      }
+    }
+  },
+  "positionManagers": {},
+  "spokeConfigs": {
+    "0xa4d5947Eb727A052bae69C593FfC84247EC9864E_0_0x17905Db0e4A3514467539956c084180616AE7B8D": {
+      "active": true,
+      "addCap": 16500,
+      "assetSymbol": "AAPLc",
+      "drawCap": 0,
+      "halted": true,
+      "riskPremiumThreshold": 0
+    },
+    "0xa4d5947Eb727A052bae69C593FfC84247EC9864E_0_0x5F8d0102F5B51Fae6DE9d2F2561bda63Fb5Db674": {
+      "active": true,
+      "addCap": 1099511627775,
+      "assetSymbol": "AAPLc",
+      "drawCap": 0,
+      "halted": true,
+      "riskPremiumThreshold": 0
+    },
+    "0xa4d5947Eb727A052bae69C593FfC84247EC9864E_1_0x17905Db0e4A3514467539956c084180616AE7B8D": {
+      "active": true,
+      "addCap": 10500,
+      "assetSymbol": "AMZNc",
+      "drawCap": 0,
+      "halted": true,
+      "riskPremiumThreshold": 0
+    },
+    "0xa4d5947Eb727A052bae69C593FfC84247EC9864E_1_0x5F8d0102F5B51Fae6DE9d2F2561bda63Fb5Db674": {
+      "active": true,
+      "addCap": 1099511627775,
+      "assetSymbol": "AMZNc",
+      "drawCap": 0,
+      "halted": true,
+      "riskPremiumThreshold": 0
+    },
+    "0xa4d5947Eb727A052bae69C593FfC84247EC9864E_2_0x17905Db0e4A3514467539956c084180616AE7B8D": {
+      "active": true,
+      "addCap": 15000,
+      "assetSymbol": "GOOGLc",
+      "drawCap": 0,
+      "halted": true,
+      "riskPremiumThreshold": 0
+    },
+    "0xa4d5947Eb727A052bae69C593FfC84247EC9864E_2_0x5F8d0102F5B51Fae6DE9d2F2561bda63Fb5Db674": {
+      "active": true,
+      "addCap": 1099511627775,
+      "assetSymbol": "GOOGLc",
+      "drawCap": 0,
+      "halted": true,
+      "riskPremiumThreshold": 0
+    },
+    "0xa4d5947Eb727A052bae69C593FfC84247EC9864E_3_0x17905Db0e4A3514467539956c084180616AE7B8D": {
+      "active": true,
+      "addCap": 5800,
+      "assetSymbol": "METAc",
+      "drawCap": 0,
+      "halted": true,
+      "riskPremiumThreshold": 0
+    },
+    "0xa4d5947Eb727A052bae69C593FfC84247EC9864E_3_0x5F8d0102F5B51Fae6DE9d2F2561bda63Fb5Db674": {
+      "active": true,
+      "addCap": 1099511627775,
+      "assetSymbol": "METAc",
+      "drawCap": 0,
+      "halted": true,
+      "riskPremiumThreshold": 0
+    },
+    "0xa4d5947Eb727A052bae69C593FfC84247EC9864E_4_0x17905Db0e4A3514467539956c084180616AE7B8D": {
+      "active": true,
+      "addCap": 5200,
+      "assetSymbol": "MSFTc",
+      "drawCap": 0,
+      "halted": true,
+      "riskPremiumThreshold": 0
+    },
+    "0xa4d5947Eb727A052bae69C593FfC84247EC9864E_4_0x5F8d0102F5B51Fae6DE9d2F2561bda63Fb5Db674": {
+      "active": true,
+      "addCap": 1099511627775,
+      "assetSymbol": "MSFTc",
+      "drawCap": 0,
+      "halted": true,
+      "riskPremiumThreshold": 0
+    },
+    "0xa4d5947Eb727A052bae69C593FfC84247EC9864E_5_0x17905Db0e4A3514467539956c084180616AE7B8D": {
+      "active": true,
+      "addCap": 24000,
+      "assetSymbol": "NVDAc",
+      "drawCap": 0,
+      "halted": true,
+      "riskPremiumThreshold": 0
+    },
+    "0xa4d5947Eb727A052bae69C593FfC84247EC9864E_5_0x5F8d0102F5B51Fae6DE9d2F2561bda63Fb5Db674": {
+      "active": true,
+      "addCap": 1099511627775,
+      "assetSymbol": "NVDAc",
+      "drawCap": 0,
+      "halted": true,
+      "riskPremiumThreshold": 0
+    },
+    "0xa4d5947Eb727A052bae69C593FfC84247EC9864E_6_0x17905Db0e4A3514467539956c084180616AE7B8D": {
+      "active": true,
+      "addCap": 14000,
+      "assetSymbol": "TSLAc",
+      "drawCap": 0,
+      "halted": true,
+      "riskPremiumThreshold": 0
+    },
+    "0xa4d5947Eb727A052bae69C593FfC84247EC9864E_6_0x5F8d0102F5B51Fae6DE9d2F2561bda63Fb5Db674": {
+      "active": true,
+      "addCap": 1099511627775,
+      "assetSymbol": "TSLAc",
+      "drawCap": 0,
+      "halted": true,
+      "riskPremiumThreshold": 0
+    },
+    "0xa4d5947Eb727A052bae69C593FfC84247EC9864E_7_0x17905Db0e4A3514467539956c084180616AE7B8D": {
+      "active": true,
+      "addCap": 32000000,
+      "assetSymbol": "USDC",
+      "drawCap": 21000000,
+      "halted": true,
+      "riskPremiumThreshold": 0
+    },
+    "0xa4d5947Eb727A052bae69C593FfC84247EC9864E_7_0x5F8d0102F5B51Fae6DE9d2F2561bda63Fb5Db674": {
+      "active": true,
+      "addCap": 1099511627775,
+      "assetSymbol": "USDC",
+      "drawCap": 0,
+      "halted": true,
+      "riskPremiumThreshold": 0
+    },
+    "0xa4d5947Eb727A052bae69C593FfC84247EC9864E_7_0x7081CE7EB1282c53CF38EA9B622f6269cb8FeFDc": {
+      "active": true,
+      "addCap": 1000000,
+      "assetSymbol": "USDC",
+      "drawCap": 0,
+      "halted": true,
+      "riskPremiumThreshold": 0
+    }
+  },
+  "spokeLiquidationConfigs": {
+    "0x17905Db0e4A3514467539956c084180616AE7B8D": {
+      "healthFactorForMaxBonus": "900000000000000000",
+      "liquidationBonusFactor": 9000,
+      "maxUserReservesLimit": 65535,
+      "targetHealthFactor": "1200000000000000000"
+    }
+  },
+  "spokeReserves": {
+    "0x17905Db0e4A3514467539956c084180616AE7B8D": {
+      "0": {
+        "assetId": 0,
+        "borrowable": false,
+        "collateralFactor": 7800,
+        "collateralRisk": 0,
+        "decimals": 8,
+        "dynamicConfigKey": 1,
+        "dynamicConfigs": {
+          "0": {
+            "collateralFactor": 7000,
+            "liquidationFee": 1000,
+            "maxLiquidationBonus": 10550
+          },
+          "1": {
+            "collateralFactor": 7800,
+            "liquidationFee": 1000,
+            "maxLiquidationBonus": 10550
+          }
+        },
+        "frozen": false,
+        "hub": "0xa4d5947Eb727A052bae69C593FfC84247EC9864E",
+        "liquidationFee": 1000,
+        "maxLiquidationBonus": 10550,
+        "oracleAddress": "0xaBaf048fD7675Ea34a84332371ffd5D55E322A47",
+        "oraclePrice": "33570000000",
+        "paused": false,
+        "priceSource": "0x787f13dEa48Db0897CbCDD985de77809D837F988",
+        "receiveSharesEnabled": true,
+        "symbol": "AAPLc",
+        "underlying": "0xb200000000000000000000C2e324d24d7eEcd1fb"
+      },
+      "1": {
+        "assetId": 1,
+        "borrowable": false,
+        "collateralFactor": 7300,
+        "collateralRisk": 0,
+        "decimals": 8,
+        "dynamicConfigKey": 0,
+        "dynamicConfigs": {
+          "0": {
+            "collateralFactor": 7300,
+            "liquidationFee": 1000,
+            "maxLiquidationBonus": 10550
+          }
+        },
+        "frozen": false,
+        "hub": "0xa4d5947Eb727A052bae69C593FfC84247EC9864E",
+        "liquidationFee": 1000,
+        "maxLiquidationBonus": 10550,
+        "oracleAddress": "0xaBaf048fD7675Ea34a84332371ffd5D55E322A47",
+        "oraclePrice": "25375000000",
+        "paused": false,
+        "priceSource": "0x06A8E4b3aBB3B7543d8396FB2B763d22820cB295",
+        "receiveSharesEnabled": true,
+        "symbol": "AMZNc",
+        "underlying": "0xb200000000000000000000d9192b6B456483C2E8"
+      },
+      "2": {
+        "assetId": 2,
+        "borrowable": false,
+        "collateralFactor": 7600,
+        "collateralRisk": 0,
+        "decimals": 8,
+        "dynamicConfigKey": 0,
+        "dynamicConfigs": {
+          "0": {
+            "collateralFactor": 7600,
+            "liquidationFee": 1000,
+            "maxLiquidationBonus": 10550
+          }
+        },
+        "frozen": false,
+        "hub": "0xa4d5947Eb727A052bae69C593FfC84247EC9864E",
+        "liquidationFee": 1000,
+        "maxLiquidationBonus": 10550,
+        "oracleAddress": "0xaBaf048fD7675Ea34a84332371ffd5D55E322A47",
+        "oraclePrice": "35492679906",
+        "paused": false,
+        "priceSource": "0x5bF49E0ffA937CE2FfF033c739aD7C634c4D34F2",
+        "receiveSharesEnabled": true,
+        "symbol": "GOOGLc",
+        "underlying": "0xb2000000000000000000002D0BA3164cc74f58B7"
+      },
+      "3": {
+        "assetId": 3,
+        "borrowable": false,
+        "collateralFactor": 6500,
+        "collateralRisk": 0,
+        "decimals": 8,
+        "dynamicConfigKey": 0,
+        "dynamicConfigs": {
+          "0": {
+            "collateralFactor": 6500,
+            "liquidationFee": 1000,
+            "maxLiquidationBonus": 10550
+          }
+        },
+        "frozen": false,
+        "hub": "0xa4d5947Eb727A052bae69C593FfC84247EC9864E",
+        "liquidationFee": 1000,
+        "maxLiquidationBonus": 10550,
+        "oracleAddress": "0xaBaf048fD7675Ea34a84332371ffd5D55E322A47",
+        "oraclePrice": "70635000000",
+        "paused": false,
+        "priceSource": "0x6526aE6797A76123638b863AeE4dD27Ba4E4b27D",
+        "receiveSharesEnabled": true,
+        "symbol": "METAc",
+        "underlying": "0xb2000000000000000000008bC8786B856E61707C"
+      },
+      "4": {
+        "assetId": 4,
+        "borrowable": false,
+        "collateralFactor": 7900,
+        "collateralRisk": 0,
+        "decimals": 8,
+        "dynamicConfigKey": 0,
+        "dynamicConfigs": {
+          "0": {
+            "collateralFactor": 7900,
+            "liquidationFee": 1000,
+            "maxLiquidationBonus": 10550
+          }
+        },
+        "frozen": false,
+        "hub": "0xa4d5947Eb727A052bae69C593FfC84247EC9864E",
+        "liquidationFee": 1000,
+        "maxLiquidationBonus": 10550,
+        "oracleAddress": "0xaBaf048fD7675Ea34a84332371ffd5D55E322A47",
+        "oraclePrice": "49516005000",
+        "paused": false,
+        "priceSource": "0xeB10A6c9aa7E537aEd766C08c35Dae35B321b18c",
+        "receiveSharesEnabled": true,
+        "symbol": "MSFTc",
+        "underlying": "0xB200000000000000000000Ab99cFa739E253872B"
+      },
+      "5": {
+        "assetId": 5,
+        "borrowable": false,
+        "collateralFactor": 7000,
+        "collateralRisk": 0,
+        "decimals": 8,
+        "dynamicConfigKey": 0,
+        "dynamicConfigs": {
+          "0": {
+            "collateralFactor": 7000,
+            "liquidationFee": 1000,
+            "maxLiquidationBonus": 10550
+          }
+        },
+        "frozen": false,
+        "hub": "0xa4d5947Eb727A052bae69C593FfC84247EC9864E",
+        "liquidationFee": 1000,
+        "maxLiquidationBonus": 10550,
+        "oracleAddress": "0xaBaf048fD7675Ea34a84332371ffd5D55E322A47",
+        "oraclePrice": "22383499999",
+        "paused": false,
+        "priceSource": "0x04689a41629776563E6822F76f2e57D148d28513",
+        "receiveSharesEnabled": true,
+        "symbol": "NVDAc",
+        "underlying": "0xb20000000000000000000078ee7ce2fE4908108C"
+      },
+      "6": {
+        "assetId": 6,
+        "borrowable": false,
+        "collateralFactor": 6500,
+        "collateralRisk": 0,
+        "decimals": 8,
+        "dynamicConfigKey": 0,
+        "dynamicConfigs": {
+          "0": {
+            "collateralFactor": 6500,
+            "liquidationFee": 1000,
+            "maxLiquidationBonus": 10550
+          }
+        },
+        "frozen": false,
+        "hub": "0xa4d5947Eb727A052bae69C593FfC84247EC9864E",
+        "liquidationFee": 1000,
+        "maxLiquidationBonus": 10550,
+        "oracleAddress": "0xaBaf048fD7675Ea34a84332371ffd5D55E322A47",
+        "oraclePrice": "37630500000",
+        "paused": false,
+        "priceSource": "0xFaf869185383a24F8cb00e27BdA6b63B9905DCb4",
+        "receiveSharesEnabled": true,
+        "symbol": "TSLAc",
+        "underlying": "0xb2000000000000000000001e800a7f5189430cD0"
+      },
+      "7": {
+        "assetId": 7,
+        "borrowable": true,
+        "collateralFactor": 0,
+        "collateralRisk": 0,
+        "decimals": 6,
+        "dynamicConfigKey": 0,
+        "dynamicConfigs": {
+          "0": {
+            "collateralFactor": 0,
+            "liquidationFee": 0,
+            "maxLiquidationBonus": 10000
+          }
+        },
+        "frozen": false,
+        "hub": "0xa4d5947Eb727A052bae69C593FfC84247EC9864E",
+        "liquidationFee": 0,
+        "maxLiquidationBonus": 10000,
+        "oracleAddress": "0xaBaf048fD7675Ea34a84332371ffd5D55E322A47",
+        "oraclePrice": "99991826",
+        "paused": false,
+        "priceSource": "0xC7d0f8dCC1F860ca752054c59Ea82Ba2A5AaB50c",
+        "receiveSharesEnabled": true,
+        "symbol": "USDC",
+        "underlying": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913"
+      }
+    }
+  }
+}
