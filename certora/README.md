@@ -6,7 +6,8 @@ parameters without a governance vote.
 
 The rules check who may call the steward, the debounce windows it keeps, the
 values it writes into the Aave V4 Hub and Spoke, and the fields it must never
-touch. 109 rules across eight configurations.
+touch. 112 rules across nine configurations, three of them on
+[`src/DirectionalRiskSteward.sol`](../src/DirectionalRiskSteward.sol).
 
 ## How the proofs are set up
 
@@ -146,6 +147,22 @@ Config: [`confs/PercentMulDownEquivalence.conf`](./confs/PercentMulDownEquivalen
 
 This configuration verifies aave-v4's `PercentageMathWrapper`, not `RiskSteward`.
 It exists to discharge the summary the magnitude rules rely on.
+
+## Update direction
+
+Config: [`confs/Direction.conf`](./confs/Direction.conf). Spec: [`specs/Direction.spec`](./specs/Direction.spec).
+
+| Rule                           | What it checks                                                                                                      |
+| ------------------------------ | ------------------------------------------------------------------------------------------------------------------- |
+| `reduceNeverIncreases`         | A successful non-sentinel update on a `REDUCE` param never raises it.                                               |
+| `increaseNeverDecreases`       | A successful non-sentinel update on an `INCREASE` param never lowers it.                                            |
+| `directionOnlyAddsItsOwnCheck` | Against the same input set to `BOTH`, an update reverts exactly when `BOTH` reverts or the move goes the wrong way. |
+
+These run on `DirectionalRiskSteward`, which is `RiskSteward` plus a direction
+check in `_validateParamUpdate`. Every governed field goes through that function,
+so [`harness/DirectionalRiskStewardHarness.sol`](./harness/DirectionalRiskStewardHarness.sol)
+exposes it and the rules drive it with arbitrary inputs. The call sites that feed
+it are the same as in `RiskSteward` and are not re-proven here.
 
 ## Main model assumptions
 
