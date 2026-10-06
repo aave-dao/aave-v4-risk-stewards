@@ -90,21 +90,90 @@ contract ReduceRiskStewardWrapperAddDynamicReserveConfigsTest is ReduceRiskStewa
     wrapper.addReducedDynamicReserveConfigs(additions);
   }
 
-  function test_addReducedDynamicReserveConfigs_maxLiquidationBonusUp_revertsWith_ParamChangeNotAllowed()
+  /// @dev The bonus can take up the whole margin the CF cut frees.
+  function test_addReducedDynamicReserveConfigs_maxLiquidationBonusUp_atPenaltyLimit() public {
+    (ISpoke.DynamicReserveConfig memory ref, uint32 latestKey) = _dynamicReserveConfig(
+      MAIN_SPOKE,
+      HUB,
+      ASSET
+    );
+    IEngine.DynamicReserveConfigAddition memory u = _baseReducedAddDynamic(
+      ref.collateralFactor - 1_00
+    );
+    u.dynamicConfig.maxLiquidationBonus = _maxBonusAtSamePenalty(ref, u.dynamicConfig);
+    assertGt(u.dynamicConfig.maxLiquidationBonus, ref.maxLiquidationBonus);
+
+    vm.prank(REDUCE_COUNCIL);
+    wrapper.addReducedDynamicReserveConfigs(_toArray(u));
+
+    uint256 reserveId = _reserveId(MAIN_SPOKE, HUB, ASSET);
+    assertEq(MAIN_SPOKE.getDynamicReserveConfig(reserveId, latestKey + 1), u.dynamicConfig);
+  }
+
+  function test_fuzz_addReducedDynamicReserveConfigs_maxLiquidationBonusUp(
+    uint256 reduction,
+    uint256 bonusIncrease
+  ) public {
+    (ISpoke.DynamicReserveConfig memory ref, uint32 latestKey) = _dynamicReserveConfig(
+      MAIN_SPOKE,
+      HUB,
+      ASSET
+    );
+    uint256 maxReduction = steward.getConfig().spoke.dynamicAdd.collateralFactor.maxPercentChange;
+    reduction = bound(reduction, 1, _min(maxReduction, ref.collateralFactor - 1));
+    IEngine.DynamicReserveConfigAddition memory u = _baseReducedAddDynamic(
+      (ref.collateralFactor - reduction).toUint16()
+    );
+
+    uint256 maxIncrease = _min(
+      steward.getConfig().spoke.dynamicAdd.maxLiquidationBonus.maxPercentChange,
+      _maxBonusAtSamePenalty(ref, u.dynamicConfig) - ref.maxLiquidationBonus
+    );
+    bonusIncrease = bound(bonusIncrease, 0, maxIncrease);
+    u.dynamicConfig.maxLiquidationBonus = (ref.maxLiquidationBonus + bonusIncrease).toUint32();
+
+    vm.prank(REDUCE_COUNCIL);
+    wrapper.addReducedDynamicReserveConfigs(_toArray(u));
+
+    uint256 reserveId = _reserveId(MAIN_SPOKE, HUB, ASSET);
+    assertEq(MAIN_SPOKE.getDynamicReserveConfig(reserveId, latestKey + 1), u.dynamicConfig);
+  }
+
+  function test_addReducedDynamicReserveConfigs_penaltyUp_revertsWith_InvalidLiquidationBonus()
     public
   {
     (ISpoke.DynamicReserveConfig memory ref, ) = _dynamicReserveConfig(MAIN_SPOKE, HUB, ASSET);
     IEngine.DynamicReserveConfigAddition memory u = _baseReducedAddDynamic(
-      ref.collateralFactor - 1
+      ref.collateralFactor - 1_00
     );
-    u.dynamicConfig.maxLiquidationBonus = ref.maxLiquidationBonus + 1;
+    u.dynamicConfig.maxLiquidationBonus = _maxBonusAtSamePenalty(ref, u.dynamicConfig) + 1;
 
     vm.prank(REDUCE_COUNCIL);
-    vm.expectRevert(IReduceRiskStewardWrapper.ParamChangeNotAllowed.selector);
+    vm.expectRevert(IReduceRiskStewardWrapper.InvalidLiquidationBonus.selector);
     wrapper.addReducedDynamicReserveConfigs(_toArray(u));
   }
 
-  function test_addReducedDynamicReserveConfigs_maxLiquidationBonusDown_revertsWith_ParamChangeNotAllowed()
+  function test_fuzz_addReducedDynamicReserveConfigs_penaltyUp_revertsWith_InvalidLiquidationBonus(
+    uint256 reduction,
+    uint32 maxLiquidationBonus
+  ) public {
+    (ISpoke.DynamicReserveConfig memory ref, ) = _dynamicReserveConfig(MAIN_SPOKE, HUB, ASSET);
+    reduction = bound(reduction, 1, ref.collateralFactor - 1);
+    IEngine.DynamicReserveConfigAddition memory u = _baseReducedAddDynamic(
+      (ref.collateralFactor - reduction).toUint16()
+    );
+    u.dynamicConfig.maxLiquidationBonus = bound(
+      maxLiquidationBonus,
+      _maxBonusAtSamePenalty(ref, u.dynamicConfig) + 1,
+      type(uint32).max
+    ).toUint32();
+
+    vm.prank(REDUCE_COUNCIL);
+    vm.expectRevert(IReduceRiskStewardWrapper.InvalidLiquidationBonus.selector);
+    wrapper.addReducedDynamicReserveConfigs(_toArray(u));
+  }
+
+  function test_addReducedDynamicReserveConfigs_maxLiquidationBonusDown_revertsWith_InvalidLiquidationBonus()
     public
   {
     (ISpoke.DynamicReserveConfig memory ref, ) = _dynamicReserveConfig(MAIN_SPOKE, HUB, ASSET);
@@ -114,7 +183,7 @@ contract ReduceRiskStewardWrapperAddDynamicReserveConfigsTest is ReduceRiskStewa
     u.dynamicConfig.maxLiquidationBonus = ref.maxLiquidationBonus - 1;
 
     vm.prank(REDUCE_COUNCIL);
-    vm.expectRevert(IReduceRiskStewardWrapper.ParamChangeNotAllowed.selector);
+    vm.expectRevert(IReduceRiskStewardWrapper.InvalidLiquidationBonus.selector);
     wrapper.addReducedDynamicReserveConfigs(_toArray(u));
   }
 
@@ -303,6 +372,16 @@ contract ReduceRiskStewardWrapperAddDynamicReserveConfigsTest is ReduceRiskStewa
     vm.prank(REDUCE_COUNCIL);
     vm.expectRevert(IRiskSteward.ConfiguratorMismatch.selector);
     wrapper.addReducedDynamicReserveConfigs(_toArray(u));
+  }
+
+  /// @dev Highest bonus whose `maxLiquidationBonus * collateralFactor` does not exceed `ref`'s.
+  function _maxBonusAtSamePenalty(
+    ISpoke.DynamicReserveConfig memory ref,
+    ISpoke.DynamicReserveConfig memory newConfig
+  ) internal pure returns (uint32) {
+    return
+      ((uint256(ref.maxLiquidationBonus) * ref.collateralFactor) / newConfig.collateralFactor)
+        .toUint32();
   }
 
   function _min(uint256 a, uint256 b) internal pure returns (uint256) {

@@ -14,6 +14,12 @@ contract ReduceRiskStewardWrapperAccessControlTest is ReduceRiskStewardWrapperTe
     new ReduceRiskStewardWrapper(address(0), REDUCE_COUNCIL);
   }
 
+  function test_constructor_stewardCouncilNotWrapper_reverts() public {
+    RiskSteward otherSteward = new RiskSteward(REDUCE_COUNCIL, OWNER);
+    vm.expectRevert();
+    new ReduceRiskStewardWrapper(address(otherSteward), REDUCE_COUNCIL);
+  }
+
   function test_constructor_zeroRiskCouncil_reverts() public {
     vm.expectRevert();
     new ReduceRiskStewardWrapper(address(steward), address(0));

@@ -13,8 +13,8 @@ import {IReduceRiskStewardWrapper} from 'src/interfaces/IReduceRiskStewardWrappe
 /// @title ReduceRiskStewardWrapper
 /// @author Aave Labs
 /// @notice Reduce-only front for a dedicated `RiskSteward`. Risk Council is the only address
-/// allowed to invoke the reduce entrypoints; each one checks the update lowers the value
-/// currently set in the market before forwarding it to the steward.
+/// allowed to invoke the reduce entrypoints; each one checks the update lowers the risk against
+/// the values currently set in the market before forwarding it to the steward.
 contract ReduceRiskStewardWrapper is IReduceRiskStewardWrapper {
   /// @inheritdoc IReduceRiskStewardWrapper
   IRiskSteward public immutable RISK_STEWARD;
@@ -31,7 +31,7 @@ contract ReduceRiskStewardWrapper is IReduceRiskStewardWrapper {
   /// @param riskSteward_ The wrapped steward, whose `RISK_COUNCIL` must be this contract.
   /// @param riskCouncil_ The council address authorized to call the reduce entrypoints.
   constructor(address riskSteward_, address riskCouncil_) {
-    require(riskSteward_ != address(0));
+    require(IRiskSteward(riskSteward_).RISK_COUNCIL() == address(this));
     require(riskCouncil_ != address(0));
     RISK_STEWARD = IRiskSteward(riskSteward_);
     RISK_COUNCIL = riskCouncil_;
@@ -68,13 +68,13 @@ contract ReduceRiskStewardWrapper is IReduceRiskStewardWrapper {
         spoke.getReserve(reserveId).dynamicConfigKey
       );
 
+      ISpoke.DynamicReserveConfig calldata newConfig = additions[i].dynamicConfig;
+      require(newConfig.collateralFactor < latest.collateralFactor, UpdateNotReducing());
       require(
-        additions[i].dynamicConfig.collateralFactor < latest.collateralFactor,
-        UpdateNotReducing()
-      );
-      require(
-        additions[i].dynamicConfig.maxLiquidationBonus == latest.maxLiquidationBonus,
-        ParamChangeNotAllowed()
+        newConfig.maxLiquidationBonus >= latest.maxLiquidationBonus &&
+          uint256(newConfig.maxLiquidationBonus) * newConfig.collateralFactor <=
+            uint256(latest.maxLiquidationBonus) * latest.collateralFactor,
+        InvalidLiquidationBonus()
       );
     }
     RISK_STEWARD.addDynamicReserveConfigs(additions);

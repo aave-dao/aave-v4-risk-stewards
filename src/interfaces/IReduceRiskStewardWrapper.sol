@@ -8,7 +8,8 @@ import {IRiskSteward} from 'src/interfaces/IRiskSteward.sol';
 /// @title IReduceRiskStewardWrapper
 /// @author Aave Labs
 /// @notice Reduce-only front for a dedicated `RiskSteward`: lets its council lower hub-spoke
-/// add/draw caps and collateral factors, never raise them.
+/// add/draw caps and collateral factors, never raise them. A collateral factor cut may raise the
+/// max liquidation bonus, as long as the liquidation penalty does not grow.
 /// @dev The wrapper must be the `RISK_COUNCIL` of the wrapped steward. Every reduction is
 /// checked against the value currently set in the market, then forwarded to the steward, which
 /// still enforces its own bounds, debounces, and restrictions.
@@ -19,8 +20,9 @@ interface IReduceRiskStewardWrapper {
   /// @notice Thrown when a value is not strictly lower than the one currently set in the market.
   error UpdateNotReducing();
 
-  /// @notice Thrown when a field the wrapper does not govern is changed.
-  error ParamChangeNotAllowed();
+  /// @notice Thrown when `maxLiquidationBonus` is lower than the one currently set in the market,
+  /// or when `maxLiquidationBonus * collateralFactor` is higher than the current one.
+  error InvalidLiquidationBonus();
 
   /// @notice Lowers per-spoke add/draw caps on hubs through `RiskSteward.updateHubSpokeCaps`.
   /// @dev Each cap must be KEEP_CURRENT or strictly lower than the hub's current value.
@@ -29,8 +31,11 @@ interface IReduceRiskStewardWrapper {
 
   /// @notice Appends a dynamic reserve config with a lower collateral factor through
   /// `RiskSteward.addDynamicReserveConfigs`.
-  /// @dev `collateralFactor` must be strictly lower than the reserve's latest key, and
-  /// `maxLiquidationBonus` must equal it.
+  /// @dev Measured against the reserve's latest key: `collateralFactor` must be strictly lower,
+  /// and `maxLiquidationBonus` must be at least as high while keeping the liquidation penalty
+  /// (`maxLiquidationBonus * collateralFactor`) at most as high. The bonus can therefore only grow
+  /// into the margin the collateral factor cut frees, so liquidators are never paid less and the
+  /// health factor below which a liquidation leaves a deficit never rises.
   /// @param additions The dynamic reserve config additions.
   function addReducedDynamicReserveConfigs(
     IEngine.DynamicReserveConfigAddition[] calldata additions
