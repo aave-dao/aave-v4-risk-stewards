@@ -36,6 +36,7 @@ jobs:
             certora/confs/AccessControl.conf
             certora/confs/configIntegrity.conf
             certora/confs/DebounceStamping.conf
+            certora/confs/Direction.conf
             certora/confs/Immutability.conf
             certora/confs/OracleProperties.conf
             certora/confs/PercentMulDownEquivalence.conf
