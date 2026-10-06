@@ -1,9 +1,9 @@
 {
   "lib/aave-helpers": {
-    "rev": "d2e8b815ed6c89dc92d4cb7d4ad2892c23ca0fa0"
+    "rev": "53cbdf895d1cca8242a25327b205a70a262d82d6"
   },
   "lib/aave-price-feeds": {
-    "rev": "ff9f24a7c7d0cc67b70b5319f20abdb0a5c2f2df"
+    "rev": "008de1836ec94fc8bd9694e2e34df3aa858328fd"
   },
   "lib/forge-std": {
     "tag": {
