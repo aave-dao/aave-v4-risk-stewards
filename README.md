@@ -88,7 +88,7 @@ This is deliberately coarse: there is a single flat mapping and no per-`(spoke, 
 
 ## Security
 
-Audit: [2026-09-20_Aave-v4-RiskStewards_Certora](./audit/2026-09-20_Aave-v4-RiskStewards_Certora.pdf)
+Audit: [2026-09-20_RiskStewards_Certora](./audit/2026-09-20_RiskStewards_Certora.pdf)
 
 <br>
 
