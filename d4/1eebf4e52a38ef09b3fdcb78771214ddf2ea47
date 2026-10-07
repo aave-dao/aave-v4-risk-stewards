@@ -1,0 +1,19 @@
+generator/e2e.spec.ts
+  s_ace10b5960db0d::t_7f424a65311a4f 263
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "d41eebf4e52a38ef09b3fdcb78771214ddf2ea47",
+  "prompts": {},
+  "sessions": {
+    "s_ace10b5960db0d": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "07810b75-ecc8-46a9-8aba-f942f52bbe02",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "DhairyaSethi <55102840+DhairyaSethi@users.noreply.github.com>"
+    }
+  }
+}
