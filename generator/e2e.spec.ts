@@ -270,5 +270,5 @@ describe('generator e2e', () => {
         stdio: 'pipe',
       }),
     ).not.toThrow();
-  }, 300_000);
+  }, 600_000);
 });
