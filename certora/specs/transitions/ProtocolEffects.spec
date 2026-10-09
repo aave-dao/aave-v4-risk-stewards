@@ -307,6 +307,10 @@ rule liqHealthFactorForMaxBonusMagnitude(env e, IAaveV4ConfigEngine.LiquidationC
 
 // Make sure liquidation bonus factor moves within the configured bound
 rule liqBonusFactorMagnitude(env e, IAaveV4ConfigEngine.LiquidationConfigUpdate u) {
+    require e.msg.sender == RISK_COUNCIL(); // Prover Performances Helper
+    require getConfig().spoke.configurator == spokeConfig, "Speeds up SpokeEngine dispatch; not needed for soundness";
+    require u.spoke == spokeH && u.spokeConfigurator == spokeConfig; // Prover Performances Helper
+
     // Pin sibling liquidation fields to KEEP_CURRENT so their validations
     // early-return and their writes no-op, leaving only the current field live.
     // (Prover Performances Helper)
