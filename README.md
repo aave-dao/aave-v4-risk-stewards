@@ -88,7 +88,7 @@ This is deliberately coarse: there is a single flat mapping and no per-`(spoke, 
 
 ## Security
 
-- Audits: TBD (pending v4 deployment).
+Audit: [2026-09-20_RiskStewards_Certora](./audit/2026-09-20_RiskStewards_Certora.pdf)
 
 <br>
 
