@@ -8,9 +8,14 @@ import {IAaveV4ConfigEngine as IEngine} from 'aave-v4/config-engine/interfaces/I
 import {IAssetInterestRateStrategy} from 'aave-v4/hub/interfaces/IAssetInterestRateStrategy.sol';
 import {ISpoke} from 'aave-v4/spoke/interfaces/ISpoke.sol';
 import {IHub} from 'aave-v4/hub/interfaces/IHub.sol';
-import {ITokenizationSpoke} from 'aave-address-book/AaveV4.sol';
+import {
+  ITokenizationSpoke,
+  ISpokeConfigurator,
+  PositionManagers
+} from 'aave-address-book/AaveV4.sol';
 import {
   AaveV4Ethereum,
+  AaveV4EthereumGetters,
   AaveV4EthereumHubs,
   AaveV4EthereumSpokes,
   AaveV4EthereumAssets
@@ -31,15 +36,38 @@ contract TestPayload is RiskStewardsBase {
   ISpoke internal constant TEST_SPOKE = AaveV4EthereumSpokes.MAIN_SPOKE;
   address internal constant TEST_ASSET = AaveV4EthereumAssets.WETH_UNDERLYING;
 
-  constructor(
-    address steward,
-    ISpoke[] memory spokes,
-    IHub[] memory hubs,
-    ITokenizationSpoke[] memory tokenizationSpokes
-  ) RiskStewardsBase(steward, spokes, hubs, tokenizationSpokes) {}
+  constructor(address steward) RiskStewardsBase(steward) {}
 
   function name() public pure override returns (string memory) {
     return 'ethereum_example_test';
+  }
+
+  function _getHubs() internal pure override returns (IHub[] memory) {
+    IHub[] memory hubs = new IHub[](1);
+    hubs[0] = TEST_HUB;
+    return hubs;
+  }
+
+  function _getSpokes() internal pure override returns (ISpoke[] memory) {
+    ISpoke[] memory spokes = new ISpoke[](1);
+    spokes[0] = TEST_SPOKE;
+    return spokes;
+  }
+
+  function _getTokenizationSpokes() internal pure override returns (ITokenizationSpoke[] memory) {
+    return new ITokenizationSpoke[](0);
+  }
+
+  function _getPositionManagers() internal pure override returns (PositionManagers memory) {
+    return AaveV4EthereumGetters.getPositionManagers();
+  }
+
+  function _accessManager() internal pure override returns (address) {
+    return address(AaveV4Ethereum.ACCESS_MANAGER);
+  }
+
+  function _spokeConfigurator() internal pure override returns (ISpokeConfigurator) {
+    return AaveV4Ethereum.SPOKE_CONFIGURATOR;
   }
 
   function hubAssetIrUpdates() public pure override returns (IEngine.AssetConfigUpdate[] memory) {
@@ -186,13 +214,7 @@ contract EthereumExampleTest is Test {
     accessManager.grantRole(Roles.SPOKE_CONFIGURATOR_DOMAIN_ADMIN_ROLE, address(steward), 0);
     vm.stopPrank();
 
-    ISpoke[] memory spokes = new ISpoke[](1);
-    spokes[0] = SPOKE;
-    IHub[] memory hubs = new IHub[](1);
-    hubs[0] = HUB;
-    ITokenizationSpoke[] memory tSpokes = new ITokenizationSpoke[](0);
-
-    payload = new TestPayload(address(steward), spokes, hubs, tSpokes);
+    payload = new TestPayload(address(steward));
   }
 
   function test_run_executesAllCategoriesAndBumpsDebounces() public {

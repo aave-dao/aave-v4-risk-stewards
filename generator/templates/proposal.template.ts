@@ -1,4 +1,9 @@
-import {generateContractName, getChainAlias, getChainSuffix, generateFolderName} from '../common';
+import {
+  generateContractName,
+  getChainAlias,
+  getNetworkBaseName,
+  generateFolderName,
+} from '../common';
 import {Options, ChainConfig, ChainIdentifier} from '../types';
 import {prefixWithImports} from '../utils/importsResolver';
 import {prefixWithPragma} from '../utils/constants';
@@ -9,7 +14,7 @@ export const proposalTemplate = (
   chain: ChainIdentifier,
 ) => {
   const {title, author, discussion} = options;
-  const chainSuffix = getChainSuffix(chain);
+  const networkBase = getNetworkBaseName(chain);
   const folderName = generateFolderName(options);
   const contractName = generateContractName(options, chain);
 
@@ -27,7 +32,7 @@ export const proposalTemplate = (
    chain,
  )} broadcast=false generate_diff=true skip_timelock=false
  */
-contract ${contractName} is RiskStewards${chainSuffix} {
+contract ${contractName} is ${networkBase} {
   function name() public pure override returns (string memory) {
     return '${contractName}';
   }

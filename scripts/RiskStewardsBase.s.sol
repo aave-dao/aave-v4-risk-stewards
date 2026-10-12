@@ -2,8 +2,6 @@
 pragma solidity ^0.8.0;
 
 import {ProtocolV4TestBase} from 'aave-helpers/ProtocolV4TestBase.sol';
-import {ISpoke, IHub, ITokenizationSpoke} from 'aave-address-book/AaveV4.sol';
-import {Types} from 'aave-helpers/dependencies/v4/Types.sol';
 import {IAaveV4ConfigEngine as IEngine} from 'aave-v4/config-engine/interfaces/IAaveV4ConfigEngine.sol';
 import {Safe} from 'safe-utils/Safe.sol';
 
@@ -28,22 +26,8 @@ abstract contract RiskStewardsBase is ProtocolV4TestBase {
 
   Safe.Client internal _safe;
 
-  ISpoke[] internal _spokes;
-  IHub[] internal _hubs;
-  ITokenizationSpoke[] internal _tokenizationSpokes;
-
-  constructor(
-    address steward,
-    ISpoke[] memory spokes,
-    IHub[] memory hubs,
-    ITokenizationSpoke[] memory tokenizationSpokes
-  ) {
+  constructor(address steward) {
     STEWARD = IRiskSteward(steward);
-    for (uint256 i; i < spokes.length; i++) _spokes.push(spokes[i]);
-    for (uint256 i; i < hubs.length; i++) _hubs.push(hubs[i]);
-    for (uint256 i; i < tokenizationSpokes.length; i++) {
-      _tokenizationSpokes.push(tokenizationSpokes[i]);
-    }
   }
 
   function hubAssetIrUpdates() public view virtual returns (IEngine.AssetConfigUpdate[] memory) {}
@@ -134,8 +118,7 @@ abstract contract RiskStewardsBase is ProtocolV4TestBase {
 
     if (generateDiffReport) {
       vm.createDir('./reports', true);
-      Types.V4Snapshot memory snapBefore = createV4Snapshot(_spokes, _hubs);
-      writeV4SnapshotJson(pre, snapBefore);
+      _snapshotAndRelease(pre);
     }
 
     if (irUpdates.length != 0) {
@@ -181,8 +164,7 @@ abstract contract RiskStewardsBase is ProtocolV4TestBase {
     }
 
     if (generateDiffReport) {
-      Types.V4Snapshot memory snapAfter = createV4Snapshot(_spokes, _hubs);
-      writeV4SnapshotJson(post, snapAfter);
+      _snapshotAndRelease(post);
       _diffV4Snapshots(name());
     }
 
@@ -190,6 +172,22 @@ abstract contract RiskStewardsBase is ProtocolV4TestBase {
       mstore(callDatas, txCount)
     }
     return callDatas;
+  }
+
+  /// @dev Rewinds the free memory pointer afterwards so the second snapshot reuses the first
+  /// one's memory rather than expanding past it. A mainnet-sized snapshot allocates megabytes,
+  /// and once the frame grows past ~5MB the writer hits a MemoryOOG that no `gas_limit` or
+  /// `memory_limit` avoids. Safe because nothing the snapshot allocates is read once the report
+  /// is written.
+  function _snapshotAndRelease(string memory reportName) internal {
+    uint256 freeMemoryPointer;
+    assembly {
+      freeMemoryPointer := mload(0x40)
+    }
+    writeV4SnapshotJson(reportName, createV4Snapshot(_getSpokes(), _getHubs()));
+    assembly {
+      mstore(0x40, freeMemoryPointer)
+    }
   }
 
   function _diffV4Snapshots(string memory reportName) internal {
@@ -207,7 +205,7 @@ abstract contract RiskStewardsBase is ProtocolV4TestBase {
 
     string[] memory inputs = new string[](7);
     inputs[0] = 'npx';
-    inputs[1] = '@aave-dao/aave-helpers-js@^1.2.1';
+    inputs[1] = '@aave-dao/aave-helpers-js@^1.6.1';
     inputs[2] = 'diff-v4-snapshots';
     inputs[3] = beforePath;
     inputs[4] = afterPath;

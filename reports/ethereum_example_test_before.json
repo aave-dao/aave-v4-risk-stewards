@@ -1,4 +1,5 @@
 {
+  "accessManagerRoles": {},
   "chainId": 1,
   "hubAssets": {
     "0xCca852Bc40e560adC3b1Cc58CA5b55638ce826c9": {
@@ -310,6 +311,7 @@
       }
     }
   },
+  "positionManagers": {},
   "spokeConfigs": {
     "0xCca852Bc40e560adC3b1Cc58CA5b55638ce826c9_0_0x3131FE68C4722e726fe6B2819ED68e514395B9a4": {
       "active": true,
@@ -961,6 +963,13 @@
         "collateralRisk": 0,
         "decimals": 18,
         "dynamicConfigKey": 0,
+        "dynamicConfigs": {
+          "0": {
+            "collateralFactor": 8300,
+            "liquidationFee": 1000,
+            "maxLiquidationBonus": 10555
+          }
+        },
         "frozen": false,
         "hub": "0xCca852Bc40e560adC3b1Cc58CA5b55638ce826c9",
         "liquidationFee": 1000,
@@ -980,6 +989,13 @@
         "collateralRisk": 0,
         "decimals": 18,
         "dynamicConfigKey": 0,
+        "dynamicConfigs": {
+          "0": {
+            "collateralFactor": 8000,
+            "liquidationFee": 1000,
+            "maxLiquidationBonus": 10666
+          }
+        },
         "frozen": false,
         "hub": "0xCca852Bc40e560adC3b1Cc58CA5b55638ce826c9",
         "liquidationFee": 1000,
@@ -999,6 +1015,13 @@
         "collateralRisk": 0,
         "decimals": 18,
         "dynamicConfigKey": 0,
+        "dynamicConfigs": {
+          "0": {
+            "collateralFactor": 0,
+            "liquidationFee": 0,
+            "maxLiquidationBonus": 10000
+          }
+        },
         "frozen": false,
         "hub": "0xCca852Bc40e560adC3b1Cc58CA5b55638ce826c9",
         "liquidationFee": 0,
@@ -1018,6 +1041,13 @@
         "collateralRisk": 0,
         "decimals": 6,
         "dynamicConfigKey": 0,
+        "dynamicConfigs": {
+          "0": {
+            "collateralFactor": 0,
+            "liquidationFee": 0,
+            "maxLiquidationBonus": 10000
+          }
+        },
         "frozen": false,
         "hub": "0xCca852Bc40e560adC3b1Cc58CA5b55638ce826c9",
         "liquidationFee": 0,
@@ -1037,6 +1067,13 @@
         "collateralRisk": 0,
         "decimals": 18,
         "dynamicConfigKey": 0,
+        "dynamicConfigs": {
+          "0": {
+            "collateralFactor": 0,
+            "liquidationFee": 0,
+            "maxLiquidationBonus": 10000
+          }
+        },
         "frozen": false,
         "hub": "0xCca852Bc40e560adC3b1Cc58CA5b55638ce826c9",
         "liquidationFee": 0,
@@ -1056,6 +1093,13 @@
         "collateralRisk": 0,
         "decimals": 18,
         "dynamicConfigKey": 0,
+        "dynamicConfigs": {
+          "0": {
+            "collateralFactor": 0,
+            "liquidationFee": 0,
+            "maxLiquidationBonus": 10000
+          }
+        },
         "frozen": false,
         "hub": "0xCca852Bc40e560adC3b1Cc58CA5b55638ce826c9",
         "liquidationFee": 0,
@@ -1075,6 +1119,13 @@
         "collateralRisk": 0,
         "decimals": 18,
         "dynamicConfigKey": 0,
+        "dynamicConfigs": {
+          "0": {
+            "collateralFactor": 8000,
+            "liquidationFee": 1000,
+            "maxLiquidationBonus": 10777
+          }
+        },
         "frozen": false,
         "hub": "0xCca852Bc40e560adC3b1Cc58CA5b55638ce826c9",
         "liquidationFee": 1000,
@@ -1094,6 +1145,13 @@
         "collateralRisk": 0,
         "decimals": 8,
         "dynamicConfigKey": 0,
+        "dynamicConfigs": {
+          "0": {
+            "collateralFactor": 7800,
+            "liquidationFee": 1000,
+            "maxLiquidationBonus": 10555
+          }
+        },
         "frozen": false,
         "hub": "0xCca852Bc40e560adC3b1Cc58CA5b55638ce826c9",
         "liquidationFee": 1000,
@@ -1113,6 +1171,13 @@
         "collateralRisk": 0,
         "decimals": 8,
         "dynamicConfigKey": 0,
+        "dynamicConfigs": {
+          "0": {
+            "collateralFactor": 7800,
+            "liquidationFee": 1000,
+            "maxLiquidationBonus": 10555
+          }
+        },
         "frozen": false,
         "hub": "0xCca852Bc40e560adC3b1Cc58CA5b55638ce826c9",
         "liquidationFee": 1000,
@@ -1132,6 +1197,13 @@
         "collateralRisk": 0,
         "decimals": 18,
         "dynamicConfigKey": 0,
+        "dynamicConfigs": {
+          "0": {
+            "collateralFactor": 7600,
+            "liquidationFee": 1000,
+            "maxLiquidationBonus": 10833
+          }
+        },
         "frozen": false,
         "hub": "0xCca852Bc40e560adC3b1Cc58CA5b55638ce826c9",
         "liquidationFee": 1000,
@@ -1151,6 +1223,13 @@
         "collateralRisk": 0,
         "decimals": 18,
         "dynamicConfigKey": 0,
+        "dynamicConfigs": {
+          "0": {
+            "collateralFactor": 7100,
+            "liquidationFee": 1000,
+            "maxLiquidationBonus": 10777
+          }
+        },
         "frozen": false,
         "hub": "0xCca852Bc40e560adC3b1Cc58CA5b55638ce826c9",
         "liquidationFee": 1000,
@@ -1170,6 +1249,13 @@
         "collateralRisk": 0,
         "decimals": 6,
         "dynamicConfigKey": 0,
+        "dynamicConfigs": {
+          "0": {
+            "collateralFactor": 7800,
+            "liquidationFee": 1000,
+            "maxLiquidationBonus": 10500
+          }
+        },
         "frozen": false,
         "hub": "0xCca852Bc40e560adC3b1Cc58CA5b55638ce826c9",
         "liquidationFee": 1000,
@@ -1189,6 +1275,13 @@
         "collateralRisk": 0,
         "decimals": 6,
         "dynamicConfigKey": 0,
+        "dynamicConfigs": {
+          "0": {
+            "collateralFactor": 7800,
+            "liquidationFee": 1000,
+            "maxLiquidationBonus": 10500
+          }
+        },
         "frozen": false,
         "hub": "0xCca852Bc40e560adC3b1Cc58CA5b55638ce826c9",
         "liquidationFee": 1000,
@@ -1208,6 +1301,13 @@
         "collateralRisk": 0,
         "decimals": 6,
         "dynamicConfigKey": 0,
+        "dynamicConfigs": {
+          "0": {
+            "collateralFactor": 0,
+            "liquidationFee": 0,
+            "maxLiquidationBonus": 10000
+          }
+        },
         "frozen": false,
         "hub": "0xCca852Bc40e560adC3b1Cc58CA5b55638ce826c9",
         "liquidationFee": 0,

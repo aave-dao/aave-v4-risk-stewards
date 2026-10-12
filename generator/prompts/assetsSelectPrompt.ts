@@ -46,8 +46,10 @@ export async function spokesSelectPrompt({chain, message}: GenericChainPrompt): 
 }
 
 /// e.g. `AaveV4EthereumAssets.WETH_UNDERLYING`
+/// Symbols carrying characters that are illegal in a Solidity identifier (`BTC.b`, `WETH.e` on
+/// Avalanche) are declared with those characters dropped, e.g. `BTCb_UNDERLYING`.
 export function translateAssetToAssetLibUnderlying(value: string, chain: ChainIdentifier) {
-  return `${chain}Assets.${value}_UNDERLYING`;
+  return `${chain}Assets.${value.replace(/[^\w]/g, '')}_UNDERLYING`;
 }
 
 /// e.g. `AaveV4EthereumHubs.CORE_HUB`

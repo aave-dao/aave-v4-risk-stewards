@@ -4,6 +4,8 @@ cache
 node_modules
 snapshots
 report
+reports
+diffs
 src/dependencies
 tests/mocks/JsonBindings.sol
 tests/misc/prototype
