@@ -4,10 +4,8 @@ pragma solidity ^0.8.0;
 import {Vm} from 'forge-std/Vm.sol';
 import 'solidity-utils/contracts/utils/ScriptUtils.sol';
 
-import {IHubConfigurator} from 'aave-v4/hub/interfaces/IHubConfigurator.sol';
-import {ISpokeConfigurator} from 'aave-v4/spoke/interfaces/ISpokeConfigurator.sol';
-
 import {MiscEthereum} from 'aave-address-book/MiscEthereum.sol';
+import {AaveV4EthereumSentoraCurated} from 'aave-address-book/AaveV4EthereumSentoraCurated.sol';
 
 import {RiskSteward} from 'src/RiskSteward.sol';
 import {ReduceRiskStewardWrapper} from 'src/ReduceRiskStewardWrapper.sol';
@@ -46,23 +44,18 @@ library DeployReduceRiskStewardWrappers {
 // Specific to the Sentora market: the Sentora Emergency Risk Role is the reduce council, the V4
 // Security Council owns the steward, and the configurators are the Sentora market's.
 contract DeployEthereum is EthereumScript {
-  address internal constant REDUCE_COUNCIL = 0x37409c868BA42B91ff7E7b64D5BC020897444fAf;
-  IHubConfigurator internal constant HUB_CONFIGURATOR = IHubConfigurator(
-    0xa0eD3ECC19ab04BD0e6417023824cC4930d77b70
-  );
-  ISpokeConfigurator internal constant SPOKE_CONFIGURATOR = ISpokeConfigurator(
-    0x93bd198d4F64798157233142769159329b3cBbce
-  );
-
   function run() external {
     (, address deployer, ) = vm.readCallers();
 
     vm.startBroadcast();
     DeployReduceRiskStewardWrappers._deployReduceRiskStewardWrapper(
       deployer,
-      REDUCE_COUNCIL,
+      AaveV4EthereumSentoraCurated.SENTORA_EMERGENCY_ADMIN,
       MiscEthereum.V4_SECURITY_COUNCIL,
-      RiskStewardConfigs.sentoraConfig(HUB_CONFIGURATOR, SPOKE_CONFIGURATOR)
+      RiskStewardConfigs.sentoraConfig(
+        AaveV4EthereumSentoraCurated.HUB_CONFIGURATOR,
+        AaveV4EthereumSentoraCurated.SPOKE_CONFIGURATOR
+      )
     );
     vm.stopBroadcast();
   }
