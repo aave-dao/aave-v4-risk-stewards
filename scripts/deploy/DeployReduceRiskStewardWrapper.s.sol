@@ -43,19 +43,18 @@ library DeployReduceRiskStewardWrappers {
 }
 
 // make deploy-ledger contract=scripts/deploy/DeployReduceRiskStewardWrapper.s.sol:DeployEthereum chain=mainnet
-// Specific to the Sentora market: the Sentora Risk Manager is the reduce council, the V4 Security
-// Council owns the steward, and the steward uses the default config until Sentora bounds are set.
-// The configurators are the Sentora market's, to be set from its deployment report.
+// Specific to the Sentora market: the Sentora Emergency Risk Role is the reduce council, the V4
+// Security Council owns the steward, and the configurators are the Sentora market's.
 contract DeployEthereum is EthereumScript {
   address internal constant REDUCE_COUNCIL = 0x37409c868BA42B91ff7E7b64D5BC020897444fAf;
-  IHubConfigurator internal constant HUB_CONFIGURATOR = IHubConfigurator(address(0));
-  ISpokeConfigurator internal constant SPOKE_CONFIGURATOR = ISpokeConfigurator(address(0));
+  IHubConfigurator internal constant HUB_CONFIGURATOR = IHubConfigurator(
+    0xa0eD3ECC19ab04BD0e6417023824cC4930d77b70
+  );
+  ISpokeConfigurator internal constant SPOKE_CONFIGURATOR = ISpokeConfigurator(
+    0x93bd198d4F64798157233142769159329b3cBbce
+  );
 
   function run() external {
-    require(
-      address(HUB_CONFIGURATOR) != address(0) && address(SPOKE_CONFIGURATOR) != address(0),
-      'Sentora configurators not set'
-    );
     (, address deployer, ) = vm.readCallers();
 
     vm.startBroadcast();
@@ -63,7 +62,7 @@ contract DeployEthereum is EthereumScript {
       deployer,
       REDUCE_COUNCIL,
       MiscEthereum.V4_SECURITY_COUNCIL,
-      RiskStewardConfigs.defaultConfig(HUB_CONFIGURATOR, SPOKE_CONFIGURATOR)
+      RiskStewardConfigs.sentoraConfig(HUB_CONFIGURATOR, SPOKE_CONFIGURATOR)
     );
     vm.stopBroadcast();
   }
