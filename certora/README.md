@@ -6,7 +6,9 @@ parameters without a governance vote.
 
 The rules check who may call the steward, the debounce windows it keeps, the
 values it writes into the Aave V4 Hub and Spoke, and the fields it must never
-touch. 109 rules across eight configurations.
+touch. A separate configuration covers
+[`src/ReduceRiskStewardWrapper.sol`](../src/ReduceRiskStewardWrapper.sol), the
+reduce-only front for a dedicated steward. 115 rules across nine configurations.
 
 ## How the proofs are set up
 
@@ -134,6 +136,23 @@ Config: [`confs/OracleProperties.conf`](./confs/OracleProperties.conf). Spec: [`
 | ------------------- | ------------------------------------------------------------------------------------------------------------------- |
 | `*DebounceStamping` | A successful LST, stable or Pendle update stamps that oracle and leaves every other oracle untouched. Three rules.  |
 | `*Magnitude`        | The value written to an adapter is within `maxPercentChange` of the value read from that same adapter. Three rules. |
+
+## Reduce wrapper
+
+Config: [`confs/ReduceRiskStewardWrapper.conf`](./confs/ReduceRiskStewardWrapper.conf). Spec: [`specs/ReduceRiskStewardWrapper.spec`](./specs/ReduceRiskStewardWrapper.spec).
+
+| Rule                                              | What it checks                                                                                                       |
+| ------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------- |
+| `councilOnly`                                     | Every mutating entrypoint reverts for a sender other than the wrapper's `RISK_COUNCIL`.                              |
+| `reduceCapsSuccessImplies*Lowered`                | A successful caps call carried each add and draw cap as `KEEP_CURRENT` or strictly below the Hub's value. Two rules. |
+| `addReducedSuccessImpliesCollateralFactorLowered` | A successful addition carried a collateral factor strictly below the reserve's latest key.                           |
+| `addReducedSuccessImpliesBonusNotLowered`         | A successful addition never lowered `maxLiquidationBonus`.                                                           |
+| `addReducedSuccessImpliesPenaltyNotRaised`        | A successful addition never raised `maxLiquidationBonus * collateralFactor` above the latest key's.                  |
+
+The configuration links the real `Hub` and `Spoke` from the scene so the rules
+read the same values the wrapper reads. The wrapped steward stays out of scene:
+the rules only assert over calldata and pre-call snapshots, and the steward's own
+bounds and effects are covered by the suites above.
 
 ## Arithmetic
 
