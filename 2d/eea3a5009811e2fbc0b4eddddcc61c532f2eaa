@@ -1,0 +1,23 @@
+scripts/deploy/DeployReduceRiskStewardWrapper.s.sol
+  s_2843833aabf52a::t_ccd191222ff96a 8,53,55-58
+foundry.lock
+  s_2843833aabf52a::t_345a9995caa1e8 3
+lib/aave-helpers
+  s_2843833aabf52a::t_3e2e5748c04e70 1
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "2deea3a5009811e2fbc0b4eddddcc61c532f2eaa",
+  "prompts": {},
+  "sessions": {
+    "s_2843833aabf52a": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "ae63ebf5-88d7-4dfe-976c-39793e6bfe86",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "DhairyaSethi <55102840+DhairyaSethi@users.noreply.github.com>"
+    }
+  }
+}
