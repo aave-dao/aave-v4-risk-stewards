@@ -1,0 +1,21 @@
+foundry.lock
+  s_2843833aabf52a::t_e2e2c2d08385f9 3
+lib/aave-helpers
+  s_2843833aabf52a::t_687575154c8544 1
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "ed7b3016fabca72237478a2cda2889746de2ee67",
+  "prompts": {},
+  "sessions": {
+    "s_2843833aabf52a": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "ae63ebf5-88d7-4dfe-976c-39793e6bfe86",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "DhairyaSethi <55102840+DhairyaSethi@users.noreply.github.com>"
+    }
+  }
+}
